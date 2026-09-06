@@ -17,6 +17,7 @@ _REPLAY_FINGERPRINT_TYPES = {
     EventType.ACTION_INTENT,
     EventType.ACTION_EXECUTED,
     EventType.ACTION_BLOCKED,
+    EventType.AUTHORITY_CONSUMED,
 }
 
 
@@ -43,8 +44,8 @@ def incident_fingerprint(ledger: ActionLedger, *, incident_id: str) -> str:
     """Hash the immutable attack/action evidence that a replay must be bound to.
 
     Recovery, verification and restoration events are intentionally excluded. If a new
-    external input, handoff or action appears after a replay was verified, the fingerprint
-    changes and the old replay evidence becomes stale automatically.
+    external input, handoff, authority consumption or action appears after a replay was
+    verified, the fingerprint changes and the old replay evidence becomes stale automatically.
     """
 
     evidence = []
@@ -138,7 +139,11 @@ class RestorationGate:
                 reason = "replay_not_verified"
 
         authorized = reason is None and replay_event is not None
-        parents = (replay_event.event_id,) if replay_event is not None and replay_event.incident_id == incident_id else ()
+        parents = (
+            (replay_event.event_id,)
+            if replay_event is not None and replay_event.incident_id == incident_id
+            else ()
+        )
         event = self.ledger.record(
             EventType.RESTORATION,
             incident_id,
