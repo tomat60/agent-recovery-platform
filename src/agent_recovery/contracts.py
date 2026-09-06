@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable, Mapping, MutableMapping, Sequence
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Callable, Mapping, MutableMapping, Sequence
 
 
 class RecoveryClass(str, Enum):
@@ -69,11 +69,12 @@ class RecoveryContract:
         if recoverable and not callable(self.recovery_params_builder):
             raise ContractError("recoverable actions require recovery_params_builder")
 
-        if self.recovery_class is RecoveryClass.IRREVERSIBLE:
-            if self.risk_level in {RiskLevel.HIGH, RiskLevel.CRITICAL} and not self.approval_before_action:
-                raise ContractError(
-                    "high-impact irreversible actions require explicit pre-action approval"
-                )
+        high_impact_irreversible = (
+            self.recovery_class is RecoveryClass.IRREVERSIBLE
+            and self.risk_level in {RiskLevel.HIGH, RiskLevel.CRITICAL}
+        )
+        if high_impact_irreversible and not self.approval_before_action:
+            raise ContractError("high-impact irreversible actions require explicit pre-action approval")
 
         if self.approval_before_action and not self.parameter_bound_approval:
             raise ContractError("approvals for consequential actions must be parameter-bound")
