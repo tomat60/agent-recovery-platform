@@ -5,10 +5,21 @@ def test_recovery_platform_beats_stop_only_on_recoverable_scenarios() -> None:
     results = run_vertical_slice()
     recoverable = [result for result in results if result.platform_verified_recoveries]
 
-    assert len(recoverable) == 3
+    assert len(recoverable) == 4
     assert all(result.baseline_residual_effects == 1 for result in recoverable)
     assert all(result.platform_residual_effects == 0 for result in recoverable)
     assert all(result.unsafe_recovery_executions == 0 for result in recoverable)
+
+
+def test_tool_output_poisoning_preserves_evidence_and_recovers_downstream_write() -> None:
+    results = {result.scenario: result for result in run_vertical_slice()}
+    poisoned = results["tool_output_poisoning"]
+
+    assert poisoned.baseline_residual_effects == 1
+    assert poisoned.platform_residual_effects == 0
+    assert poisoned.platform_verified_recoveries == 1
+    assert poisoned.platform_explicit_irreversible_residuals == 0
+    assert poisoned.unsafe_recovery_executions == 0
 
 
 def test_approval_bypass_fixture_fails_closed_without_side_effect() -> None:
