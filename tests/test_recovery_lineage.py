@@ -22,17 +22,22 @@ def make_engine() -> RecoveryEngine:
     return engine
 
 
-def verified_local_recovery(engine: RecoveryEngine, incident_id: str):
+def verified_local_recovery(
+    engine: RecoveryEngine,
+    incident_id: str,
+    *,
+    key: str = "instruction",
+):
     trigger = engine.ledger.record(
         EventType.EXTERNAL_INPUT,
         incident_id,
-        {"source": "support_ticket", "digest": "poisoned"},
+        {"source": "support_ticket", "digest": f"poisoned:{key}"},
     )
     action = engine.execute(
         incident_id=incident_id,
         agent_id="support-agent",
         tool_id="memory.write",
-        params={"key": "instruction", "value": "poisoned"},
+        params={"key": key, "value": "poisoned"},
         causal_parent_event_ids=(trigger.event_id,),
     )
     recovery = engine.recover(
@@ -96,6 +101,73 @@ def test_new_external_effect_after_fork_remains_uncovered() -> None:
     assert uncovered_residual_effect_event_ids(engine.ledger, incident_id=incident_id) == (
         second.event_id,
     )
+
+
+def test_later_generation_keeps_prior_external_effects_acknowledged() -> None:
+    engine = make_engine()
+    incident_id = "incident-fork-generations"
+    _, first_action, first_recovery = verified_local_recovery(engine, incident_id, key="first")
+    first_residual = engine.ledger.record(
+        EventType.RESIDUAL_EFFECT,
+        incident_id,
+        {"effect": "message-1"},
+        parent_event_ids=(first_action.action_event.event_id,),
+    )
+    first_fork = record_recovery_fork(
+        engine.ledger,
+        incident_id=incident_id,
+        verified_recovery_event_id=first_recovery.verification_event.event_id,
+        residual_event_ids=(first_residual.event_id,),
+    )
+
+    _, second_action, second_recovery = verified_local_recovery(engine, incident_id, key="second")
+    second_residual = engine.ledger.record(
+        EventType.RESIDUAL_EFFECT,
+        incident_id,
+        {"effect": "message-2"},
+        parent_event_ids=(second_action.action_event.event_id,),
+    )
+    second_fork = record_recovery_fork(
+        engine.ledger,
+        incident_id=incident_id,
+        verified_recovery_event_id=second_recovery.verification_event.event_id,
+        residual_event_ids=(second_residual.event_id,),
+    )
+
+    assert first_fork.generation == 1
+    assert second_fork.generation == 2
+    assert second_fork.parent_generation == 1
+    assert set(second_fork.residual_effect_event_ids) == {
+        first_residual.event_id,
+        second_residual.event_id,
+    }
+    assert uncovered_residual_effect_event_ids(engine.ledger, incident_id=incident_id) == ()
+
+
+def test_recovery_verification_cannot_be_reused_for_another_generation() -> None:
+    engine = make_engine()
+    incident_id = "incident-fork-proof-reuse"
+    _, action, recovery = verified_local_recovery(engine, incident_id)
+    residual = engine.ledger.record(
+        EventType.RESIDUAL_EFFECT,
+        incident_id,
+        {"effect": "externalized"},
+        parent_event_ids=(action.action_event.event_id,),
+    )
+    record_recovery_fork(
+        engine.ledger,
+        incident_id=incident_id,
+        verified_recovery_event_id=recovery.verification_event.event_id,
+        residual_event_ids=(residual.event_id,),
+    )
+
+    with pytest.raises(RecoveryGenerationError, match="already consumed"):
+        record_recovery_fork(
+            engine.ledger,
+            incident_id=incident_id,
+            verified_recovery_event_id=recovery.verification_event.event_id,
+            residual_event_ids=(residual.event_id,),
+        )
 
 
 def test_recovery_fork_rejects_forged_verification_without_recovery_parent() -> None:
