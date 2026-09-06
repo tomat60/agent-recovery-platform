@@ -23,6 +23,7 @@ class EventType(str, Enum):
     RECOVERY_PLANNED = "recovery_planned"
     RECOVERY_EXECUTED = "recovery_executed"
     RECOVERY_FAILED = "recovery_failed"
+    RECOVERY_FORKED = "recovery_forked"
     VERIFICATION = "verification"
     RESIDUAL_EFFECT = "residual_effect"
     RESTORATION = "restoration"
