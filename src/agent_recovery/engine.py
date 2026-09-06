@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from enum import Enum
 import hashlib
 import json
-from typing import Any, Mapping
+from collections.abc import Mapping
+from dataclasses import dataclass
+from enum import Enum
 
 from .contracts import RecoveryClass, RecoveryContract
 from .ledger import ActionLedger, EventType, LedgerEvent
@@ -28,7 +28,12 @@ class Approval:
     approval_id: str
 
     @classmethod
-    def for_action(cls, tool_id: str, params: Mapping[str, object], approval_id: str) -> "Approval":
+    def for_action(
+        cls,
+        tool_id: str,
+        params: Mapping[str, object],
+        approval_id: str,
+    ) -> Approval:
         return cls(tool_id=tool_id, params_digest=digest_params(params), approval_id=approval_id)
 
 
@@ -60,7 +65,10 @@ class RecoveryEngine:
         self.state = state
         self.ledger = ledger or ActionLedger()
         self._contracts: dict[str, RecoveryContract] = {}
-        self._executed: dict[str, tuple[RecoveryContract, dict[str, object], object, object]] = {}
+        self._executed: dict[
+            str,
+            tuple[RecoveryContract, dict[str, object], object, object],
+        ] = {}
         self._contained_scopes: set[str] = set()
 
     def register(self, contract: RecoveryContract) -> None:
@@ -117,7 +125,11 @@ class RecoveryEngine:
             )
             return ActionResult(ActionDecision.BLOCKED, intent, blocked)
 
-        if contract.approval_before_action and not self._approval_matches(contract, params, approval):
+        if contract.approval_before_action and not self._approval_matches(
+            contract,
+            params,
+            approval,
+        ):
             blocked = self.ledger.record(
                 EventType.ACTION_BLOCKED,
                 incident_id,
@@ -159,7 +171,9 @@ class RecoveryEngine:
         approval: Approval | None = None,
     ) -> RecoveryResult:
         try:
-            contract, original_params, execution_result, observed_after = self._executed[action_event_id]
+            contract, original_params, execution_result, observed_after = self._executed[
+                action_event_id
+            ]
         except KeyError as exc:
             raise KeyError(f"unknown executed action: {action_event_id}") from exc
 
@@ -182,7 +196,9 @@ class RecoveryEngine:
             )
 
         if contract.approval_before_recovery and not self._approval_matches(
-            contract, original_params, approval
+            contract,
+            original_params,
+            approval,
         ):
             failed = self.ledger.record(
                 EventType.RECOVERY_FAILED,
@@ -254,10 +270,13 @@ class RecoveryEngine:
 
     @staticmethod
     def _verification_params(
-        original_params: Mapping[str, object], recovery_params: Mapping[str, object]
+        original_params: Mapping[str, object],
+        recovery_params: Mapping[str, object],
     ) -> dict[str, object]:
         merged = dict(original_params)
-        merged.update({key: value for key, value in recovery_params.items() if key.endswith("_id")})
+        merged.update(
+            {key: value for key, value in recovery_params.items() if key.endswith("_id")}
+        )
         return merged
 
     @staticmethod
