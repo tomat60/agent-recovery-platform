@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import hashlib
-import json
 from dataclasses import dataclass
 from enum import Enum
+from hashlib import sha256
+from json import dumps
 
 from .ledger import ActionLedger, EventType, LedgerEvent
 
@@ -59,8 +59,8 @@ def incident_fingerprint(ledger: ActionLedger, *, incident_id: str) -> str:
                 "parent_event_ids": event.parent_event_ids,
             }
         )
-    normalized = json.dumps(evidence, sort_keys=True, separators=(",", ":"), default=str)
-    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+    normalized = dumps(evidence, sort_keys=True, separators=(",", ":"), default=str)
+    return sha256(normalized.encode("utf-8")).hexdigest()
 
 
 def record_replay_verification(
