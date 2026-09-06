@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum
 
@@ -72,7 +71,7 @@ def record_replay_verification(
     replay_id: str,
     attack_blocked: bool,
     evidence_complete: bool,
-    unsafe_side_effects: Iterable[str] = (),
+    unsafe_side_effects: tuple[str, ...] = (),
 ) -> ReplayVerification:
     """Persist a replay verdict bound to the exact source-incident evidence."""
 
