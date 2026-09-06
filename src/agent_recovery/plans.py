@@ -100,3 +100,39 @@ def build_reverse_causal_plan(
             )
         )
     return RecoveryPlan(steps=tuple(steps), plan_id=plan_id)
+
+
+def build_shared_state_safe_plan(
+    graph: IncidentGraph,
+    action_event_ids: tuple[str, ...],
+    *,
+    plan_id: str = "shared-state-safe-plan",
+) -> RecoveryPlan:
+    """Build a reverse-causal plan only when shared-state recovery is unambiguous.
+
+    A causally independent writer to the same resource makes before-image restoration
+    unsafe: compensating one action can erase state produced by another agent. The safe
+    default is escalation, not a guessed ordering. A future reconciler may resolve the
+    conflict explicitly, but the deterministic auto-recovery boundary fails closed here.
+    """
+
+    selected = set(action_event_ids)
+    if len(selected) != len(action_event_ids):
+        raise RecoveryPlanError("action_event_ids must be unique")
+
+    relevant_conflicts = tuple(
+        conflict
+        for conflict in graph.shared_state_conflicts()
+        if conflict.left_event_id in selected or conflict.right_event_id in selected
+    )
+    if relevant_conflicts:
+        descriptions = ", ".join(
+            f"{conflict.resource_key}({conflict.left_event_id},{conflict.right_event_id})"
+            for conflict in relevant_conflicts
+        )
+        raise RecoveryPlanError(
+            "shared-state recovery requires explicit reconciliation for concurrent writers: "
+            f"{descriptions}"
+        )
+
+    return build_reverse_causal_plan(graph, action_event_ids, plan_id=plan_id)

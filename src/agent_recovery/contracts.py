@@ -23,6 +23,7 @@ Params = Mapping[str, object]
 Verifier = Callable[[State, Params], object]
 Executor = Callable[[State, Params], object]
 RecoveryBuilder = Callable[[object, object, Params], Mapping[str, object]]
+ResourceKeyBuilder = Callable[[Params], Sequence[str]]
 
 
 class ContractError(ValueError):
@@ -39,6 +40,7 @@ class RecoveryContract:
     verifier: Verifier
     recovery_executor: Executor | None = None
     recovery_params_builder: RecoveryBuilder | None = None
+    resource_key_builder: ResourceKeyBuilder | None = None
     approval_before_action: bool = False
     approval_before_recovery: bool = False
     parameter_bound_approval: bool = True
@@ -57,6 +59,8 @@ class RecoveryContract:
             raise ContractError("executor must be callable")
         if not callable(self.verifier):
             raise ContractError("verifier must be callable")
+        if self.resource_key_builder is not None and not callable(self.resource_key_builder):
+            raise ContractError("resource_key_builder must be callable")
         if self.recovery_window_seconds is not None and self.recovery_window_seconds < 0:
             raise ContractError("recovery_window_seconds cannot be negative")
 
@@ -84,3 +88,20 @@ class RecoveryContract:
 
         if not self.containment_scopes:
             raise ContractError("at least one containment scope is required")
+
+    def resource_keys(self, params: Params) -> tuple[str, ...]:
+        """Return canonical mutable-resource identities touched by this action.
+
+        Recovery ordering is not enough when two causally independent actions write the
+        same shared state. Contracts can declare resource identities so the incident graph
+        can detect those concurrent-writer hazards before compensation runs.
+        """
+
+        if self.resource_key_builder is None:
+            return ()
+        keys = tuple(str(key).strip() for key in self.resource_key_builder(params))
+        if any(not key for key in keys):
+            raise ContractError("resource keys must be non-empty")
+        if len(set(keys)) != len(keys):
+            raise ContractError("resource keys must be unique")
+        return tuple(sorted(keys))

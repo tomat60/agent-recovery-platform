@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from .contracts import RecoveryClass, RecoveryContract
+from .graph import IncidentGraph
 from .ledger import ActionLedger, EventType, LedgerEvent
 
 
@@ -98,6 +99,7 @@ class RecoveryEngine:
         causal_parent_event_ids: Iterable[str] = (),
     ) -> ActionResult:
         contract = self._contracts.get(tool_id)
+        resource_keys = contract.resource_keys(params) if contract is not None else ()
         intent = self.ledger.record(
             EventType.ACTION_INTENT,
             incident_id,
@@ -105,6 +107,7 @@ class RecoveryEngine:
                 "agent_id": agent_id,
                 "tool_id": tool_id,
                 "params_digest": digest_params(params),
+                "resource_keys": resource_keys,
             },
             parent_event_ids=tuple(causal_parent_event_ids),
         )
@@ -151,6 +154,7 @@ class RecoveryEngine:
                 "tool_id": tool_id,
                 "contract_version": contract.contract_version,
                 "recovery_class": contract.recovery_class.value,
+                "resource_keys": resource_keys,
                 "params": dict(params),
                 "execution_result": execution_result,
                 "observed_state": observed_state,
@@ -202,6 +206,38 @@ class RecoveryEngine:
                 parent_event_ids=(action_event_id,),
             )
             return RecoveryResult(RecoveryStatus.FAILED, failed, None)
+
+        graph = IncidentGraph.from_ledger(self.ledger, incident_id=source_incident_id)
+        conflicts = graph.conflicts_for(action_event_id)
+        if conflicts:
+            conflicting_ids = tuple(
+                sorted(
+                    {
+                        conflict.right_event_id
+                        if conflict.left_event_id == action_event_id
+                        else conflict.left_event_id
+                        for conflict in conflicts
+                    }
+                )
+            )
+            failed = self.ledger.record(
+                EventType.RECOVERY_FAILED,
+                source_incident_id,
+                {
+                    "action_event_id": action_event_id,
+                    "tool_id": contract.tool_id,
+                    "reason": "shared_state_conflict_requires_reconciliation",
+                    "resource_keys": tuple(sorted({c.resource_key for c in conflicts})),
+                    "conflicting_action_event_ids": conflicting_ids,
+                },
+                parent_event_ids=(action_event_id, *conflicting_ids),
+            )
+            return RecoveryResult(
+                RecoveryStatus.FAILED,
+                failed,
+                None,
+                residual_reason="shared_state_conflict_requires_reconciliation",
+            )
 
         if contract.recovery_class is RecoveryClass.IRREVERSIBLE:
             residual = self.ledger.record(
