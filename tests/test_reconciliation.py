@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from dataclasses import replace
+
 from agent_recovery.catalog import synthetic_contracts
 from agent_recovery.engine import RecoveryEngine, RecoveryStatus
 from agent_recovery.graph import IncidentGraph
@@ -237,3 +239,56 @@ def test_contract_without_reconciliation_path_keeps_same_resource_conflict_fail_
     assert result.status is ReconciliationStatus.BLOCKED
     assert result.reason == "contract_has_no_reconciliation_path"
     assert engine.state.memory["shared"] == "b"
+
+
+def test_cross_incident_reconciliation_failure_never_links_foreign_causal_parent() -> None:
+    engine = make_engine()
+    trusted, compromised, _ = same_field_conflict(engine, "source-incident")
+
+    result = engine.reconcile_conflict(
+        incident_id="requested-incident",
+        compromised_action_event_id=compromised.action_event.event_id,
+        trusted_action_event_id=trusted.action_event.event_id,
+        approval=None,
+    )
+
+    assert result.status is ReconciliationStatus.BLOCKED
+    assert result.reason == "conflict_incident_mismatch"
+    assert result.event.incident_id == "requested-incident"
+    assert result.event.parent_event_ids == ()
+    graph = IncidentGraph.from_ledger(engine.ledger, incident_id="requested-incident")
+    assert result.event.event_id in {event.event_id for event in graph.events}
+
+
+def test_reconciliation_blocks_stale_source_contract_version_before_mutation() -> None:
+    engine = make_engine()
+    incident_id = "reconcile-contract-version"
+    trusted, compromised, conflict = same_field_conflict(engine, incident_id)
+    current = engine._contracts["crm.update_contact"]
+    engine.register(replace(current, contract_version="2"))
+    approval = approval_for(
+        engine,
+        incident_id=incident_id,
+        resource_key=conflict.resource_key,
+        compromised_action_event_id=compromised.action_event.event_id,
+        trusted_action_event_id=trusted.action_event.event_id,
+        approval_id="stale-contract-approval",
+    )
+
+    result = engine.reconcile_conflict(
+        incident_id=incident_id,
+        compromised_action_event_id=compromised.action_event.event_id,
+        trusted_action_event_id=trusted.action_event.event_id,
+        approval=approval,
+    )
+
+    assert result.status is ReconciliationStatus.BLOCKED
+    assert result.reason == "reconciliation_contract_version_mismatch"
+    assert engine.state.crm_contacts["c-1"]["tier"] == "vip"
+    authority_events = [
+        event
+        for event in engine.ledger.events(incident_id=incident_id)
+        if event.event_type is EventType.AUTHORITY_CONSUMED
+        and event.payload.get("approval_id") == "stale-contract-approval"
+    ]
+    assert authority_events == []
