@@ -257,7 +257,7 @@ def test_cross_incident_reconciliation_failure_never_links_foreign_causal_parent
     assert result.event.incident_id == "requested-incident"
     assert result.event.parent_event_ids == ()
     graph = IncidentGraph.from_ledger(engine.ledger, incident_id="requested-incident")
-    assert result.event.event_id in {event.event_id for event in graph.events}
+    assert graph.event(result.event.event_id) == result.event
 
 
 def test_reconciliation_blocks_stale_source_contract_version_before_mutation() -> None:
