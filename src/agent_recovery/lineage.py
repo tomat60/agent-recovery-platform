@@ -143,10 +143,18 @@ def record_recovery_fork(
             f"recovery fork references unknown residual effect events: {unknown}"
         )
 
+    existing_forks = _incident_forks(ledger, incident_id)
+    inherited: tuple[str, ...] = ()
+    if existing_forks:
+        inherited = tuple(
+            str(event_id)
+            for event_id in existing_forks[-1].payload.get("residual_effect_event_ids", ())
+        )
+    acknowledged = tuple(sorted(set(inherited).union(selected)))
+
     parent_generation = current_generation(ledger, incident_id=incident_id)
     generation = parent_generation + 1
-    existing_forks = _incident_forks(ledger, incident_id)
-    parent_ids = [verification.event_id, *selected]
+    parent_ids = [verification.event_id, *acknowledged]
     if existing_forks:
         parent_ids.append(existing_forks[-1].event_id)
 
@@ -157,7 +165,7 @@ def record_recovery_fork(
             "generation": generation,
             "parent_generation": parent_generation,
             "verified_recovery_event_id": verification.event_id,
-            "residual_effect_event_ids": tuple(sorted(selected)),
+            "residual_effect_event_ids": acknowledged,
             "external_history_rewritten": False,
             "semantics": "fork_after_externalized_effect",
         },
@@ -167,5 +175,5 @@ def record_recovery_fork(
         event=event,
         generation=generation,
         parent_generation=parent_generation,
-        residual_effect_event_ids=tuple(sorted(selected)),
+        residual_effect_event_ids=acknowledged,
     )
