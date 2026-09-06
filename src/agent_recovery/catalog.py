@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Mapping
+from collections.abc import Mapping
 
 from .contracts import RecoveryClass, RecoveryContract, RiskLevel
 from .simulator import SyntheticEnterprise
@@ -69,7 +69,7 @@ def _restore_contact_params(
     original_params: Mapping[str, object],
 ) -> Mapping[str, object]:
     if not isinstance(execution_result, Mapping) or "before" not in execution_result:
-        raise ValueError("contact update did not preserve before state")
+        raise TypeError("contact update did not preserve before state")
     return {
         "contact_id": original_params["contact_id"],
         "previous": execution_result["before"],
@@ -93,7 +93,7 @@ def _restore_memory_params(
     original_params: Mapping[str, object],
 ) -> Mapping[str, object]:
     if not isinstance(execution_result, Mapping):
-        raise ValueError("memory write did not preserve before state")
+        raise TypeError("memory write did not preserve before state")
     return {
         "key": original_params["key"],
         "previous": execution_result.get("before"),
