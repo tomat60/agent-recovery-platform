@@ -128,6 +128,12 @@ def record_recovery_fork(
         incident_id=incident_id,
         verification_event_id=verified_recovery_event_id,
     )
+    existing_forks = _incident_forks(ledger, incident_id)
+    if any(
+        fork.payload.get("verified_recovery_event_id") == verification.event_id
+        for fork in existing_forks
+    ):
+        raise RecoveryGenerationError("recovery verification already consumed by a recovery fork")
 
     all_residuals = residual_effect_event_ids(ledger, incident_id=incident_id)
     selected = all_residuals if residual_event_ids is None else tuple(residual_event_ids)
@@ -143,7 +149,6 @@ def record_recovery_fork(
             f"recovery fork references unknown residual effect events: {unknown}"
         )
 
-    existing_forks = _incident_forks(ledger, incident_id)
     inherited: tuple[str, ...] = ()
     if existing_forks:
         inherited = tuple(
