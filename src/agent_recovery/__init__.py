@@ -11,6 +11,11 @@ from .lineage import (
     residual_effect_event_ids,
     uncovered_residual_effect_event_ids,
 )
+from .reconciliation import (
+    ReconciliationApproval,
+    ReconciliationResult,
+    ReconciliationStatus,
+)
 from .restoration import (
     ReplayVerification,
     RestorationDecision,
@@ -25,6 +30,9 @@ __all__ = [
     "ActionDecision",
     "ActionLedger",
     "LedgerEvent",
+    "ReconciliationApproval",
+    "ReconciliationResult",
+    "ReconciliationStatus",
     "RecoveryClass",
     "RecoveryContract",
     "RecoveryEngine",

@@ -23,6 +23,7 @@ Params = Mapping[str, object]
 Verifier = Callable[[State, Params], object]
 Executor = Callable[[State, Params], object]
 RecoveryBuilder = Callable[[object, object, Params], Mapping[str, object]]
+ReconciliationBuilder = Callable[[object, Params], Mapping[str, object]]
 ResourceKeyBuilder = Callable[[Params], Sequence[str]]
 
 
@@ -40,6 +41,8 @@ class RecoveryContract:
     verifier: Verifier
     recovery_executor: Executor | None = None
     recovery_params_builder: RecoveryBuilder | None = None
+    reconciliation_executor: Executor | None = None
+    reconciliation_params_builder: ReconciliationBuilder | None = None
     resource_key_builder: ResourceKeyBuilder | None = None
     approval_before_action: bool = False
     approval_before_recovery: bool = False
@@ -72,6 +75,17 @@ class RecoveryContract:
             raise ContractError("recoverable actions require recovery_executor")
         if recoverable and not callable(self.recovery_params_builder):
             raise ContractError("recoverable actions require recovery_params_builder")
+
+        has_reconciliation_executor = self.reconciliation_executor is not None
+        has_reconciliation_builder = self.reconciliation_params_builder is not None
+        if has_reconciliation_executor != has_reconciliation_builder:
+            raise ContractError(
+                "reconciliation_executor and reconciliation_params_builder must be configured together"
+            )
+        if has_reconciliation_executor and not callable(self.reconciliation_executor):
+            raise ContractError("reconciliation_executor must be callable")
+        if has_reconciliation_builder and not callable(self.reconciliation_params_builder):
+            raise ContractError("reconciliation_params_builder must be callable")
 
         high_impact_irreversible = (
             self.recovery_class is RecoveryClass.IRREVERSIBLE
