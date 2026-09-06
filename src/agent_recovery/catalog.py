@@ -17,6 +17,10 @@ def synthetic_contracts() -> tuple[RecoveryContract, ...]:
             verifier=lambda state, params: _enterprise(state).get_contact_field(params),
             recovery_executor=lambda state, params: _enterprise(state).restore_contact_field(params),
             recovery_params_builder=_restore_contact_field_params,
+            reconciliation_executor=lambda state, params: _enterprise(state).restore_contact_field(
+                params
+            ),
+            reconciliation_params_builder=_reconcile_contact_field_params,
             resource_key_builder=lambda params: (
                 f"crm:contact:{params['contact_id']}:field:{params['field']}",
             ),
@@ -84,6 +88,22 @@ def _restore_contact_field_params(
         "field": field_name,
         "previous_exists": field_name in before,
         "previous_value": before.get(field_name),
+    }
+
+
+def _reconcile_contact_field_params(
+    trusted_observed_state: object,
+    trusted_params: Mapping[str, object],
+) -> Mapping[str, object]:
+    if not isinstance(trusted_observed_state, Mapping):
+        raise TypeError("trusted CRM observation must be a mapping")
+    if "exists" not in trusted_observed_state:
+        raise TypeError("trusted CRM observation must record field existence")
+    return {
+        "contact_id": trusted_params["contact_id"],
+        "field": trusted_params["field"],
+        "previous_exists": bool(trusted_observed_state["exists"]),
+        "previous_value": trusted_observed_state.get("value"),
     }
 
 
