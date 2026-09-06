@@ -5,7 +5,11 @@ from dataclasses import replace
 import pytest
 
 from agent_recovery.ledger import ActionLedger, EventType, LedgerIntegrityError
-from agent_recovery.restoration import RestorationDecision, RestorationGate, record_replay_verification
+from agent_recovery.restoration import (
+    RestorationDecision,
+    RestorationGate,
+    record_replay_verification,
+)
 
 
 def test_ledger_hash_chain_verifies_after_normal_appends() -> None:
