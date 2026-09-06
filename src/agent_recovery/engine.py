@@ -67,7 +67,7 @@ class RecoveryEngine:
         self._contracts: dict[str, RecoveryContract] = {}
         self._executed: dict[
             str,
-            tuple[RecoveryContract, dict[str, object], object, object],
+            tuple[str, RecoveryContract, dict[str, object], object, object],
         ] = {}
         self._recovery_results: dict[str, RecoveryResult] = {}
         self._contained_scopes: set[str] = set()
@@ -159,6 +159,7 @@ class RecoveryEngine:
             parent_event_ids=(intent.event_id,),
         )
         self._executed[executed.event_id] = (
+            incident_id,
             contract,
             dict(params),
             execution_result,
@@ -178,11 +179,29 @@ class RecoveryEngine:
             return cached
 
         try:
-            contract, original_params, execution_result, observed_after = self._executed[
-                action_event_id
-            ]
+            (
+                source_incident_id,
+                contract,
+                original_params,
+                execution_result,
+                observed_after,
+            ) = self._executed[action_event_id]
         except KeyError as exc:
             raise KeyError(f"unknown executed action: {action_event_id}") from exc
+
+        if incident_id != source_incident_id:
+            failed = self.ledger.record(
+                EventType.RECOVERY_FAILED,
+                source_incident_id,
+                {
+                    "action_event_id": action_event_id,
+                    "tool_id": contract.tool_id,
+                    "reason": "incident_mismatch",
+                    "requested_incident_id": incident_id,
+                },
+                parent_event_ids=(action_event_id,),
+            )
+            return RecoveryResult(RecoveryStatus.FAILED, failed, None)
 
         if contract.recovery_class is RecoveryClass.IRREVERSIBLE:
             residual = self.ledger.record(
