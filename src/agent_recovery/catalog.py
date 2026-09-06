@@ -14,10 +14,12 @@ def synthetic_contracts() -> tuple[RecoveryContract, ...]:
             risk_level=RiskLevel.MEDIUM,
             recovery_class=RecoveryClass.REVERSIBLE,
             executor=lambda state, params: _enterprise(state).update_contact(params),
-            verifier=lambda state, params: _enterprise(state).get_contact(params),
-            recovery_executor=lambda state, params: _enterprise(state).restore_contact(params),
-            recovery_params_builder=_restore_contact_params,
-            resource_key_builder=lambda params: (f"crm:contact:{params['contact_id']}",),
+            verifier=lambda state, params: _enterprise(state).get_contact_field(params),
+            recovery_executor=lambda state, params: _enterprise(state).restore_contact_field(params),
+            recovery_params_builder=_restore_contact_field_params,
+            resource_key_builder=lambda params: (
+                f"crm:contact:{params['contact_id']}:field:{params['field']}",
+            ),
             recovery_window_seconds=86_400,
         ),
         RecoveryContract(
@@ -66,16 +68,22 @@ def _enterprise(state: object) -> SyntheticEnterprise:
     return state
 
 
-def _restore_contact_params(
+def _restore_contact_field_params(
     execution_result: object,
     observed_after: object,
     original_params: Mapping[str, object],
 ) -> Mapping[str, object]:
     if not isinstance(execution_result, Mapping) or "before" not in execution_result:
         raise TypeError("contact update did not preserve before state")
+    before = execution_result["before"]
+    if not isinstance(before, Mapping):
+        raise TypeError("contact before state must be a mapping")
+    field_name = str(original_params["field"])
     return {
         "contact_id": original_params["contact_id"],
-        "previous": execution_result["before"],
+        "field": field_name,
+        "previous_exists": field_name in before,
+        "previous_value": before.get(field_name),
     }
 
 
