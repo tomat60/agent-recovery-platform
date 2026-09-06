@@ -57,6 +57,29 @@ class SyntheticEnterprise:
         contact_id = str(params["contact_id"])
         return deepcopy(self.crm_contacts[contact_id])
 
+    def restore_contact_field(self, params: Mapping[str, object]) -> dict[str, Any]:
+        contact_id = str(params["contact_id"])
+        field_name = str(params["field"])
+        if contact_id not in self.crm_contacts:
+            raise SimulationError("contact not found")
+        previous_exists = bool(params["previous_exists"])
+        if previous_exists:
+            self.crm_contacts[contact_id][field_name] = deepcopy(params.get("previous_value"))
+        else:
+            self.crm_contacts[contact_id].pop(field_name, None)
+        return {"after": self.get_contact_field(params)}
+
+    def get_contact_field(self, params: Mapping[str, object]) -> dict[str, Any]:
+        contact_id = str(params["contact_id"])
+        field_name = str(params["field"])
+        if contact_id not in self.crm_contacts:
+            raise SimulationError("contact not found")
+        contact = self.crm_contacts[contact_id]
+        return {
+            "exists": field_name in contact,
+            "value": deepcopy(contact.get(field_name)),
+        }
+
     def grant_permission(self, params: Mapping[str, object]) -> dict[str, Any]:
         principal = str(params["principal"])
         permission = str(params["permission"])
