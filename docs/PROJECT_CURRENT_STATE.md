@@ -6,13 +6,17 @@ Date: 2026-09-06
 
 M0 and M1 are accepted on `main`.
 
-The first M2 slice has also landed on `main` at:
+The secure distributed-recovery foundation has now advanced through three M2 slices:
 
-`d6b424d7261a6a7d1a4a0a86db4e35e59f0d6895`
+1. causal incident graph, ordered recovery plans, incident binding and idempotency
+2. shared-state conflict detection plus replay/authority-restoration integrity
+3. a deterministic three-agent attack -> contain -> recover -> replay -> restore benchmark
 
-That slice adds causal incident graph support, ordered recovery-plan validation, causal action links, recovery idempotency, causal evidence event types and an explicit external-input causal root.
+Current accepted `main` commit:
 
-The repository now contains the product strategy, threat model, Recovery Contract specification, benchmark contract, deterministic recovery core, synthetic enterprise, safety tests, CI, machine-generated benchmark evidence and the first causal multi-action recovery primitives.
+`5e9b62b98587836dea77993fe2e8b5d8a0c7a2b2`
+
+The repository now contains the product strategy, threat model, Recovery Contract specification, deterministic recovery core, synthetic enterprise, causal incident graph, shared-state conflict detector, dependency-safe recovery planner, one-time authority-consumption ledger evidence, adversarial replay binding, fail-closed restoration gate, CI and machine-generated benchmark evidence.
 
 ## Product decision
 
@@ -28,11 +32,9 @@ Core rules:
 
 **No restored authority without a verified replay.**
 
-## Competitive differentiation update
+## Competitive differentiation
 
-A September 6 competitive scan found several credible systems covering portions of agent rollback / reversibility, including Rubrik Agent Rewind, Toffoli, Agit, Walkback, Moholo Agent Rewind, OWASP Agent Memory Guard, RAC, Atomix, Mnemosyne and ACRFence.
-
-A current Agents for Humans competitor, Authority Cut, also implements action-DAG correction propagation and compensation after human revocation.
+Current direct and adjacent systems include Rubrik Agent Rewind, Toffoli, Agit, Walkback, Moholo Agent Rewind, OWASP Agent Memory Guard, RAC, Atomix, Mnemosyne, ACRFence and the Agents for Humans competitor Authority Cut.
 
 Therefore:
 
@@ -42,95 +44,118 @@ Therefore:
 - action journals and kill switches are prior art
 - single-agent selective rollback is already commercially occupied
 
-The differentiated wedge is now:
+The differentiated wedge is:
 
 **distributed multi-agent incident recovery + recovery-path security + adversarial replay + verified restoration**
 
 See `docs/COMPETITIVE_LANDSCAPE.md`.
 
-## Scope accepted
-
-- Recovery Contract Registry
-- Action + Side-Effect Ledger
-- deterministic action/recovery gates
-- containment plane
-- causal incident / blast-radius graph
-- cross-agent shared-state causality
-- distributed dependency-safe compensation
-- recovery-path integrity and anti-replay controls
-- Strands investigator
-- recovery planner
-- skeptic/verifier
-- ordered compensation execution
-- replay verification
-- verified restoration gate
-- incident-to-regression loop
-- recoverability metrics / SLO surface
-- Agent Recoverability Assessment as initial commercial offer
-
-## Scope rejected for now
-
-- broad SIEM replacement
-- EDR
-- generic prompt firewall
-- broad IAM platform
-- generic compliance suite
-- generic agent undo product
-- offensive counterattack
-- government/critical-infrastructure-first GTM
-- dozens of production connectors before the competition deadline
-
 ## Accepted implementation evidence
+
+### M1 vertical slice
 
 M1 release commit:
 
 `70b47a90d84628c63c6f781b9a668a84c08c80c3`
 
-The exact M1 commit completed `recovery-ci` successfully on Python 3.10 and 3.12. CI performs linting, deterministic tests, benchmark smoke, and uploads benchmark evidence as a workflow artifact.
-
-M1 deterministic test suite: 9 passing tests.
-
-M1 benchmark vertical slice has four scenarios:
+M1 established four deterministic scenarios:
 
 1. reversible CRM corruption
 2. memory poisoning
 3. compensatable privilege change
 4. irreversible external message
 
-Observed M1 benchmark evidence:
+Observed evidence remains:
 
-- all three recoverable scenarios have one residual effect in the stop-only baseline and zero residual effects after verified platform recovery
-- all three recoverable scenarios finish with verified recovery
-- the irreversible external message remains residual and is explicitly reported rather than falsely marked recovered
-- unsafe recovery executions: zero in the accepted slice
+- three recoverable scenarios: one residual effect in stop-only baseline, zero after verified recovery
+- three verified recoveries
+- irreversible external message remains explicitly residual
+- unsafe recovery executions: zero
 
-These are early synthetic benchmark results, not production effectiveness claims.
+### M2 causal and shared-state recovery
 
-M2 first implementation slice on `main`:
+Accepted capabilities now include:
 
-`d6b424d7261a6a7d1a4a0a86db4e35e59f0d6895`
+- causal event graph across external input, tool output, memory reads, agent handoffs and actions
+- explicit source-incident binding for recovery
+- reverse-causal recovery ordering
+- idempotent recovery steps
+- canonical resource identities declared by Recovery Contracts
+- detection of causally independent writers to the same shared resource
+- fail-closed recovery when a concurrent-writer conflict could overwrite legitimate state
+- cross-agent conflict evidence
 
-Merged functionality includes:
+### M2 recovery-path integrity
 
-- causal incident graph
-- ordered recovery plan validation
-- causal action links
-- recovery idempotency
-- causal evidence event types
-- explicit external-input causal root
+Merged at:
+
+`c2d8afb2b47401936f556cd989e7a2f6790b4b0f`
+
+Capabilities:
+
+- `AUTHORITY_CONSUMED` ledger evidence
+- parameter-bound one-time approval consumption
+- consumed authority reconstructed from the ledger after runtime recreation
+- replay of a consumed approval is blocked instead of resurrecting stale authority
+- adversarial replay evidence bound to a fingerprint of the source incident
+- replay evidence becomes stale if new attack/action/authority evidence appears
+- fail-closed `RestorationGate`
+- authority restoration rejected for missing, stale, cross-incident or failed replay evidence
+
+CI for this slice passed on Python 3.10 and 3.12 with **23 passing deterministic tests**.
+
+### M2 three-agent verified-restoration benchmark
+
+Merged at:
+
+`5e9b62b98587836dea77993fe2e8b5d8a0c7a2b2`
+
+Current judge-facing deterministic scenario:
+
+1. poisoned external support content enters the graph
+2. Support Agent writes contaminated shared memory
+3. CRM Agent consumes the memory and mutates customer state
+4. Identity Agent receives the downstream handoff and changes a high-impact permission
+5. the platform reconstructs the cross-agent blast radius
+6. the compromised Support Agent is quarantined
+7. downstream state is recovered in dependency-safe reverse-causal order
+8. the entry path is replayed in isolation under preserved quarantine
+9. replay produces zero executed side effects
+10. downstream clean-agent authority becomes restorable only after verified replay
+11. the compromised root agent remains contained
+
+Accepted CI evidence for the PR that produced this main commit:
+
+- Python 3.10: lint + tests passed
+- Python 3.12: lint + tests + benchmark smoke + artifact upload passed
+- **24 deterministic tests passed**
+- agents involved: 3
+- expected blast actions: 3
+- detected blast actions: 3
+- blast-radius recall: 1.0
+- blast-radius precision: 1.0
+- verified recoveries: 3
+- platform residual effects in this recoverable chain: 0
+- adversarial replay verified: true
+- downstream authorities restored: 2
+- root compromised agent remains contained: true
+- unsafe recovery executions: 0
+
+These are synthetic benchmark results, not production effectiveness claims.
 
 ## Current milestone
 
-M2 - secure distributed recovery foundation and full deterministic benchmark.
+M2 remains active. The foundation now demonstrates the differentiated lifecycle end to end, but it is not yet strong enough to claim production-grade distributed recovery.
 
 ### Next implementation slice
 
-1. Finish cross-agent causal graph across action, memory, identity, agent and external-content events.
-2. Add at least one shared-state scenario with two autonomous writers and deterministic ownership / conflict rules.
-3. Add ordered multi-agent recovery with dependency validation and reverse compensation where appropriate.
-4. Complete incident binding so an executed action cannot be recovered under another incident.
-5. Add replay-safe idempotency and authority-consumption checks so a recovery path cannot resurrect stale authority.
-6. Complete deterministic fixtures for:
+Priority order:
+
+1. Replace caller-supplied replay verdict booleans with machine-derived replay evidence from an isolated Replay Lab.
+2. Add tamper-evident ledger integrity and a trusted-head / proof model so recovery evidence cannot be silently rewritten.
+3. Add explicit replay-or-fork semantics for externalized effects and restored local generations.
+4. Add concurrent-writer reconciliation strategies instead of only failing closed.
+5. Expand the deterministic benchmark to the full adversarial set:
    - indirect prompt injection trajectory
    - tool-output poisoning
    - approval bypass
@@ -141,38 +166,27 @@ M2 - secure distributed recovery foundation and full deterministic benchmark.
    - runaway / denial-of-wallet loop
    - recovery-path attack
    - semantic replay / authority resurrection attempt
-7. Expand benchmark metrics from residual-state evidence to:
+6. Expand benchmark metrics:
    - blast-radius recall / precision
    - evidence completeness
    - compensation success rate
    - residual irreversible effects
-   - recovery integrity failures
+   - recovery-integrity failures
+   - stale-authority resurrection attempts blocked
    - verified replay pass rate
-8. Add fail-closed tests for malformed contracts, stale approvals, broken ledger references, cross-incident recovery, recovery re-entry, unsafe planner proposals and fabricated recovery success.
-
-Strands agents are deliberately scheduled after this deterministic foundation. The model may investigate and propose; it must never become the authorization boundary.
+   - safe restoration rate
+7. Add fail-closed tests for malformed contracts, broken causal references, tampered ledger evidence, forged replay evidence, recovery re-entry and fabricated recovery success.
+8. After the deterministic safety boundary is strong, integrate Strands agents as Investigator / Planner / Skeptic. Model output may propose and critique; it must never become the authorization boundary.
 
 ## Competition target
 
-The judge-facing demo should use a three-agent synthetic enterprise, not a single-agent undo demonstration.
+The demo must remain a multi-agent incident-recovery story, not a generic undo demonstration.
 
-Target flow:
+Target visible flow:
 
-1. poisoned external content enters through Support Agent
-2. shared state influences a second agent
-3. a third agent creates a downstream side effect
-4. platform contains only the affected scopes
-5. Investigator reconstructs cross-agent causality
-6. Planner proposes recovery
-7. Skeptic finds a missing dependency or unsafe assumption
-8. deterministic gate admits only the corrected plan
-9. compensation executes dependency-safely
-10. irreversible residue remains visible
-11. Replay Lab reruns the original incident against repaired controls
-12. unauthorized side effects = 0
-13. human restoration becomes available only after verification
+**attack -> cross-agent propagation -> blast-radius graph -> scoped containment -> dependency-safe recovery -> residual truth -> adversarial replay -> verified restoration**
 
-This is intentionally different from existing single-agent rewind demos and from Authority Cut's human-revocation workflow.
+The strongest judge-facing contrast is that the system does not merely rewind state. It proves which authority may safely come back and keeps compromised authority quarantined.
 
 ## Competition deadline
 
@@ -189,22 +203,22 @@ RolePilot remains a separate maintenance project. Do not mix its competition cod
 - public Devpost / Builder / video publishing
 - final competition submission
 
-No owner action is required for local deterministic implementation.
+No owner action is required for the current deterministic implementation.
 
 ## Commercial validation after competition
 
-Initial commercial offer remains an Agent Recoverability Assessment, but it should explicitly test multi-agent and shared-state recovery rather than only per-tool reversibility.
+Initial commercial offer: **Agent Recoverability Assessment**, explicitly testing multi-agent and shared-state recovery rather than only per-tool reversibility.
 
-Within approximately 30 days, seek:
+Within approximately 30 days after the competition, seek:
 
 - 10 qualified buyer/partner conversations
 - at least 2 concrete pilot/assessment interests
-- at least 1 potential MSSP/security/AI consultancy partner
+- at least 1 MSSP/security/AI consultancy partner candidate
 - independent senior security architecture review before a serious external pilot
 
-Potential buyer-facing metrics:
+Buyer-facing metrics should include:
 
-- recoverability coverage of side-effecting action surface
+- recoverability coverage of the side-effecting action surface
 - blast radius under controlled incident injection
 - evidence completeness
 - verified recovery rate
