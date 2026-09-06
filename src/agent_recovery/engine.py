@@ -72,6 +72,12 @@ class RecoveryEngine:
         ] = {}
         self._recovery_results: dict[str, RecoveryResult] = {}
         self._contained_scopes: set[str] = set()
+        self._consumed_approval_ids: set[str] = {
+            str(event.payload["approval_id"])
+            for event in self.ledger.events()
+            if event.event_type is EventType.AUTHORITY_CONSUMED
+            and event.payload.get("approval_id") is not None
+        }
 
     def register(self, contract: RecoveryContract) -> None:
         contract.validate()
@@ -131,18 +137,35 @@ class RecoveryEngine:
             )
             return ActionResult(ActionDecision.BLOCKED, intent, blocked)
 
-        if contract.approval_before_action and not self._approval_matches(
-            contract,
-            params,
-            approval,
-        ):
-            blocked = self.ledger.record(
-                EventType.ACTION_BLOCKED,
-                incident_id,
-                {"tool_id": tool_id, "reason": "missing_or_mismatched_approval"},
-                parent_event_ids=(intent.event_id,),
+        authority_event: LedgerEvent | None = None
+        if contract.approval_before_action:
+            if not self._approval_matches(contract, params, approval):
+                blocked = self.ledger.record(
+                    EventType.ACTION_BLOCKED,
+                    incident_id,
+                    {"tool_id": tool_id, "reason": "missing_or_mismatched_approval"},
+                    parent_event_ids=(intent.event_id,),
+                )
+                return ActionResult(ActionDecision.BLOCKED, intent, blocked)
+            assert approval is not None
+            if self._approval_is_consumed(approval):
+                blocked = self.ledger.record(
+                    EventType.ACTION_BLOCKED,
+                    incident_id,
+                    {
+                        "tool_id": tool_id,
+                        "reason": "approval_already_consumed",
+                        "approval_id": approval.approval_id,
+                    },
+                    parent_event_ids=(intent.event_id,),
+                )
+                return ActionResult(ActionDecision.BLOCKED, intent, blocked)
+            authority_event = self._consume_approval(
+                incident_id=incident_id,
+                approval=approval,
+                purpose="action",
+                parent_event_id=intent.event_id,
             )
-            return ActionResult(ActionDecision.BLOCKED, intent, blocked)
 
         execution_result = contract.executor(self.state, params)
         observed_state = contract.verifier(self.state, params)
@@ -160,7 +183,7 @@ class RecoveryEngine:
                 "observed_state": observed_state,
                 "approval_id": approval.approval_id if approval else None,
             },
-            parent_event_ids=(intent.event_id,),
+            parent_event_ids=(authority_event.event_id if authority_event else intent.event_id,),
         )
         self._executed[executed.event_id] = (
             incident_id,
@@ -259,22 +282,41 @@ class RecoveryEngine:
             self._recovery_results[action_event_id] = result
             return result
 
-        if contract.approval_before_recovery and not self._approval_matches(
-            contract,
-            original_params,
-            approval,
-        ):
-            failed = self.ledger.record(
-                EventType.RECOVERY_FAILED,
-                incident_id,
-                {
-                    "action_event_id": action_event_id,
-                    "tool_id": contract.tool_id,
-                    "reason": "missing_or_mismatched_recovery_approval",
-                },
-                parent_event_ids=(action_event_id,),
+        recovery_parent_event_id = action_event_id
+        if contract.approval_before_recovery:
+            if not self._approval_matches(contract, original_params, approval):
+                failed = self.ledger.record(
+                    EventType.RECOVERY_FAILED,
+                    incident_id,
+                    {
+                        "action_event_id": action_event_id,
+                        "tool_id": contract.tool_id,
+                        "reason": "missing_or_mismatched_recovery_approval",
+                    },
+                    parent_event_ids=(action_event_id,),
+                )
+                return RecoveryResult(RecoveryStatus.FAILED, failed, None)
+            assert approval is not None
+            if self._approval_is_consumed(approval):
+                failed = self.ledger.record(
+                    EventType.RECOVERY_FAILED,
+                    incident_id,
+                    {
+                        "action_event_id": action_event_id,
+                        "tool_id": contract.tool_id,
+                        "reason": "recovery_approval_already_consumed",
+                        "approval_id": approval.approval_id,
+                    },
+                    parent_event_ids=(action_event_id,),
+                )
+                return RecoveryResult(RecoveryStatus.FAILED, failed, None)
+            recovery_authority = self._consume_approval(
+                incident_id=incident_id,
+                approval=approval,
+                purpose="recovery",
+                parent_event_id=action_event_id,
             )
-            return RecoveryResult(RecoveryStatus.FAILED, failed, None)
+            recovery_parent_event_id = recovery_authority.event_id
 
         assert contract.recovery_params_builder is not None
         assert contract.recovery_executor is not None
@@ -290,7 +332,7 @@ class RecoveryEngine:
                 "recovery_params": recovery_params,
                 "idempotency_key": f"recover:{action_event_id}",
             },
-            parent_event_ids=(action_event_id,),
+            parent_event_ids=(recovery_parent_event_id,),
         )
         recovery_result = contract.recovery_executor(self.state, recovery_params)
         recovered = self.ledger.record(
@@ -328,6 +370,30 @@ class RecoveryEngine:
         if verified:
             self._recovery_results[action_event_id] = result
         return result
+
+    def _approval_is_consumed(self, approval: Approval) -> bool:
+        return approval.approval_id in self._consumed_approval_ids
+
+    def _consume_approval(
+        self,
+        *,
+        incident_id: str,
+        approval: Approval,
+        purpose: str,
+        parent_event_id: str,
+    ) -> LedgerEvent:
+        self._consumed_approval_ids.add(approval.approval_id)
+        return self.ledger.record(
+            EventType.AUTHORITY_CONSUMED,
+            incident_id,
+            {
+                "approval_id": approval.approval_id,
+                "tool_id": approval.tool_id,
+                "params_digest": approval.params_digest,
+                "purpose": purpose,
+            },
+            parent_event_ids=(parent_event_id,),
+        )
 
     @staticmethod
     def _approval_matches(
