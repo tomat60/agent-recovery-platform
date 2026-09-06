@@ -3,6 +3,14 @@
 from .contracts import RecoveryClass, RecoveryContract, RiskLevel
 from .engine import ActionDecision, RecoveryEngine, RecoveryStatus
 from .ledger import ActionLedger, LedgerEvent
+from .lineage import (
+    RecoveryFork,
+    RecoveryGenerationError,
+    current_generation,
+    record_recovery_fork,
+    residual_effect_event_ids,
+    uncovered_residual_effect_event_ids,
+)
 from .restoration import (
     ReplayVerification,
     RestorationDecision,
@@ -20,6 +28,8 @@ __all__ = [
     "RecoveryClass",
     "RecoveryContract",
     "RecoveryEngine",
+    "RecoveryFork",
+    "RecoveryGenerationError",
     "RecoveryStatus",
     "ReplayVerification",
     "RestorationDecision",
@@ -27,6 +37,10 @@ __all__ = [
     "RestorationResult",
     "RiskLevel",
     "SyntheticEnterprise",
+    "current_generation",
     "incident_fingerprint",
+    "record_recovery_fork",
     "record_replay_verification",
+    "residual_effect_event_ids",
+    "uncovered_residual_effect_event_ids",
 ]
