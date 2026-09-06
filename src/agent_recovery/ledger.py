@@ -16,6 +16,7 @@ class EventType(str, Enum):
     ACTION_INTENT = "action_intent"
     ACTION_EXECUTED = "action_executed"
     ACTION_BLOCKED = "action_blocked"
+    AUTHORITY_CONSUMED = "authority_consumed"
     CONTAINMENT = "containment"
     RECOVERY_PLANNED = "recovery_planned"
     RECOVERY_EXECUTED = "recovery_executed"
