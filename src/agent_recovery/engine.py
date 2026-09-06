@@ -9,6 +9,11 @@ from enum import Enum
 from .contracts import RecoveryClass, RecoveryContract
 from .graph import IncidentGraph
 from .ledger import ActionLedger, EventType, LedgerEvent
+from .reconciliation import (
+    ReconciliationApproval,
+    ReconciliationResult,
+    ReconciliationStatus,
+)
 
 
 class ActionDecision(str, Enum):
@@ -370,6 +375,215 @@ class RecoveryEngine:
         if verified:
             self._recovery_results[action_event_id] = result
         return result
+
+    def reconcile_conflict(
+        self,
+        *,
+        incident_id: str,
+        compromised_action_event_id: str,
+        trusted_action_event_id: str,
+        approval: ReconciliationApproval | None,
+    ) -> ReconciliationResult:
+        """Resolve an exact same-resource conflict only from fresh, explicit evidence.
+
+        The engine never guesses which concurrent writer is correct. The selected trusted
+        writer is part of a parameter-bound approval that is tied to the current ledger
+        head. A dedicated contract reconciliation executor then restores the exact observed
+        trusted state and verifies it independently.
+        """
+
+        self.ledger.verify_integrity()
+
+        def blocked(reason: str) -> ReconciliationResult:
+            parents = tuple(
+                event_id
+                for event_id in (compromised_action_event_id, trusted_action_event_id)
+                if any(event.event_id == event_id for event in self.ledger.events())
+            )
+            event = self.ledger.record(
+                EventType.RECONCILIATION_FAILED,
+                incident_id,
+                {
+                    "compromised_action_event_id": compromised_action_event_id,
+                    "trusted_action_event_id": trusted_action_event_id,
+                    "reason": reason,
+                },
+                parent_event_ids=parents,
+            )
+            return ReconciliationResult(
+                ReconciliationStatus.BLOCKED,
+                event,
+                reason=reason,
+            )
+
+        try:
+            compromised = self.ledger.get(compromised_action_event_id)
+            trusted = self.ledger.get(trusted_action_event_id)
+        except KeyError:
+            return blocked("missing_conflict_action_evidence")
+
+        if compromised.event_type is not EventType.ACTION_EXECUTED:
+            return blocked("compromised_event_is_not_executed_action")
+        if trusted.event_type is not EventType.ACTION_EXECUTED:
+            return blocked("trusted_event_is_not_executed_action")
+        if compromised.event_id == trusted.event_id:
+            return blocked("conflict_actions_must_be_distinct")
+        if compromised.incident_id != incident_id or trusted.incident_id != incident_id:
+            return blocked("conflict_incident_mismatch")
+
+        compromised_tool = str(compromised.payload.get("tool_id", ""))
+        trusted_tool = str(trusted.payload.get("tool_id", ""))
+        if not compromised_tool or compromised_tool != trusted_tool:
+            return blocked("cross_contract_reconciliation_not_supported")
+        contract = self._contracts.get(compromised_tool)
+        if contract is None:
+            return blocked("missing_recovery_contract")
+        if (
+            contract.reconciliation_executor is None
+            or contract.reconciliation_params_builder is None
+        ):
+            return blocked("contract_has_no_reconciliation_path")
+
+        graph = IncidentGraph.from_ledger(self.ledger, incident_id=incident_id)
+        conflicts = graph.shared_state_conflicts(
+            (compromised_action_event_id, trusted_action_event_id)
+        )
+        if len(conflicts) != 1:
+            return blocked("conflict_is_not_one_exact_shared_resource")
+        conflict = conflicts[0]
+
+        if approval is None:
+            return blocked("missing_reconciliation_approval")
+        if approval.approval_id in self._consumed_approval_ids:
+            return blocked("reconciliation_approval_already_consumed")
+        if approval.incident_id != incident_id:
+            return blocked("reconciliation_approval_incident_mismatch")
+        if approval.resource_key != conflict.resource_key:
+            return blocked("reconciliation_approval_resource_mismatch")
+        if approval.compromised_action_event_id != compromised_action_event_id:
+            return blocked("reconciliation_approval_compromised_action_mismatch")
+        if approval.trusted_action_event_id != trusted_action_event_id:
+            return blocked("reconciliation_approval_trusted_action_mismatch")
+        if approval.evidence_head_hash != self.ledger.head_hash:
+            return blocked("stale_reconciliation_approval")
+
+        trusted_params = trusted.payload.get("params")
+        if not isinstance(trusted_params, Mapping):
+            return blocked("trusted_action_params_are_unusable")
+        trusted_observed_state = trusted.payload.get("observed_state")
+
+        self._consumed_approval_ids.add(approval.approval_id)
+        authority = self.ledger.record(
+            EventType.AUTHORITY_CONSUMED,
+            incident_id,
+            {
+                "approval_id": approval.approval_id,
+                "purpose": "reconciliation",
+                "resource_key": conflict.resource_key,
+                "compromised_action_event_id": compromised_action_event_id,
+                "trusted_action_event_id": trusted_action_event_id,
+                "evidence_head_hash": approval.evidence_head_hash,
+            },
+            parent_event_ids=(compromised_action_event_id, trusted_action_event_id),
+        )
+
+        try:
+            reconciliation_params = dict(
+                contract.reconciliation_params_builder(
+                    trusted_observed_state,
+                    trusted_params,
+                )
+            )
+        except Exception:
+            failed = self.ledger.record(
+                EventType.RECONCILIATION_FAILED,
+                incident_id,
+                {
+                    "resource_key": conflict.resource_key,
+                    "reason": "reconciliation_params_unusable",
+                },
+                parent_event_ids=(authority.event_id,),
+            )
+            return ReconciliationResult(
+                ReconciliationStatus.FAILED,
+                failed,
+                reason="reconciliation_params_unusable",
+            )
+
+        planned = self.ledger.record(
+            EventType.RECONCILIATION_PLANNED,
+            incident_id,
+            {
+                "resource_key": conflict.resource_key,
+                "compromised_action_event_id": compromised_action_event_id,
+                "trusted_action_event_id": trusted_action_event_id,
+                "target_observed_state": trusted_observed_state,
+                "reconciliation_params": reconciliation_params,
+                "idempotency_key": (
+                    f"reconcile:{compromised_action_event_id}:{trusted_action_event_id}"
+                ),
+            },
+            parent_event_ids=(authority.event_id,),
+        )
+
+        try:
+            execution_result = contract.reconciliation_executor(
+                self.state,
+                reconciliation_params,
+            )
+        except Exception:
+            failed = self.ledger.record(
+                EventType.RECONCILIATION_FAILED,
+                incident_id,
+                {
+                    "resource_key": conflict.resource_key,
+                    "reason": "reconciliation_executor_failed",
+                },
+                parent_event_ids=(planned.event_id,),
+            )
+            return ReconciliationResult(
+                ReconciliationStatus.FAILED,
+                failed,
+                reason="reconciliation_executor_failed",
+            )
+
+        executed = self.ledger.record(
+            EventType.RECONCILIATION_EXECUTED,
+            incident_id,
+            {
+                "resource_key": conflict.resource_key,
+                "compromised_action_event_id": compromised_action_event_id,
+                "trusted_action_event_id": trusted_action_event_id,
+                "result": execution_result,
+                "idempotency_key": (
+                    f"reconcile:{compromised_action_event_id}:{trusted_action_event_id}"
+                ),
+            },
+            parent_event_ids=(planned.event_id,),
+        )
+
+        observed = contract.verifier(self.state, trusted_params)
+        verified = observed == trusted_observed_state
+        verification = self.ledger.record(
+            EventType.VERIFICATION,
+            incident_id,
+            {
+                "verification_kind": "shared_state_reconciliation",
+                "resource_key": conflict.resource_key,
+                "compromised_action_event_id": compromised_action_event_id,
+                "trusted_action_event_id": trusted_action_event_id,
+                "expected": trusted_observed_state,
+                "observed": observed,
+                "verified": verified,
+            },
+            parent_event_ids=(executed.event_id,),
+        )
+        return ReconciliationResult(
+            ReconciliationStatus.VERIFIED if verified else ReconciliationStatus.FAILED,
+            executed,
+            verification_event=verification,
+            reason=None if verified else "reconciliation_verification_failed",
+        )
 
     def _approval_is_consumed(self, approval: Approval) -> bool:
         return approval.approval_id in self._consumed_approval_ids
