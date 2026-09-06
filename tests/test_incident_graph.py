@@ -5,8 +5,13 @@ import pytest
 from agent_recovery.catalog import synthetic_contracts
 from agent_recovery.engine import RecoveryEngine, RecoveryStatus
 from agent_recovery.graph import IncidentGraph
-from agent_recovery.ledger import ActionLedger, EventType
-from agent_recovery.plans import RecoveryPlan, RecoveryPlanError, RecoveryPlanStep, build_reverse_causal_plan
+from agent_recovery.ledger import EventType
+from agent_recovery.plans import (
+    RecoveryPlan,
+    RecoveryPlanError,
+    RecoveryPlanStep,
+    build_reverse_causal_plan,
+)
 from agent_recovery.simulator import SyntheticEnterprise
 
 
@@ -20,7 +25,7 @@ def make_engine() -> RecoveryEngine:
 def test_causal_graph_tracks_external_root_across_multiple_actions() -> None:
     engine = make_engine()
     root = engine.ledger.record(
-        EventType.ACTION_INTENT,
+        EventType.EXTERNAL_INPUT,
         "graph-1",
         {"source": "synthetic_external_ticket"},
     )
