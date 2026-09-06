@@ -17,21 +17,21 @@ def make_engine() -> RecoveryEngine:
     return engine
 
 
-def test_cross_agent_shared_state_conflict_is_detected_and_recovery_fails_closed() -> None:
+def test_independent_agents_can_recover_different_fields_without_clobbering_peer_state() -> None:
     engine = make_engine()
     root = engine.ledger.record(
         EventType.EXTERNAL_INPUT,
         "shared-1",
         {"source": "poisoned_ticket"},
     )
-    first = engine.execute(
+    compromised = engine.execute(
         incident_id="shared-1",
         agent_id="support-agent",
         tool_id="crm.update_contact",
         params={"contact_id": "c-1", "field": "tier", "value": "vip"},
         causal_parent_event_ids=(root.event_id,),
     )
-    second = engine.execute(
+    legitimate = engine.execute(
         incident_id="shared-1",
         agent_id="billing-agent",
         tool_id="crm.update_contact",
@@ -40,16 +40,53 @@ def test_cross_agent_shared_state_conflict_is_detected_and_recovery_fails_closed
     )
 
     graph = IncidentGraph.from_ledger(engine.ledger, incident_id="shared-1")
-    conflicts = graph.shared_state_conflicts()
+    assert graph.shared_state_conflicts() == ()
+    assert compromised.action_event.payload["resource_keys"] == (
+        "crm:contact:c-1:field:tier",
+    )
+    assert legitimate.action_event.payload["resource_keys"] == (
+        "crm:contact:c-1:field:owner",
+    )
 
-    assert len(conflicts) == 1
-    conflict = conflicts[0]
-    assert conflict.resource_key == "crm:contact:c-1"
-    assert conflict.cross_agent is True
-    assert {conflict.left_agent_id, conflict.right_agent_id} == {
-        "support-agent",
-        "billing-agent",
+    result = engine.recover(
+        incident_id="shared-1",
+        action_event_id=compromised.action_event.event_id,
+    )
+    assert result.status is RecoveryStatus.VERIFIED
+    assert engine.state.crm_contacts["c-1"] == {
+        "name": "Alex Rivera",
+        "tier": "standard",
+        "owner": "billing",
     }
+
+
+def test_cross_agent_same_field_conflict_still_fails_closed() -> None:
+    engine = make_engine()
+    root = engine.ledger.record(
+        EventType.EXTERNAL_INPUT,
+        "shared-same-field",
+        {"source": "shared_work_item"},
+    )
+    first = engine.execute(
+        incident_id="shared-same-field",
+        agent_id="support-agent",
+        tool_id="crm.update_contact",
+        params={"contact_id": "c-1", "field": "tier", "value": "vip"},
+        causal_parent_event_ids=(root.event_id,),
+    )
+    second = engine.execute(
+        incident_id="shared-same-field",
+        agent_id="billing-agent",
+        tool_id="crm.update_contact",
+        params={"contact_id": "c-1", "field": "tier", "value": "blocked"},
+        causal_parent_event_ids=(root.event_id,),
+    )
+
+    graph = IncidentGraph.from_ledger(engine.ledger, incident_id="shared-same-field")
+    conflicts = graph.shared_state_conflicts()
+    assert len(conflicts) == 1
+    assert conflicts[0].resource_key == "crm:contact:c-1:field:tier"
+    assert conflicts[0].cross_agent is True
 
     with pytest.raises(RecoveryPlanError, match="explicit reconciliation"):
         build_shared_state_safe_plan(
@@ -58,19 +95,15 @@ def test_cross_agent_shared_state_conflict_is_detected_and_recovery_fails_closed
         )
 
     result = engine.recover(
-        incident_id="shared-1",
+        incident_id="shared-same-field",
         action_event_id=first.action_event.event_id,
     )
     assert result.status is RecoveryStatus.FAILED
     assert result.residual_reason == "shared_state_conflict_requires_reconciliation"
-    assert engine.state.crm_contacts["c-1"] == {
-        "name": "Alex Rivera",
-        "tier": "vip",
-        "owner": "billing",
-    }
+    assert engine.state.crm_contacts["c-1"]["tier"] == "blocked"
 
 
-def test_causally_ordered_writes_to_same_resource_are_recovered_in_reverse_order() -> None:
+def test_causally_ordered_writes_to_same_field_are_recovered_in_reverse_order() -> None:
     engine = make_engine()
     first = engine.execute(
         incident_id="shared-2",
@@ -82,7 +115,7 @@ def test_causally_ordered_writes_to_same_resource_are_recovered_in_reverse_order
         incident_id="shared-2",
         agent_id="billing-agent",
         tool_id="crm.update_contact",
-        params={"contact_id": "c-1", "field": "owner", "value": "billing"},
+        params={"contact_id": "c-1", "field": "tier", "value": "blocked"},
         causal_parent_event_ids=(first.action_event.event_id,),
     )
 
