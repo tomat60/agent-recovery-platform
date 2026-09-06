@@ -5,7 +5,6 @@ from json import dumps
 
 from .ledger import ActionLedger, EventType, LedgerEvent
 
-
 _REPLAY_FINGERPRINT_TYPES = {
     EventType.EXTERNAL_INPUT,
     EventType.TOOL_OUTPUT,
