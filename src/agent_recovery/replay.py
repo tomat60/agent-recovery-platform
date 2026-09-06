@@ -83,7 +83,7 @@ class ReplayObservation:
 
 
 class ReplayLab:
-    """Execute a bounded attack-path replay in a fresh isolated synthetic runtime."""
+    """Execute a bounded attack-path replay in an isolated tamper-evident runtime."""
 
     def __init__(self, engine_factory: Callable[[], RecoveryEngine]) -> None:
         self._engine_factory = engine_factory
