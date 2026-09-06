@@ -1,7 +1,11 @@
 from __future__ import annotations
 
 from agent_recovery.ledger import ActionLedger, EventType
-from agent_recovery.restoration import RestorationDecision, RestorationGate, record_replay_verification
+from agent_recovery.restoration import (
+    RestorationDecision,
+    RestorationGate,
+    record_replay_verification,
+)
 
 
 def test_recovery_evidence_change_invalidates_verified_replay() -> None:
