@@ -4,7 +4,7 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from typing import Any
 
-from .engine import ActionDecision, RecoveryEngine
+from .engine import RecoveryEngine
 from .ledger import ActionLedger, EventType
 
 
