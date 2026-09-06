@@ -4,6 +4,7 @@ from hashlib import sha256
 from json import dumps
 
 from .ledger import ActionLedger, EventType, LedgerEvent, LedgerIntegrityError
+from .replay import ReplayEvidence
 
 _REPLAY_FINGERPRINT_TYPES = {
     EventType.EXTERNAL_INPUT,
@@ -69,8 +70,6 @@ def _fingerprint_for_types(
 
 
 def incident_fingerprint(ledger: ActionLedger, *, incident_id: str) -> str:
-    """Hash immutable attack/action evidence that a replay must remain bound to."""
-
     return _fingerprint_for_types(
         ledger,
         incident_id=incident_id,
@@ -79,8 +78,6 @@ def incident_fingerprint(ledger: ActionLedger, *, incident_id: str) -> str:
 
 
 def recovery_fingerprint(ledger: ActionLedger, *, incident_id: str) -> str:
-    """Hash recovery-plane evidence so later plan/execution changes invalidate replay proof."""
-
     return _fingerprint_for_types(
         ledger,
         incident_id=incident_id,
@@ -92,43 +89,37 @@ def record_replay_verification(
     ledger: ActionLedger,
     *,
     incident_id: str,
-    trigger_event_id: str,
-    replay_id: str,
-    attack_blocked: bool,
-    evidence_complete: bool,
-    unsafe_side_effects: tuple[str, ...] = (),
+    evidence: ReplayEvidence,
 ) -> ReplayVerification:
-    """Persist a replay verdict bound to exact source and recovery evidence."""
+    """Persist a verdict derived from isolated replay evidence, never caller booleans."""
 
     ledger.verify_integrity()
-    trigger = ledger.get(trigger_event_id)
-    if trigger.incident_id != incident_id:
-        raise ValueError("replay trigger must belong to the source incident")
-
-    side_effects = tuple(sorted(str(item) for item in unsafe_side_effects))
+    observation = evidence.derive(source_ledger=ledger, source_incident_id=incident_id)
+    trigger = ledger.get(observation.source_trigger_event_id)
     source_fingerprint = incident_fingerprint(ledger, incident_id=incident_id)
     recovery_state_fingerprint = recovery_fingerprint(ledger, incident_id=incident_id)
-    verified = attack_blocked and evidence_complete and not side_effects
     event = ledger.record(
         EventType.VERIFICATION,
         incident_id,
         {
             "verification_kind": "adversarial_replay",
+            "evidence_source": "isolated_replay_lab",
             "source_incident_id": incident_id,
             "source_fingerprint": source_fingerprint,
             "recovery_fingerprint": recovery_state_fingerprint,
             "ledger_head_before_verification": ledger.head_hash,
-            "trigger_event_id": trigger_event_id,
-            "replay_id": replay_id,
-            "attack_blocked": attack_blocked,
-            "evidence_complete": evidence_complete,
-            "unsafe_side_effects": side_effects,
-            "verified": verified,
+            "replay_ledger_head": observation.replay_ledger_head,
+            "trigger_event_id": observation.source_trigger_event_id,
+            "replay_id": observation.replay_id,
+            "attack_blocked": observation.entry_action_blocked,
+            "evidence_complete": observation.evidence_complete,
+            "unsafe_side_effects": tuple(sorted(observation.executed_side_effect_event_ids)),
+            "verified": observation.verified,
         },
-        parent_event_ids=(trigger_event_id,),
+        parent_event_ids=(trigger.event_id,),
     )
     return ReplayVerification(
-        verified=verified,
+        verified=observation.verified,
         source_fingerprint=source_fingerprint,
         recovery_fingerprint=recovery_state_fingerprint,
         event=event,
@@ -136,7 +127,7 @@ def record_replay_verification(
 
 
 class RestorationGate:
-    """Fail-closed authority restoration gate backed by fresh adversarial replay evidence."""
+    """Fail-closed authority restoration gate backed by fresh replay evidence."""
 
     def __init__(self, ledger: ActionLedger) -> None:
         self.ledger = ledger
@@ -148,7 +139,6 @@ class RestorationGate:
         authority_scope: str,
         replay_event_id: str,
     ) -> RestorationResult:
-        # Do not append to a ledger whose integrity is already uncertain.
         event = LedgerEvent(
             EventType.RESTORATION,
             incident_id,
@@ -184,7 +174,6 @@ class RestorationGate:
 
         reason: str | None = None
         replay_event: LedgerEvent | None = None
-
         try:
             replay_event = self.ledger.get(replay_event_id)
         except KeyError:
@@ -196,14 +185,16 @@ class RestorationGate:
             reason = "event_is_not_verification"
         elif replay_event is not None and replay_event.payload.get("verification_kind") != "adversarial_replay":
             reason = "verification_is_not_adversarial_replay"
+        elif replay_event is not None and replay_event.payload.get("evidence_source") != "isolated_replay_lab":
+            reason = "untrusted_replay_evidence_source"
         elif replay_event is not None and replay_event.payload.get("source_incident_id") != incident_id:
             reason = "replay_source_mismatch"
         elif replay_event is not None:
-            current_source_fingerprint = incident_fingerprint(self.ledger, incident_id=incident_id)
-            current_recovery_fingerprint = recovery_fingerprint(self.ledger, incident_id=incident_id)
-            if replay_event.payload.get("source_fingerprint") != current_source_fingerprint:
+            current_source = incident_fingerprint(self.ledger, incident_id=incident_id)
+            current_recovery = recovery_fingerprint(self.ledger, incident_id=incident_id)
+            if replay_event.payload.get("source_fingerprint") != current_source:
                 reason = "stale_replay_evidence"
-            elif replay_event.payload.get("recovery_fingerprint") != current_recovery_fingerprint:
+            elif replay_event.payload.get("recovery_fingerprint") != current_recovery:
                 reason = "stale_recovery_evidence"
             elif replay_event.payload.get("verified") is not True:
                 reason = "replay_not_verified"
