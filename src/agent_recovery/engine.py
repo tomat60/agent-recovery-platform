@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from enum import Enum
 
@@ -69,6 +69,7 @@ class RecoveryEngine:
             str,
             tuple[RecoveryContract, dict[str, object], object, object],
         ] = {}
+        self._recovery_results: dict[str, RecoveryResult] = {}
         self._contained_scopes: set[str] = set()
 
     def register(self, contract: RecoveryContract) -> None:
@@ -94,6 +95,7 @@ class RecoveryEngine:
         tool_id: str,
         params: Mapping[str, object],
         approval: Approval | None = None,
+        causal_parent_event_ids: Iterable[str] = (),
     ) -> ActionResult:
         contract = self._contracts.get(tool_id)
         intent = self.ledger.record(
@@ -104,6 +106,7 @@ class RecoveryEngine:
                 "tool_id": tool_id,
                 "params_digest": digest_params(params),
             },
+            parent_event_ids=tuple(causal_parent_event_ids),
         )
 
         if contract is None:
@@ -170,6 +173,10 @@ class RecoveryEngine:
         action_event_id: str,
         approval: Approval | None = None,
     ) -> RecoveryResult:
+        cached = self._recovery_results.get(action_event_id)
+        if cached is not None:
+            return cached
+
         try:
             contract, original_params, execution_result, observed_after = self._executed[
                 action_event_id
@@ -188,12 +195,14 @@ class RecoveryEngine:
                 },
                 parent_event_ids=(action_event_id,),
             )
-            return RecoveryResult(
+            result = RecoveryResult(
                 status=RecoveryStatus.RESIDUAL,
                 recovery_event=residual,
                 verification_event=None,
                 residual_reason="action_is_irreversible",
             )
+            self._recovery_results[action_event_id] = result
+            return result
 
         if contract.approval_before_recovery and not self._approval_matches(
             contract,
@@ -224,6 +233,7 @@ class RecoveryEngine:
                 "action_event_id": action_event_id,
                 "tool_id": contract.tool_id,
                 "recovery_params": recovery_params,
+                "idempotency_key": f"recover:{action_event_id}",
             },
             parent_event_ids=(action_event_id,),
         )
@@ -235,6 +245,7 @@ class RecoveryEngine:
                 "action_event_id": action_event_id,
                 "tool_id": contract.tool_id,
                 "result": recovery_result,
+                "idempotency_key": f"recover:{action_event_id}",
             },
             parent_event_ids=(planned.event_id,),
         )
@@ -254,9 +265,14 @@ class RecoveryEngine:
             },
             parent_event_ids=(recovered.event_id,),
         )
-        if not verified:
-            return RecoveryResult(RecoveryStatus.FAILED, recovered, verification)
-        return RecoveryResult(RecoveryStatus.VERIFIED, recovered, verification)
+        result = RecoveryResult(
+            RecoveryStatus.VERIFIED if verified else RecoveryStatus.FAILED,
+            recovered,
+            verification,
+        )
+        if verified:
+            self._recovery_results[action_event_id] = result
+        return result
 
     @staticmethod
     def _approval_matches(

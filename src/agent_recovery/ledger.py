@@ -9,6 +9,10 @@ from uuid import uuid4
 
 
 class EventType(str, Enum):
+    EXTERNAL_INPUT = "external_input"
+    TOOL_OUTPUT = "tool_output"
+    MEMORY_READ = "memory_read"
+    AGENT_HANDOFF = "agent_handoff"
     ACTION_INTENT = "action_intent"
     ACTION_EXECUTED = "action_executed"
     ACTION_BLOCKED = "action_blocked"
@@ -38,7 +42,7 @@ class LedgerIntegrityError(ValueError):
 
 
 class ActionLedger:
-    """Append-only in-memory ledger used by the first deterministic benchmark."""
+    """Append-only in-memory ledger used by the deterministic benchmark."""
 
     def __init__(self) -> None:
         self._events: list[LedgerEvent] = []
