@@ -17,6 +17,7 @@ def synthetic_contracts() -> tuple[RecoveryContract, ...]:
             verifier=lambda state, params: _enterprise(state).get_contact(params),
             recovery_executor=lambda state, params: _enterprise(state).restore_contact(params),
             recovery_params_builder=_restore_contact_params,
+            resource_key_builder=lambda params: (f"crm:contact:{params['contact_id']}",),
             recovery_window_seconds=86_400,
         ),
         RecoveryContract(
@@ -28,6 +29,7 @@ def synthetic_contracts() -> tuple[RecoveryContract, ...]:
             verifier=lambda state, params: _enterprise(state).get_permissions(params),
             recovery_executor=lambda state, params: _enterprise(state).revoke_permission(params),
             recovery_params_builder=_revoke_permission_params,
+            resource_key_builder=lambda params: (f"identity:principal:{params['principal']}",),
             approval_before_action=True,
             approval_before_recovery=False,
             recovery_window_seconds=3_600,
@@ -42,6 +44,7 @@ def synthetic_contracts() -> tuple[RecoveryContract, ...]:
             verifier=lambda state, params: _enterprise(state).get_memory(params),
             recovery_executor=lambda state, params: _enterprise(state).restore_memory(params),
             recovery_params_builder=_restore_memory_params,
+            resource_key_builder=lambda params: (f"memory:key:{params['key']}",),
             containment_scopes=("tool", "agent", "memory"),
         ),
         RecoveryContract(
