@@ -398,7 +398,10 @@ class RecoveryEngine:
             parents = tuple(
                 event_id
                 for event_id in (compromised_action_event_id, trusted_action_event_id)
-                if any(event.event_id == event_id for event in self.ledger.events())
+                if any(
+                    event.event_id == event_id and event.incident_id == incident_id
+                    for event in self.ledger.events()
+                )
             )
             event = self.ledger.record(
                 EventType.RECONCILIATION_FAILED,
@@ -438,6 +441,11 @@ class RecoveryEngine:
         contract = self._contracts.get(compromised_tool)
         if contract is None:
             return blocked("missing_recovery_contract")
+        if (
+            compromised.payload.get("contract_version") != contract.contract_version
+            or trusted.payload.get("contract_version") != contract.contract_version
+        ):
+            return blocked("reconciliation_contract_version_mismatch")
         if (
             contract.reconciliation_executor is None
             or contract.reconciliation_params_builder is None
