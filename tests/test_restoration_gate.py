@@ -4,7 +4,11 @@ from agent_recovery.catalog import synthetic_contracts
 from agent_recovery.engine import ActionDecision, Approval, RecoveryEngine
 from agent_recovery.ledger import EventType
 from agent_recovery.replay import ReplayActionSpec, ReplayLab
-from agent_recovery.restoration import RestorationDecision, RestorationGate, record_replay_verification
+from agent_recovery.restoration import (
+    RestorationDecision,
+    RestorationGate,
+    record_replay_verification,
+)
 from agent_recovery.simulator import SyntheticEnterprise
 
 
