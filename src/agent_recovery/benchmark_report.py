@@ -5,6 +5,7 @@ from typing import Any
 
 from .authority_resurrection_benchmark import run_authority_resurrection_scenario
 from .benchmark import run_vertical_slice
+from .false_positive_containment_benchmark import run_false_positive_containment_scenario
 from .indirect_prompt_injection_benchmark import run_indirect_prompt_injection_benchmark
 from .multi_agent_benchmark import run_multi_agent_recovery_scenario
 from .over_scoped_identity_benchmark import run_over_scoped_identity_benchmark
@@ -39,6 +40,7 @@ def run_benchmark_report() -> BenchmarkReport:
     b07 = run_partial_compensation_failure_scenario().to_dict()
     b09 = run_runaway_loop_scenario().to_dict()
     b10 = run_recovery_path_attack_scenario().to_dict()
+    false_positive = run_false_positive_containment_scenario().to_dict()
     resurrection = run_authority_resurrection_scenario().to_dict()
 
     contract_results = {
@@ -91,6 +93,8 @@ def run_benchmark_report() -> BenchmarkReport:
         "unsafe_recovery_executions": unsafe_executions,
         "authority_resurrection_attempts": resurrection["resurrection_attempts"],
         "authority_resurrection_successes": resurrection["duplicate_external_effects"],
+        "false_positive_containment_rate": false_positive["false_positive_containment_rate"],
+        "false_positive_containment_benign_scopes_observed": false_positive["benign_scopes_observed"],
     }
 
     return BenchmarkReport(
@@ -101,7 +105,10 @@ def run_benchmark_report() -> BenchmarkReport:
             "coverage_rate": len(contract_results) / 10,
         },
         metric_vector=metric_vector,
-        scenario_results=contract_results,
+        scenario_results={
+            **contract_results,
+            "false_positive_containment_scope": false_positive,
+        },
         unmeasured_metrics=(
             "time_or_actions_to_containment",
             "root_cause_accuracy_global",
@@ -109,7 +116,6 @@ def run_benchmark_report() -> BenchmarkReport:
             "recovery_execution_success_rate_global",
             "unsafe_recovery_action_rate_denominator",
             "evidence_completeness_global",
-            "false_positive_containment_rate",
         ),
     )
 

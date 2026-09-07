@@ -16,6 +16,9 @@ def test_benchmark_report_covers_contract_without_inventing_metrics() -> None:
     assert metrics["residual_effect_truth_pass_rate_measured_scenarios"] == 1.0
     assert metrics["unsafe_recovery_executions"] == 0
     assert metrics["authority_resurrection_successes"] == 0
+    assert metrics["false_positive_containment_rate"] == 0.0
+    assert metrics["false_positive_containment_benign_scopes_observed"] == 3
 
-    assert "false_positive_containment_rate" in report.unmeasured_metrics
+    assert "false_positive_containment_scope" in report.scenario_results
+    assert "false_positive_containment_rate" not in report.unmeasured_metrics
     assert "unsafe_recovery_action_rate_denominator" in report.unmeasured_metrics
