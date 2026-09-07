@@ -4,11 +4,11 @@ Date: 2026-09-07
 
 ## Status
 
-M0 and M1 are accepted. M2 remains active on `main`.
+M0 and M1 are accepted. The deterministic M2 benchmark/recovery core has reached the intended competition breadth and the project is now entering M3: advisory Strands investigation/planning over a read-only evidence boundary.
 
-Authoritative implementation head before this documentation checkpoint:
+Current accepted `main` head before this documentation checkpoint:
 
-`c1f40cb4450167ed53d5d56d7d00c65f60537418`
+`5c1d9fe91841d13f14818ca1b67964d8a0d1ee64`
 
 The product remains a **recovery-first control layer for autonomous AI agents**, not a generic AI-security suite.
 
@@ -24,15 +24,15 @@ Core rules:
 
 ## Accepted deterministic boundary
 
-Accepted implementation now includes:
+Accepted implementation includes:
 
 1. Recovery Contracts for write-capable tools with fail-closed missing/malformed contract behavior.
 2. Parameter-bound approvals for consequential actions; model/planner text is never authorization.
 3. Tamper-evident append-oriented action/evidence ledger with SHA-256 previous-hash/event-hash chaining and integrity verification.
 4. Source-incident binding, causal incident graph and blast-radius reconstruction across agent handoffs and shared state.
 5. Scoped containment and reverse-causal, dependency-aware, idempotent recovery.
-6. Shared-resource identities plus fail-closed same-resource conflict handling; independent writes to different CRM fields are preserved.
-7. Explicit reconciliation controls for genuinely conflicting writes, including incident and Recovery Contract version binding.
+6. Shared-resource identities, field-scoped conflict preservation and explicit evidence-backed reconciliation for genuine same-resource writer conflicts.
+7. Reconciliation authority bound to incident, resource, source action IDs, contract version and fresh ledger evidence.
 8. Partial compensation failure semantics: failed and dependency-blocked compensation remain explicit residual effects rather than false recovery.
 9. Irreversible/externalized effects remain residual; repaired local state becomes an explicit recovery generation/fork instead of pretending external history was undone.
 10. Replay freshness bound to source attack/action evidence and recovery-plane evidence.
@@ -41,62 +41,84 @@ Accepted implementation now includes:
 13. One-time recovery-fork proofs and one-time parameter-bound authority consumption reconstructed from ledger evidence after runtime recreation.
 14. Authority-resurrection replay protection: a consumed approval cannot be reused by a recreated runtime to duplicate an external effect.
 15. Bounded runaway write-loop containment at the deterministic tool boundary.
-16. Recovery-path attack coverage: an untrusted recovery plan cannot turn its own claimed authorization into permission for a high-impact write.
+16. Recovery-path attack coverage: untrusted recovery-plan text cannot turn its own claimed authorization into permission for a high-impact write.
+17. Incident-to-regression evidence contracts that bind future regression cases to source incident identity, concrete evidence IDs and explicit invariants.
+18. An integrity-verified, incident-scoped read-only investigation boundary for investigator, recovery-planner and skeptic proposals. Prompt payloads carry evidence only, never approvals, executors, capabilities or mutable ledger handles.
 
-## Benchmark coverage accepted to date
+## Benchmark contract coverage
 
-The deterministic suite now has direct coverage for the following benchmark classes or equivalent accepted fixtures:
+The deterministic aggregate report now covers all required competition benchmark classes B01-B10:
 
+- B01 indirect prompt injection trajectory
 - B02 tool-output poisoning
 - B03 memory poisoning
-- B04 approval bypass
+- B04 approval bypass attempt
+- B05 over-scoped identity
 - B06 cascading multi-agent failure
 - B07 partial compensating workflow failure
-- B08 irreversible external effect semantics
-- B09 runaway write-loop containment
+- B08 irreversible external effect
+- B09 runaway tool loop
 - B10 recovery-path attack
-- authority-resurrection / semantic replay attempts
-- concurrent/shared-state conflict and reconciliation behavior
 
-The remaining benchmark-contract work should focus first on any scenario whose behavior is only indirectly covered, especially a judge-legible B01 indirect prompt-injection trajectory and explicit B05 over-scoped-identity fixture, then on fuller metric aggregation across all scenarios.
+Additional coverage includes authority-resurrection / semantic replay attempts, concurrent/shared-state conflict and reconciliation behavior, and false-positive containment-scope measurement.
 
-Do not invent benchmark numbers. Existing numeric results are deterministic synthetic evidence only, not production effectiveness claims.
+Latest verified benchmark run on PR #25 head `7511d8afa5ab2ab43e4bba3c25d849b155c449e3` reported:
 
-## Latest accepted slice
+- benchmark contract coverage: 10/10 classes
+- 61 deterministic tests passed on Python 3.12; Python 3.10 test job also passed
+- B06 blast-radius recall: 1.0
+- B06 blast-radius precision: 1.0
+- measured containment success rate: 1.0 across the currently measured deterministic scenarios
+- measured replay attack success rate: 0.0 for the currently measured replay scenario
+- false-positive containment rate: 0.0 across 3 known-benign scopes in the bounded fixture
+- authority-resurrection successes: 0
+- unsafe recovery executions across the aggregate deterministic contract report: 0
 
-PR #18 `Benchmark recovery-path attack authorization` was accepted after exact-head CI on `0538f5bacaaa172ceff77de4638f83fcb99ac0d5`.
+These are **synthetic deterministic benchmark results only**, not production security-effectiveness claims.
 
-Both Python 3.10 and Python 3.12 jobs passed install, lint and tests. Python 3.12 additionally passed benchmark smoke and uploaded benchmark evidence. PR #18 was squash-merged as:
+## Latest accepted slices
 
-`c1f40cb4450167ed53d5d56d7d00c65f60537418`
+Since the previous B10 checkpoint, the following product slices were accepted and merged:
 
-The B10 fixture deliberately supplies malicious planner output that claims authorization to grant `deploy:prod`. The deterministic execution boundary receives the proposed tool and parameters but no real `Approval`; the action is blocked and no unauthorized permission side effect is created. This proves the deterministic authorization boundary only. It does **not** claim generic prompt-injection prevention.
+- PR #19: judge-legible B01 indirect prompt-injection trajectory
+- PR #20: explicit B05 over-scoped identity boundary
+- PR #21: aggregate benchmark metrics without invented composite claims
+- PR #22: bounded false-positive containment fixture
+- PR #23: false-positive containment metric integrated into the benchmark report
+- PR #24: incident-to-regression evidence contract
+- PR #25: read-only investigation evidence boundary for investigator / recovery planner / skeptic proposals
+
+PR #25 exact-head `recovery-ci` completed successfully on Python 3.10 and 3.12, including lint, tests and benchmark smoke where configured. It was merged into `main` as `5c1d9fe91841d13f14818ca1b67964d8a0d1ee64`.
 
 ## Evidence limitations
 
 - The ledger is a prototype tamper-evident in-process log, not WORM storage, remote attestation or an externally anchored transparency log.
-- Replay Lab currently proves bounded replay against synthetic/owned state, not arbitrary full production transaction reconstruction.
+- Replay Lab proves bounded replay against synthetic/owned state, not arbitrary full production transaction reconstruction.
 - Runaway-loop coverage proves post-containment write blocking, not token-cost metering or comprehensive denial-of-wallet prevention.
-- Deterministic fixtures do not establish production security effectiveness by themselves.
+- Current false-positive containment measurement covers bounded known scopes after the compromised scope is known; it does not measure generic attack-detection quality.
+- Global root-cause accuracy, recovery-plan correctness, full evidence completeness, broad recovery success rate and time-to-containment remain intentionally unclaimed until measured.
+- No live Bedrock/AgentCore security-effectiveness claim exists yet.
 
-## Current milestone
+## Current milestone: M3 advisory intelligence
 
-M2 should now finish benchmark breadth and metric aggregation rather than accumulate more unmeasured primitives.
+The next highest-leverage work is no longer more benchmark breadth. It is to add useful agentic intelligence without weakening the deterministic boundary.
 
-### Next highest-leverage implementation work
+### Next implementation order
 
-1. Add a judge-legible B01 indirect prompt-injection trajectory fixture from synthetic external input through contaminated agent behavior to a consequential action attempt and recovery evidence.
-2. Add an explicit B05 over-scoped identity / privilege-boundary fixture if existing privilege coverage does not already expose that metric cleanly.
-3. Aggregate the benchmark contract metrics across scenarios: containment, blast-radius recall/precision, root-cause accuracy where applicable, recovery-plan correctness, restoration, residual-effect accuracy, unsafe recovery action rate, replay attack success, evidence completeness, safe restoration and false-positive containment.
-4. Add incident-to-regression conversion and fuller Replay Lab semantics where they improve measurable evidence.
-5. Then integrate Strands Investigator / Recovery Planner / Skeptic over read-only evidence. Model output may investigate, propose and critique; it must never authorize execution.
-6. After the deterministic boundary is broad and measured, pursue the bounded Bedrock / AgentCore competition path and judge-facing UX.
+1. Implement the Strands Investigator over `EvidenceView`, producing evidence-cited root-cause / blast-radius hypotheses only.
+2. Implement the Recovery Planner over the same incident-scoped evidence, producing an ordered proposed recovery plan with explicit evidence references, residual-risk assumptions and no execution capability.
+3. Implement a separate Skeptic/Verifier that actively challenges investigator/planner claims and can reject unsupported evidence links or unsafe assumptions.
+4. Add deterministic validators that turn advisory proposals into either rejected proposals or candidate plans. Model output must never mint approval or bypass Recovery Contracts.
+5. Add benchmark fixtures for root-cause accuracy, recovery-plan correctness and evidence completeness so the new AI layer is measured rather than demonstrated only narratively.
+6. Add a credential-free deterministic/mock path for CI plus a bounded live Strands + Bedrock path only after owner approval for model access/cost.
+7. Integrate AgentCore Gateway/Policy/observability where it strengthens authorization outside the source agent and produces useful evidence.
+8. Build the judge-facing incident console only after the advisory-agent path is measured and stable.
 
 ## Competition target
 
 Demo story:
 
-**attack -> cross-agent propagation -> blast-radius graph -> scoped containment -> dependency-safe recovery -> residual truth -> adversarial replay -> verified restoration**
+**attack -> cross-agent propagation -> blast-radius graph -> scoped containment -> investigator -> recovery planner -> skeptic challenge -> dependency-safe recovery -> residual truth -> adversarial replay -> verified restoration**
 
 Agents for Humans deadline: 2026-09-14.
 
@@ -111,7 +133,7 @@ RolePilot is a separate product and must continue independently. Do not mix prod
 - public Devpost / Builder / video publishing
 - final competition submission
 
-No owner action is required for the current deterministic implementation.
+No owner action is required for the current credential-free M3 implementation work.
 
 ## Commercial validation after competition
 
