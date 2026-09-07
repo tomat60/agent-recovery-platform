@@ -5,7 +5,12 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
-from .investigation import AgentProposal, EvidenceView, InvestigationBoundaryError, bind_agent_proposal
+from .investigation import (
+    AgentProposal,
+    EvidenceView,
+    InvestigationBoundaryError,
+    bind_agent_proposal,
+)
 
 
 class InvestigatorRuntimeError(ValueError):
