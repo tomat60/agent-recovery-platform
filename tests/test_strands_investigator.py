@@ -45,7 +45,8 @@ def test_investigator_binds_model_claims_to_incident_evidence() -> None:
     assert result.proposal.evidence_event_ids == (source_id, blocked_id)
     assert source_id in captured["prompt"]
     assert "executor" not in captured["prompt"]
-    assert "approval" not in captured["prompt"]
+    assert "approval_id" not in captured["prompt"]
+    assert "capability" not in captured["prompt"]
 
 
 def test_investigator_fails_closed_on_cross_incident_or_unknown_evidence() -> None:
