@@ -27,7 +27,8 @@ _SYSTEM_PROMPT = """You are a read-only incident investigator.
 You may analyze only the supplied incident evidence. You have no authority to execute tools,
 restore authority, approve actions, mutate state, or declare an incident recovered.
 Return JSON only with keys summary and evidence_event_ids. evidence_event_ids must contain only
-ledger event IDs from the supplied incident. State uncertainty in summary rather than inventing facts.
+ledger event IDs from the supplied incident. State uncertainty in summary rather than inventing
+facts.
 """
 
 
@@ -43,7 +44,7 @@ def _prompt_for(view: EvidenceView) -> str:
 def _default_invoke(prompt: str, *, model: Any = None) -> str:
     try:
         from strands import Agent
-    except ImportError as exc:  # pragma: no cover - exercised only with optional dependency absent
+    except ImportError as exc:  # pragma: no cover
         raise InvestigatorRuntimeError(
             "Strands SDK is not installed; install the 'agent' optional dependency"
         ) from exc
@@ -65,15 +66,18 @@ def run_strands_investigator(
     invoke: Callable[[str], str] | None = None,
     model: Any = None,
 ) -> InvestigatorResult:
-    """Run read-only investigation and deterministically bind its claims to ledger evidence.
+    """Run read-only investigation and bind claims to ledger evidence.
 
-    CI can inject ``invoke`` and therefore never requires credentials or paid model calls. The live
-    path lazily imports Strands and gives the agent no tools. Model output is analysis only; the
-    deterministic boundary remains responsible for incident/evidence binding.
+    CI can inject ``invoke`` and therefore never requires credentials or paid model calls.
+    The live path lazily imports Strands and gives the agent no tools. Model output is
+    analysis only; the deterministic boundary remains responsible for incident/evidence
+    binding.
     """
 
     if invoke is not None and model is not None:
-        raise InvestigatorRuntimeError("model cannot be supplied with an injected investigator")
+        raise InvestigatorRuntimeError(
+            "model cannot be supplied with an injected investigator"
+        )
 
     prompt = _prompt_for(view)
     raw = invoke(prompt) if invoke is not None else _default_invoke(prompt, model=model)
@@ -83,7 +87,9 @@ def run_strands_investigator(
     try:
         parsed = json.loads(raw)
     except json.JSONDecodeError as exc:
-        raise InvestigatorRuntimeError("investigator response must be valid JSON") from exc
+        raise InvestigatorRuntimeError(
+            "investigator response must be valid JSON"
+        ) from exc
     if not isinstance(parsed, dict):
         raise InvestigatorRuntimeError("investigator response must be a JSON object")
 
@@ -91,8 +97,12 @@ def run_strands_investigator(
     evidence_ids = parsed.get("evidence_event_ids")
     if not isinstance(summary, str):
         raise InvestigatorRuntimeError("investigator summary must be a string")
-    if not isinstance(evidence_ids, list) or not all(isinstance(item, str) for item in evidence_ids):
-        raise InvestigatorRuntimeError("evidence_event_ids must be a list of strings")
+    if not isinstance(evidence_ids, list) or not all(
+        isinstance(item, str) for item in evidence_ids
+    ):
+        raise InvestigatorRuntimeError(
+            "evidence_event_ids must be a list of strings"
+        )
 
     try:
         proposal = bind_agent_proposal(
