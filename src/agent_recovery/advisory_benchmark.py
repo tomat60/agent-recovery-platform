@@ -1,0 +1,99 @@
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass
+from typing import Any
+
+from .advisory_gate import AdvisoryGateDecision
+from .investigation import AgentProposal
+from .strands_recovery_planner import RecoveryPlannerResult
+from .strands_skeptic import SkepticResult
+
+
+@dataclass(frozen=True)
+class AdvisoryGroundTruth:
+    incident_id: str
+    root_cause_event_ids: tuple[str, ...]
+    required_step_ids: tuple[str, ...]
+    required_evidence_event_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class AdvisoryBenchmarkScore:
+    incident_id: str
+    gate_accepted: bool
+    root_cause_accuracy: float
+    recovery_plan_correctness: float
+    advisory_evidence_completeness: float
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+def _exact_set_score(actual: tuple[str, ...], expected: tuple[str, ...]) -> float:
+    return float(set(actual) == set(expected))
+
+
+def _ordered_step_score(actual: tuple[str, ...], expected: tuple[str, ...]) -> float:
+    return float(actual == expected)
+
+
+def _evidence_completeness(actual: set[str], required: tuple[str, ...]) -> float:
+    required_set = set(required)
+    if not required_set:
+        return 1.0
+    return len(actual & required_set) / len(required_set)
+
+
+def score_advisory_chain(
+    ground_truth: AdvisoryGroundTruth,
+    *,
+    investigator: AgentProposal,
+    planner: RecoveryPlannerResult,
+    skeptic: SkepticResult,
+    decision: AdvisoryGateDecision,
+) -> AdvisoryBenchmarkScore:
+    """Score advisory outputs against deterministic synthetic ground truth.
+
+    The scorer is observation-only. It consumes already-bound advisory outputs and a deterministic
+    gate decision; it cannot mint approval, execute recovery, or restore authority.
+    """
+
+    incident_ids = {
+        investigator.incident_id,
+        planner.proposal.incident_id,
+        skeptic.proposal.incident_id,
+    }
+    if incident_ids != {ground_truth.incident_id}:
+        raise ValueError("advisory benchmark outputs must belong to the ground-truth incident")
+
+    cited_evidence = set(investigator.evidence_event_ids)
+    cited_evidence.update(planner.proposal.evidence_event_ids)
+    for step in planner.steps:
+        cited_evidence.update(step.evidence_event_ids)
+    cited_evidence.update(skeptic.proposal.evidence_event_ids)
+    for challenge in skeptic.challenges:
+        cited_evidence.update(challenge.evidence_event_ids)
+
+    candidate = decision.candidate_plan
+    if candidate is not None:
+        if candidate.incident_id != ground_truth.incident_id:
+            raise ValueError("candidate plan belongs to a different incident")
+        cited_evidence.update(candidate.evidence_event_ids)
+        cited_evidence.update(candidate.skeptic_evidence_event_ids)
+
+    return AdvisoryBenchmarkScore(
+        incident_id=ground_truth.incident_id,
+        gate_accepted=decision.accepted,
+        root_cause_accuracy=_exact_set_score(
+            investigator.evidence_event_ids,
+            ground_truth.root_cause_event_ids,
+        ),
+        recovery_plan_correctness=_ordered_step_score(
+            tuple(step.step_id for step in planner.steps),
+            ground_truth.required_step_ids,
+        ),
+        advisory_evidence_completeness=_evidence_completeness(
+            cited_evidence,
+            ground_truth.required_evidence_event_ids,
+        ),
+    )
