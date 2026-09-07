@@ -10,6 +10,7 @@ from agent_recovery.multi_agent_benchmark import run_multi_agent_recovery_scenar
 from agent_recovery.partial_failure_benchmark import (
     run_partial_compensation_failure_scenario,
 )
+from agent_recovery.runaway_loop_benchmark import run_runaway_loop_scenario
 
 
 def main() -> None:
@@ -18,6 +19,7 @@ def main() -> None:
         "multi_agent_verified_restoration": run_multi_agent_recovery_scenario().to_dict(),
         "partial_compensation_failure": run_partial_compensation_failure_scenario().to_dict(),
         "authority_resurrection_replay_attempt": run_authority_resurrection_scenario().to_dict(),
+        "runaway_tool_loop_containment": run_runaway_loop_scenario().to_dict(),
     }
     print(json.dumps(payload, indent=2, sort_keys=True))
 
