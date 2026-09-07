@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .investigation import AgentProposal, EvidenceView, InvestigationBoundaryError, bind_agent_proposal
+from .investigation import (
+    AgentProposal,
+    EvidenceView,
+    InvestigationBoundaryError,
+    bind_agent_proposal,
+)
 from .strands_recovery_planner import ProposedRecoveryStep, RecoveryPlannerResult
 from .strands_skeptic import SkepticResult
 
@@ -44,7 +49,10 @@ def _rebind(view: EvidenceView, proposal: AgentProposal, *, role: str) -> AgentP
         raise AdvisoryGateError(str(exc)) from exc
 
 
-def _validate_steps(view: EvidenceView, steps: tuple[ProposedRecoveryStep, ...]) -> tuple[str, ...]:
+def _validate_steps(
+    view: EvidenceView,
+    steps: tuple[ProposedRecoveryStep, ...],
+) -> tuple[str, ...]:
     if not steps:
         return ("recovery planner produced no steps",)
     allowed_evidence = {event.event_id for event in view.events}
@@ -61,12 +69,14 @@ def _validate_steps(view: EvidenceView, steps: tuple[ProposedRecoveryStep, ...])
             reasons.append(f"recovery step {step.step_id} cites no evidence")
         elif unknown_evidence:
             reasons.append(
-                f"recovery step {step.step_id} cites evidence outside incident view: {unknown_evidence}"
+                f"recovery step {step.step_id} cites evidence outside incident view: "
+                f"{unknown_evidence}"
             )
         unknown_dependencies = sorted(set(step.depends_on) - seen)
         if unknown_dependencies:
             reasons.append(
-                f"recovery step {step.step_id} has unresolved dependencies: {unknown_dependencies}"
+                f"recovery step {step.step_id} has unresolved dependencies: "
+                f"{unknown_dependencies}"
             )
         seen.add(step.step_id)
     return tuple(dict.fromkeys(reasons))
@@ -115,7 +125,8 @@ def evaluate_advisory_recovery_plan(
             reasons.append(f"skeptic challenge {claim_id} cites no evidence")
         elif unknown_evidence:
             reasons.append(
-                f"skeptic challenge {claim_id} cites evidence outside incident view: {unknown_evidence}"
+                f"skeptic challenge {claim_id} cites evidence outside incident view: "
+                f"{unknown_evidence}"
             )
         if challenge.verdict != "supported":
             reasons.append(f"skeptic verdict for {claim_id} is {challenge.verdict}")
@@ -140,7 +151,11 @@ def evaluate_advisory_recovery_plan(
         dict.fromkeys(
             (
                 *skeptic_bound.evidence_event_ids,
-                *(event_id for challenge in skeptic.challenges for event_id in challenge.evidence_event_ids),
+                *(
+                    event_id
+                    for challenge in skeptic.challenges
+                    for event_id in challenge.evidence_event_ids
+                ),
             )
         )
     )
