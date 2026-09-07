@@ -4,11 +4,13 @@ Date: 2026-09-07
 
 ## Status
 
-M0 and M1 are accepted. The deterministic M2 benchmark/recovery core has reached the intended competition breadth and the project is now entering M3: advisory Strands investigation/planning over a read-only evidence boundary.
+M0, M1 and the deterministic M2 benchmark/recovery core are accepted. M3 now has an evidence-only Strands advisory chain plus a deterministic candidate-plan boundary:
 
-Current accepted `main` head before this documentation checkpoint:
+**EvidenceView -> Investigator -> Recovery Planner -> Skeptic/Verifier -> deterministic Advisory Gate**
 
-`5c1d9fe91841d13f14818ca1b67964d8a0d1ee64`
+Current accepted `main` head before this documentation commit:
+
+`cc92d25a817a6c8152b00bf39e2dd64f6333c29d`
 
 The product remains a **recovery-first control layer for autonomous AI agents**, not a generic AI-security suite.
 
@@ -43,11 +45,15 @@ Accepted implementation includes:
 15. Bounded runaway write-loop containment at the deterministic tool boundary.
 16. Recovery-path attack coverage: untrusted recovery-plan text cannot turn its own claimed authorization into permission for a high-impact write.
 17. Incident-to-regression evidence contracts that bind future regression cases to source incident identity, concrete evidence IDs and explicit invariants.
-18. An integrity-verified, incident-scoped read-only investigation boundary for investigator, recovery-planner and skeptic proposals. Prompt payloads carry evidence only, never approvals, executors, capabilities or mutable ledger handles.
+18. An integrity-verified, incident-scoped read-only investigation boundary. Prompt payloads carry evidence only, never approvals, executors, capabilities or mutable ledger handles.
+19. A Strands Investigator that produces evidence-cited incident hypotheses without write tools or execution authority.
+20. A Strands Recovery Planner that produces ordered evidence-cited candidate steps and explicit residual risks without execution authority.
+21. An independent Strands Skeptic/Verifier that challenges investigator/planner claims against incident evidence and cannot restore authority.
+22. A deterministic Advisory Gate that rebinds all advisory proposals to the incident evidence view and fails closed on cross-incident evidence, missing/duplicate claim review, unsupported or uncertain skeptic verdicts, forged step evidence and unresolved dependencies. Passing this gate creates only a candidate recovery plan; it does not approve or execute recovery.
 
 ## Benchmark contract coverage
 
-The deterministic aggregate report now covers all required competition benchmark classes B01-B10:
+The deterministic aggregate report covers all required competition benchmark classes B01-B10:
 
 - B01 indirect prompt injection trajectory
 - B02 tool-output poisoning
@@ -62,10 +68,9 @@ The deterministic aggregate report now covers all required competition benchmark
 
 Additional coverage includes authority-resurrection / semantic replay attempts, concurrent/shared-state conflict and reconciliation behavior, and false-positive containment-scope measurement.
 
-Latest verified benchmark run on PR #25 head `7511d8afa5ab2ab43e4bba3c25d849b155c449e3` reported:
+The last explicitly recorded benchmark checkpoint in this document remains the PR #25 deterministic report:
 
 - benchmark contract coverage: 10/10 classes
-- 61 deterministic tests passed on Python 3.12; Python 3.10 test job also passed
 - B06 blast-radius recall: 1.0
 - B06 blast-radius precision: 1.0
 - measured containment success rate: 1.0 across the currently measured deterministic scenarios
@@ -74,21 +79,20 @@ Latest verified benchmark run on PR #25 head `7511d8afa5ab2ab43e4bba3c25d849b155
 - authority-resurrection successes: 0
 - unsafe recovery executions across the aggregate deterministic contract report: 0
 
-These are **synthetic deterministic benchmark results only**, not production security-effectiveness claims.
+These are **synthetic deterministic benchmark results only**, not production security-effectiveness claims. Do not infer new benchmark numbers from later code changes until a measured artifact records them.
 
 ## Latest accepted slices
 
-Since the previous B10 checkpoint, the following product slices were accepted and merged:
+Recent accepted product slices:
 
-- PR #19: judge-legible B01 indirect prompt-injection trajectory
-- PR #20: explicit B05 over-scoped identity boundary
-- PR #21: aggregate benchmark metrics without invented composite claims
-- PR #22: bounded false-positive containment fixture
-- PR #23: false-positive containment metric integrated into the benchmark report
 - PR #24: incident-to-regression evidence contract
-- PR #25: read-only investigation evidence boundary for investigator / recovery planner / skeptic proposals
+- PR #25: read-only investigation evidence boundary
+- PR #26: read-only Strands Investigator runtime
+- PR #27: read-only Strands Recovery Planner runtime
+- PR #28: independent Strands Skeptic/Verifier runtime
+- PR #29: deterministic advisory recovery gate producing candidate-only plans
 
-PR #25 exact-head `recovery-ci` completed successfully on Python 3.10 and 3.12, including lint, tests and benchmark smoke where configured. It was merged into `main` as `5c1d9fe91841d13f14818ca1b67964d8a0d1ee64`.
+PR #29 exact-head `943cfb2146ea2b4686e29924ae3004bb86719621` passed `recovery-ci` before squash merge. It was merged into `main` as `cc92d25a817a6c8152b00bf39e2dd64f6333c29d`.
 
 ## Evidence limitations
 
@@ -96,29 +100,29 @@ PR #25 exact-head `recovery-ci` completed successfully on Python 3.10 and 3.12, 
 - Replay Lab proves bounded replay against synthetic/owned state, not arbitrary full production transaction reconstruction.
 - Runaway-loop coverage proves post-containment write blocking, not token-cost metering or comprehensive denial-of-wallet prevention.
 - Current false-positive containment measurement covers bounded known scopes after the compromised scope is known; it does not measure generic attack-detection quality.
+- The advisory gate establishes evidence and skeptic requirements for candidate plans; it does not yet measure broad root-cause or recovery-plan correctness.
 - Global root-cause accuracy, recovery-plan correctness, full evidence completeness, broad recovery success rate and time-to-containment remain intentionally unclaimed until measured.
 - No live Bedrock/AgentCore security-effectiveness claim exists yet.
 
-## Current milestone: M3 advisory intelligence
+## Current milestone: M3 measured advisory intelligence
 
-The next highest-leverage work is no longer more benchmark breadth. It is to add useful agentic intelligence without weakening the deterministic boundary.
+The advisory chain now exists. The next highest-leverage work is to measure it before adding judge-facing UI or live-cloud claims.
 
 ### Next implementation order
 
-1. Implement the Strands Investigator over `EvidenceView`, producing evidence-cited root-cause / blast-radius hypotheses only.
-2. Implement the Recovery Planner over the same incident-scoped evidence, producing an ordered proposed recovery plan with explicit evidence references, residual-risk assumptions and no execution capability.
-3. Implement a separate Skeptic/Verifier that actively challenges investigator/planner claims and can reject unsupported evidence links or unsafe assumptions.
-4. Add deterministic validators that turn advisory proposals into either rejected proposals or candidate plans. Model output must never mint approval or bypass Recovery Contracts.
-5. Add benchmark fixtures for root-cause accuracy, recovery-plan correctness and evidence completeness so the new AI layer is measured rather than demonstrated only narratively.
-6. Add a credential-free deterministic/mock path for CI plus a bounded live Strands + Bedrock path only after owner approval for model access/cost.
-7. Integrate AgentCore Gateway/Policy/observability where it strengthens authorization outside the source agent and produces useful evidence.
-8. Build the judge-facing incident console only after the advisory-agent path is measured and stable.
+1. Add deterministic benchmark fixtures for root-cause accuracy, recovery-plan correctness and advisory evidence completeness.
+2. Make the benchmark scorer consume the Investigator -> Planner -> Skeptic -> Advisory Gate outputs without allowing model text to become authorization.
+3. Add incident-to-regression cases where an unsupported or uncertain advisory claim must remain rejected even when the proposed recovery would otherwise look plausible.
+4. Keep a credential-free deterministic/mock path for CI.
+5. Add a bounded live Strands + Bedrock path only after owner approval for model access/cost.
+6. Integrate AgentCore Gateway/Policy/observability only where it strengthens authorization outside the source agent and produces useful recovery evidence.
+7. Build the judge-facing incident console after the measured advisory path is stable.
 
 ## Competition target
 
 Demo story:
 
-**attack -> cross-agent propagation -> blast-radius graph -> scoped containment -> investigator -> recovery planner -> skeptic challenge -> dependency-safe recovery -> residual truth -> adversarial replay -> verified restoration**
+**attack -> cross-agent propagation -> blast-radius graph -> scoped containment -> investigator -> recovery planner -> skeptic challenge -> deterministic candidate gate -> dependency-safe recovery -> residual truth -> adversarial replay -> verified restoration**
 
 Agents for Humans deadline: 2026-09-14.
 
