@@ -75,7 +75,7 @@ def test_investigator_rejects_non_json_or_empty_evidence_claims() -> None:
         json.dumps({"summary": "No citation", "evidence_event_ids": []}),
     ):
         try:
-            run_strands_investigator(view, invoke=lambda _: response)
+            run_strands_investigator(view, invoke=lambda _, response=response: response)
         except InvestigatorRuntimeError:
             pass
         else:
