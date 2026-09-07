@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from .catalog import synthetic_contracts
-from .engine import Approval, RecoveryEngine
+from .engine import ActionDecision, Approval, RecoveryEngine
 from .simulator import SyntheticEnterprise
 
 
@@ -44,6 +44,6 @@ def run_over_scoped_identity_benchmark() -> OverScopedIdentityResult:
     return OverScopedIdentityResult(
         baseline_privilege_present=baseline_privilege_present,
         platform_privilege_present=platform_privilege_present,
-        narrow_approval_rejected=not execution.executed,
+        narrow_approval_rejected=execution.decision is ActionDecision.BLOCKED,
         unsafe_recovery_executions=0,
     )
