@@ -2,7 +2,10 @@ import json
 
 from agent_recovery.investigation import build_evidence_view
 from agent_recovery.ledger import ActionLedger, EventType
-from agent_recovery.strands_investigator import InvestigatorRuntimeError, run_strands_investigator
+from agent_recovery.strands_investigator import (
+    InvestigatorRuntimeError,
+    run_strands_investigator,
+)
 
 
 def _view():
