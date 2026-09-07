@@ -6,6 +6,7 @@ from agent_recovery.authority_resurrection_benchmark import (
     run_authority_resurrection_scenario,
 )
 from agent_recovery.benchmark import run_vertical_slice
+from agent_recovery.benchmark_report import run_benchmark_report
 from agent_recovery.multi_agent_benchmark import run_multi_agent_recovery_scenario
 from agent_recovery.partial_failure_benchmark import (
     run_partial_compensation_failure_scenario,
@@ -20,6 +21,7 @@ def main() -> None:
         "partial_compensation_failure": run_partial_compensation_failure_scenario().to_dict(),
         "authority_resurrection_replay_attempt": run_authority_resurrection_scenario().to_dict(),
         "runaway_tool_loop_containment": run_runaway_loop_scenario().to_dict(),
+        "benchmark_contract_report": run_benchmark_report().to_dict(),
     }
     print(json.dumps(payload, indent=2, sort_keys=True))
 
