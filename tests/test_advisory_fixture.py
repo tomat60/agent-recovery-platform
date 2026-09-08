@@ -3,19 +3,27 @@ from pathlib import Path
 
 import pytest
 
-from agent_recovery.advisory_fixture import load_advisory_fixture, load_advisory_fixture_suite
+from agent_recovery.advisory_fixture import (
+    load_advisory_fixture,
+    load_advisory_fixture_suite,
+)
 
 
 def test_loads_complete_versioned_b01_b10_suite() -> None:
     directory = Path(__file__).parents[1] / "benchmarks/advisory"
     fixtures = load_advisory_fixture_suite(directory)
 
-    assert tuple(fixture.scenario_id for fixture in fixtures) == tuple(f"B{index:02d}" for index in range(1, 11))
+    assert tuple(fixture.scenario_id for fixture in fixtures) == tuple(
+        f"B{index:02d}" for index in range(1, 11)
+    )
     assert len({fixture.ground_truth.incident_id for fixture in fixtures}) == 10
     assert all(fixture.ground_truth.root_cause_event_ids for fixture in fixtures)
     assert all(fixture.ground_truth.required_step_ids for fixture in fixtures)
     assert all(fixture.ground_truth.required_evidence_event_ids for fixture in fixtures)
-    assert all(fixture.constraints.get("model_output_is_authorization") is False for fixture in fixtures)
+    assert all(
+        fixture.constraints.get("model_output_is_authorization") is False
+        for fixture in fixtures
+    )
 
 
 def test_rejects_duplicate_ground_truth_ids(tmp_path: Path) -> None:
