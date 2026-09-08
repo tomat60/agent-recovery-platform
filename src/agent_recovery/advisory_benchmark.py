@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from typing import Any
 
@@ -27,6 +28,21 @@ class AdvisoryBenchmarkScore:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+
+@dataclass(frozen=True)
+class AdvisoryBenchmarkAggregate:
+    scenario_count: int
+    gate_acceptance_rate: float
+    mean_root_cause_accuracy: float
+    mean_recovery_plan_correctness: float
+    mean_advisory_evidence_completeness: float
+    scenario_scores: tuple[AdvisoryBenchmarkScore, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        payload = asdict(self)
+        payload["scenario_scores"] = [score.to_dict() for score in self.scenario_scores]
+        return payload
 
 
 def _exact_set_score(actual: tuple[str, ...], expected: tuple[str, ...]) -> float:
@@ -96,4 +112,34 @@ def score_advisory_chain(
             cited_evidence,
             ground_truth.required_evidence_event_ids,
         ),
+    )
+
+
+def aggregate_advisory_scores(
+    scores: Iterable[AdvisoryBenchmarkScore],
+) -> AdvisoryBenchmarkAggregate:
+    """Aggregate already-measured advisory scores without inventing unsupported claims.
+
+    Every scenario must have a distinct incident identity. The aggregate reports only arithmetic
+    means over supplied deterministic measurements; it does not infer production effectiveness.
+    """
+
+    scenario_scores = tuple(scores)
+    if not scenario_scores:
+        raise ValueError("at least one advisory benchmark score is required")
+
+    incident_ids = [score.incident_id for score in scenario_scores]
+    if len(set(incident_ids)) != len(incident_ids):
+        raise ValueError("advisory benchmark aggregate requires unique incident identities")
+
+    denominator = len(scenario_scores)
+    return AdvisoryBenchmarkAggregate(
+        scenario_count=denominator,
+        gate_acceptance_rate=sum(score.gate_accepted for score in scenario_scores) / denominator,
+        mean_root_cause_accuracy=sum(score.root_cause_accuracy for score in scenario_scores) / denominator,
+        mean_recovery_plan_correctness=sum(score.recovery_plan_correctness for score in scenario_scores) / denominator,
+        mean_advisory_evidence_completeness=(
+            sum(score.advisory_evidence_completeness for score in scenario_scores) / denominator
+        ),
+        scenario_scores=scenario_scores,
     )
