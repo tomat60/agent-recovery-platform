@@ -1,5 +1,5 @@
-from agent_recovery.advisory_fixture import AdvisoryBenchmarkFixture
 from agent_recovery.advisory_benchmark import AdvisoryGroundTruth
+from agent_recovery.advisory_fixture import AdvisoryBenchmarkFixture
 from agent_recovery.advisory_gate import AdvisoryGateDecision, CandidateRecoveryPlan
 from agent_recovery.advisory_suite import AdvisoryScenarioOutputs, score_advisory_fixture_suite
 from agent_recovery.investigation import AgentProposal
