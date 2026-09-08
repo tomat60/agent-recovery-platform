@@ -42,7 +42,7 @@ def load_advisory_fixture(path: str | Path) -> AdvisoryBenchmarkFixture:
     fixture_path = Path(path)
     payload = json.loads(fixture_path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
-        raise ValueError("advisory fixture must be a JSON object")
+        raise TypeError("advisory fixture must be a JSON object")
 
     constraints = payload.get("constraints")
     if not isinstance(constraints, dict) or not constraints:
@@ -57,10 +57,7 @@ def load_advisory_fixture(path: str | Path) -> AdvisoryBenchmarkFixture:
     scenario_class = _required_string(payload, "scenario_class")
     incident_id = _required_string(payload, "incident_id")
 
-    if (
-        "model_output_is_authorization" in constraints
-        and constraints["model_output_is_authorization"]
-    ):
+    if constraints.get("model_output_is_authorization"):
         raise ValueError("model output must never be authorization")
 
     return AdvisoryBenchmarkFixture(
