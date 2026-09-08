@@ -1,16 +1,16 @@
 # Project Current State
 
-Date: 2026-09-07
+Date: 2026-09-08
 
 ## Status
 
-M0, M1 and the deterministic M2 benchmark/recovery core are accepted. M3 now has an evidence-only Strands advisory chain plus a deterministic candidate-plan boundary:
+M0, M1 and the deterministic M2 benchmark/recovery core are accepted. M3 now has an evidence-only Strands advisory chain, deterministic candidate-plan boundary, versioned B01-B10 advisory ground truth, exact-suite measurement, fail-closed rejection safety measurement, and rejected-advisory incident-to-regression conversion.
 
-**EvidenceView -> Investigator -> Recovery Planner -> Skeptic/Verifier -> deterministic Advisory Gate**
+**EvidenceView -> Investigator -> Recovery Planner -> Skeptic/Verifier -> deterministic Advisory Gate -> measured evidence / regression contract**
 
-Current accepted `main` head before this documentation commit:
+Current accepted `main` head:
 
-`cc92d25a817a6c8152b00bf39e2dd64f6333c29d`
+`24f249cc816b17bdf580e6033dd8504cbec84717`
 
 The product remains a **recovery-first control layer for autonomous AI agents**, not a generic AI-security suite.
 
@@ -50,49 +50,58 @@ Accepted implementation includes:
 20. A Strands Recovery Planner that produces ordered evidence-cited candidate steps and explicit residual risks without execution authority.
 21. An independent Strands Skeptic/Verifier that challenges investigator/planner claims against incident evidence and cannot restore authority.
 22. A deterministic Advisory Gate that rebinds all advisory proposals to the incident evidence view and fails closed on cross-incident evidence, missing/duplicate claim review, unsupported or uncertain skeptic verdicts, forged step evidence and unresolved dependencies. Passing this gate creates only a candidate recovery plan; it does not approve or execute recovery.
+23. Versioned deterministic advisory ground-truth fixtures for B01-B10 with a fail-closed loader requiring exact class coverage, unique scenario/incident identities, valid ground-truth evidence IDs and no model-output authorization claim.
+24. Credential-free scoring of bound Investigator -> Planner -> Skeptic -> Advisory Gate outputs for exact root-cause evidence match, ordered recovery-plan correctness and required advisory evidence completeness.
+25. Exact-suite scoring that rejects missing or extra scenario outputs rather than silently averaging partial coverage.
+26. Observation-only Advisory Gate rejection-safety measurement that detects acceptance mismatches and candidate-plan exposure when rejection was expected.
+27. Aggregate rejection-safety reporting over measured scenarios without granting approval, execution or restoration authority.
+28. Fail-closed conversion of properly rejected advisory evidence into deterministic regression contracts. Accepted decisions, missing rejection reasons or candidate-plan exposure cannot be converted as safe rejection regressions.
 
 ## Benchmark contract coverage
 
-The deterministic aggregate report covers all required competition benchmark classes B01-B10:
+The deterministic aggregate benchmark contract covers all required competition classes B01-B10:
 
 - B01 indirect prompt injection trajectory
 - B02 tool-output poisoning
 - B03 memory poisoning
 - B04 approval bypass attempt
-- B05 over-scoped identity
+- B05 over-scoped identity / privilege escalation
 - B06 cascading multi-agent failure
 - B07 partial compensating workflow failure
 - B08 irreversible external effect
-- B09 runaway tool loop
+- B09 runaway tool / denial-of-wallet loop
 - B10 recovery-path attack
 
-Additional coverage includes authority-resurrection / semantic replay attempts, concurrent/shared-state conflict and reconciliation behavior, and false-positive containment-scope measurement.
+Additional deterministic coverage includes authority-resurrection / semantic replay attempts, concurrent/shared-state conflict and reconciliation behavior, and false-positive containment-scope measurement.
 
-The last explicitly recorded benchmark checkpoint in this document remains the PR #25 deterministic report:
+The last explicitly recorded aggregate security checkpoint remains the PR #25 deterministic report:
 
 - benchmark contract coverage: 10/10 classes
 - B06 blast-radius recall: 1.0
 - B06 blast-radius precision: 1.0
-- measured containment success rate: 1.0 across the currently measured deterministic scenarios
-- measured replay attack success rate: 0.0 for the currently measured replay scenario
-- false-positive containment rate: 0.0 across 3 known-benign scopes in the bounded fixture
+- measured containment success rate: 1.0 across the then-measured deterministic scenarios
+- measured replay attack success rate: 0.0 for the then-measured replay scenario
+- false-positive containment rate: 0.0 across 3 known-benign scopes in that bounded fixture
 - authority-resurrection successes: 0
-- unsafe recovery executions across the aggregate deterministic contract report: 0
+- unsafe recovery executions across that aggregate deterministic contract report: 0
 
-These are **synthetic deterministic benchmark results only**, not production security-effectiveness claims. Do not infer new benchmark numbers from later code changes until a measured artifact records them.
+These are **synthetic deterministic benchmark results only**, not production security-effectiveness claims. Later M3 advisory work adds measurement machinery and fixture coverage, but this authority file does not invent replacement aggregate numbers without a measured artifact recording them.
 
 ## Latest accepted slices
 
-Recent accepted product slices:
+Accepted M3 advisory slices now include:
 
-- PR #24: incident-to-regression evidence contract
-- PR #25: read-only investigation evidence boundary
-- PR #26: read-only Strands Investigator runtime
-- PR #27: read-only Strands Recovery Planner runtime
-- PR #28: independent Strands Skeptic/Verifier runtime
 - PR #29: deterministic advisory recovery gate producing candidate-only plans
+- PR #30: advisory-chain deterministic ground-truth scorer
+- PRs #31-#40: versioned B01-B10 advisory ground-truth fixtures
+- PR #41: aggregate measured advisory benchmark scores
+- PR #42: fail-closed exact B01-B10 fixture-suite loader
+- PR #43: fail-closed Advisory Gate rejection-safety measurement
+- PR #44: aggregate Advisory Gate rejection-safety reporting
+- PR #45: exact advisory fixture-suite scoring
+- PR #46: rejected advisory evidence to deterministic regression contracts
 
-PR #29 exact-head `943cfb2146ea2b4686e29924ae3004bb86719621` passed `recovery-ci` before squash merge. It was merged into `main` as `cc92d25a817a6c8152b00bf39e2dd64f6333c29d`.
+PR #46 exact head `74cd13bc8ce364145cf2370821359ffeef0fbdaf` passed `recovery-ci` before squash merge. It was merged into `main` as `24f249cc816b17bdf580e6033dd8504cbec84717`.
 
 ## Evidence limitations
 
@@ -100,23 +109,22 @@ PR #29 exact-head `943cfb2146ea2b4686e29924ae3004bb86719621` passed `recovery-ci
 - Replay Lab proves bounded replay against synthetic/owned state, not arbitrary full production transaction reconstruction.
 - Runaway-loop coverage proves post-containment write blocking, not token-cost metering or comprehensive denial-of-wallet prevention.
 - Current false-positive containment measurement covers bounded known scopes after the compromised scope is known; it does not measure generic attack-detection quality.
-- The advisory gate establishes evidence and skeptic requirements for candidate plans; it does not yet measure broad root-cause or recovery-plan correctness.
-- Global root-cause accuracy, recovery-plan correctness, full evidence completeness, broad recovery success rate and time-to-containment remain intentionally unclaimed until measured.
+- Advisory metrics are deterministic fixture measurements. They do not establish production root-cause accuracy or recovery-plan correctness for arbitrary incidents.
+- Global production security effectiveness, broad recovery success rate and time-to-containment remain intentionally unclaimed.
 - No live Bedrock/AgentCore security-effectiveness claim exists yet.
 
-## Current milestone: M3 measured advisory intelligence
+## Current milestone: M3 evidence packaging and judge-facing recovery story
 
-The advisory chain now exists. The next highest-leverage work is to measure it before adding judge-facing UI or live-cloud claims.
+The credential-free measured advisory path is now structurally complete enough to package before adding cloud claims. The next highest-leverage work is to make existing measured evidence reproducible and judge-readable while preserving the deterministic trust boundary.
 
 ### Next implementation order
 
-1. Add deterministic benchmark fixtures for root-cause accuracy, recovery-plan correctness and advisory evidence completeness.
-2. Make the benchmark scorer consume the Investigator -> Planner -> Skeptic -> Advisory Gate outputs without allowing model text to become authorization.
-3. Add incident-to-regression cases where an unsupported or uncertain advisory claim must remain rejected even when the proposed recovery would otherwise look plausible.
-4. Keep a credential-free deterministic/mock path for CI.
-5. Add a bounded live Strands + Bedrock path only after owner approval for model access/cost.
-6. Integrate AgentCore Gateway/Policy/observability only where it strengthens authorization outside the source agent and produces useful recovery evidence.
-7. Build the judge-facing incident console after the measured advisory path is stable.
+1. Produce one reproducible machine-readable judge artifact from the exact B01-B10 advisory suite, including per-scenario scores, Advisory Gate rejection-safety outcomes and regression references where applicable. Do not infer unmeasured aggregate claims.
+2. Add a bounded judge-facing incident console/report that renders evidence, blast radius, containment, advisory hypotheses, candidate recovery, residual effects and replay/restoration truth from deterministic artifacts rather than from model narration.
+3. Keep the credential-free deterministic/mock path as the competition fallback and CI source of truth.
+4. Add a bounded live Strands + Bedrock path only after owner approval for model access/cost.
+5. Integrate AgentCore Gateway/Policy/observability only where it strengthens authorization outside the source agent and produces useful recovery evidence.
+6. Prepare competition demo/package from reproduced evidence. Public upload/submission remains owner-only.
 
 ## Competition target
 
@@ -137,7 +145,7 @@ RolePilot is a separate product and must continue independently. Do not mix prod
 - public Devpost / Builder / video publishing
 - final competition submission
 
-No owner action is required for the current credential-free M3 implementation work.
+No owner action is required for the current credential-free implementation and packaging work.
 
 ## Commercial validation after competition
 
