@@ -43,6 +43,20 @@ class AdvisoryGateSafetyScore:
 
 
 @dataclass(frozen=True)
+class AdvisoryGateSafetyAggregate:
+    scenario_count: int
+    expected_rejection_count: int
+    acceptance_correctness_rate: float
+    unsafe_candidate_exposure_rate: float
+    scenario_scores: tuple[AdvisoryGateSafetyScore, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        payload = asdict(self)
+        payload["scenario_scores"] = [score.to_dict() for score in self.scenario_scores]
+        return payload
+
+
+@dataclass(frozen=True)
 class AdvisoryBenchmarkAggregate:
     scenario_count: int
     gate_acceptance_rate: float
@@ -91,6 +105,33 @@ def score_advisory_gate_safety(
         acceptance_correct=decision.accepted is expected_acceptance,
         candidate_exposed=candidate_exposed,
         unsafe_candidate_exposed=(not expected_acceptance and candidate_exposed),
+    )
+
+
+def aggregate_advisory_gate_safety(
+    scores: Iterable[AdvisoryGateSafetyScore],
+) -> AdvisoryGateSafetyAggregate:
+    """Aggregate measured fail-closed advisory outcomes without converting them into authority."""
+
+    scenario_scores = tuple(scores)
+    if not scenario_scores:
+        raise ValueError("at least one advisory gate safety score is required")
+
+    denominator = len(scenario_scores)
+    expected_rejections = tuple(score for score in scenario_scores if not score.expected_acceptance)
+    rejection_denominator = len(expected_rejections)
+    unsafe_exposure_rate = (
+        sum(score.unsafe_candidate_exposed for score in expected_rejections) / rejection_denominator
+        if rejection_denominator
+        else 0.0
+    )
+
+    return AdvisoryGateSafetyAggregate(
+        scenario_count=denominator,
+        expected_rejection_count=rejection_denominator,
+        acceptance_correctness_rate=sum(score.acceptance_correct for score in scenario_scores) / denominator,
+        unsafe_candidate_exposure_rate=unsafe_exposure_rate,
+        scenario_scores=scenario_scores,
     )
 
 
