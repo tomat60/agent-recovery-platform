@@ -31,6 +31,18 @@ class AdvisoryBenchmarkScore:
 
 
 @dataclass(frozen=True)
+class AdvisoryGateSafetyScore:
+    expected_acceptance: bool
+    observed_acceptance: bool
+    acceptance_correct: bool
+    candidate_exposed: bool
+    unsafe_candidate_exposed: bool
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
 class AdvisoryBenchmarkAggregate:
     scenario_count: int
     gate_acceptance_rate: float
@@ -58,6 +70,28 @@ def _evidence_completeness(actual: set[str], required: tuple[str, ...]) -> float
     if not required_set:
         return 1.0
     return len(actual & required_set) / len(required_set)
+
+
+def score_advisory_gate_safety(
+    decision: AdvisoryGateDecision,
+    *,
+    expected_acceptance: bool,
+) -> AdvisoryGateSafetyScore:
+    """Measure whether the deterministic advisory gate exposed a candidate safely.
+
+    This score is observation-only. In a rejection fixture, any candidate-plan exposure is unsafe
+    even if the planner text happens to match the nominal recovery steps. The score cannot approve,
+    execute, or restore authority.
+    """
+
+    candidate_exposed = decision.candidate_plan is not None
+    return AdvisoryGateSafetyScore(
+        expected_acceptance=expected_acceptance,
+        observed_acceptance=decision.accepted,
+        acceptance_correct=decision.accepted is expected_acceptance,
+        candidate_exposed=candidate_exposed,
+        unsafe_candidate_exposed=(not expected_acceptance and candidate_exposed),
+    )
 
 
 def score_advisory_chain(
