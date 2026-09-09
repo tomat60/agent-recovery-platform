@@ -4,7 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 
-from scripts.package_judge_evidence import package_judge_evidence
+from agent_recovery.judge_evidence_package import package_judge_evidence
 
 
 def _artifact() -> dict[str, object]:
