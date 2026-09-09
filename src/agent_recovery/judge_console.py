@@ -20,14 +20,14 @@ def build_judge_advisory_console(artifact: Mapping[str, Any]) -> dict[str, Any]:
 
     scenarios = artifact.get("scenarios")
     if not isinstance(scenarios, list):
-        raise ValueError("judge artifact scenarios must be a list")
+        raise TypeError("judge artifact scenarios must be a list")
     if artifact.get("scenario_count") != len(scenarios):
         raise ValueError("judge artifact scenario count mismatch")
 
     rendered_scenarios: list[dict[str, Any]] = []
     for scenario in scenarios:
         if not isinstance(scenario, Mapping):
-            raise ValueError("judge artifact scenario must be an object")
+            raise TypeError("judge artifact scenario must be an object")
         required = ("scenario_id", "scenario_class", "incident_id", "measurement", "gate_safety")
         if any(key not in scenario for key in required):
             raise ValueError("judge artifact scenario is missing measured provenance")
