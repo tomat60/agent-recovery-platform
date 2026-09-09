@@ -4,6 +4,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from .judge_artifact import JUDGE_ARTIFACT_SCHEMA_VERSION
+from .judge_incident_evidence import validate_judge_incident_evidence
 
 
 def build_judge_advisory_console(artifact: Mapping[str, Any]) -> dict[str, Any]:
@@ -54,5 +55,54 @@ def build_judge_advisory_console(artifact: Mapping[str, Any]) -> dict[str, Any]:
         "unrepresented_claims": (
             "blast radius, containment, recovery execution, residual effects, replay, and "
             "restoration truth require their own deterministic evidence artifacts"
+        ),
+    }
+
+
+def build_judge_full_incident_console(
+    advisory_artifact: Mapping[str, Any],
+    incident_evidence: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Combine authority-free advisory evidence with independently validated incident truth.
+
+    The incident section is accepted only when the dedicated deterministic incident-evidence
+    validator accepts the exact phase set. This renderer never upgrades presentation evidence
+    into approval, execution or restoration authority.
+    """
+
+    advisory_console = build_judge_advisory_console(advisory_artifact)
+    incident = dict(incident_evidence)
+    validate_judge_incident_evidence(incident)
+
+    phases = incident.get("phases")
+    if not isinstance(phases, dict):
+        raise TypeError("validated incident phases must be an object")
+
+    return {
+        "view": "judge-full-incident-console/v1",
+        "evidence_scope": {
+            "advisory": advisory_console["evidence_scope"],
+            "incident": incident.get("claim_boundary"),
+        },
+        "authority_notice": (
+            "Presentation evidence only. No approval, execution, compensation, replay, or "
+            "restoration authority is granted by this console."
+        ),
+        "incident": {
+            "scenario": incident["scenario"],
+            "phases": phases,
+            "measured_score": incident.get("measured_score"),
+        },
+        "advisory": advisory_console,
+        "represented_claims": (
+            "blast_radius",
+            "containment",
+            "recovery",
+            "replay",
+            "restoration",
+        ),
+        "unrepresented_claims": (
+            "production security effectiveness, arbitrary production transaction reconstruction, "
+            "and live Bedrock/AgentCore effectiveness remain unrepresented"
         ),
     }
