@@ -3,11 +3,11 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-from .advisory_benchmark import (
+from agent_recovery.advisory_benchmark import (
     AdvisoryBenchmarkAggregate,
     AdvisoryGateSafetyAggregate,
 )
-from .advisory_fixture import AdvisoryBenchmarkFixture
+from agent_recovery.advisory_fixture import AdvisoryBenchmarkFixture
 
 
 JUDGE_ARTIFACT_SCHEMA_VERSION = "advisory-judge-artifact/v1"
