@@ -9,7 +9,6 @@ from agent_recovery.advisory_benchmark import (
 )
 from agent_recovery.advisory_fixture import AdvisoryBenchmarkFixture
 
-
 JUDGE_ARTIFACT_SCHEMA_VERSION = "advisory-judge-artifact/v1"
 
 
