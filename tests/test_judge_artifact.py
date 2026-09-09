@@ -3,9 +3,9 @@ from agent_recovery.advisory_benchmark import (
     AdvisoryBenchmarkScore,
     AdvisoryGateSafetyAggregate,
     AdvisoryGateSafetyScore,
+    AdvisoryGroundTruth,
 )
 from agent_recovery.advisory_fixture import AdvisoryBenchmarkFixture
-from agent_recovery.advisory_benchmark import AdvisoryGroundTruth
 from agent_recovery.judge_artifact import build_advisory_judge_artifact
 
 
