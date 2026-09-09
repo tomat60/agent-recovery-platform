@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import asdict
-from typing import Any
 
 from .multi_agent_benchmark import run_multi_agent_recovery_scenario
 
@@ -10,7 +9,7 @@ SCHEMA_VERSION = "judge-incident-evidence/v1"
 SCENARIO = "poisoned_support_to_shared_state_to_identity"
 
 
-def build_judge_incident_evidence() -> dict[str, Any]:
+def build_judge_incident_evidence() -> dict[str, object]:
     """Build bounded end-to-end evidence from the deterministic multi-agent scenario.
 
     This view reports only facts measured by the existing benchmark. It grants no
@@ -61,7 +60,7 @@ def build_judge_incident_evidence() -> dict[str, Any]:
     }
 
 
-def validate_judge_incident_evidence(evidence: dict[str, Any]) -> None:
+def validate_judge_incident_evidence(evidence: dict[str, object]) -> None:
     if evidence.get("schema_version") != SCHEMA_VERSION:
         raise ValueError("unsupported incident evidence schema")
     if evidence.get("authorization_effect") != "none":
