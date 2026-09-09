@@ -4,7 +4,6 @@ from dataclasses import asdict
 
 from .multi_agent_benchmark import run_multi_agent_recovery_scenario
 
-
 SCHEMA_VERSION = "judge-incident-evidence/v1"
 SCENARIO = "poisoned_support_to_shared_state_to_identity"
 
