@@ -4,7 +4,6 @@ import importlib.util
 import json
 from pathlib import Path
 
-
 SCRIPT = Path(__file__).parents[1] / "scripts" / "reproduce_judge_incident.py"
 SPEC = importlib.util.spec_from_file_location("reproduce_judge_incident", SCRIPT)
 assert SPEC is not None and SPEC.loader is not None
