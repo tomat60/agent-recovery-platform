@@ -8,7 +8,7 @@ M0, M1 and the deterministic M2 benchmark/recovery core are accepted. M3 now inc
 
 Current accepted `main` head:
 
-`7e6107023dff7e5bc8a3293f4e6a22479088c595`
+`55124093272e0f08bb974ebac95bffd8afe51665`
 
 The product remains a **recovery-first control layer for autonomous AI agents**, not a generic AI-security suite.
 
@@ -53,6 +53,7 @@ Accepted implementation includes:
 25. Final judge-readiness and claim-to-evidence boundaries that prohibit claims not supported by represented deterministic evidence.
 26. Judge evidence index tying claims to reproducible artifacts.
 27. Exact-head final package acceptance gate covering clean reproduction, canonical round-trip, SHA-256 manifests, residual-risk visibility, replay invalidation, secret/customer-data absence and documentation consistency.
+28. Final judge-package authority docs synchronized across README, this state file and the judge evidence index.
 
 ## Benchmark contract coverage
 
@@ -111,8 +112,9 @@ The accepted sequence includes:
 - PR #59: final judge-package claim-to-evidence boundary review
 - PR #60: final judge evidence index and authority synchronization
 - PR #61: exact-head final package acceptance gate
+- PR #62: final judge-package authority synchronization across README, current state and judge evidence index
 
-Accepted `main` after PR #61 is `7e6107023dff7e5bc8a3293f4e6a22479088c595`.
+Accepted `main` after PR #62 is `55124093272e0f08bb974ebac95bffd8afe51665`.
 
 ## Evidence limitations
 
