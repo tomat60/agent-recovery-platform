@@ -28,10 +28,40 @@ jobs:
       - name: Benchmark smoke
         if: matrix.python-version == '3.12'
         run: python scripts/run_benchmark.py | tee benchmark-results.json
+      - name: Reproduce final judge incident evidence
+        if: matrix.python-version == '3.12'
+        run: |
+          rm -rf judge-reproduction
+          python scripts/reproduce_judge_incident.py judge-reproduction | tee judge-reproduction.json
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path("judge-reproduction")
+          manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+          assert manifest["authorization_effect"] == "none"
+          assert manifest["verification"]["incident_schema_valid"] is True
+          assert manifest["verification"]["canonical_round_trip"] is True
+          assert manifest["verification"]["authority_free"] is True
+          for name, expected in manifest["files"].items():
+              payload = (root / name).read_bytes()
+              assert len(payload) == expected["bytes"]
+              assert hashlib.sha256(payload).hexdigest() == expected["sha256"]
+          PY
       - name: Upload benchmark evidence
         if: matrix.python-version == '3.12'
         uses: actions/upload-artifact@v4
         with:
           name: recovery-benchmark-results
           path: benchmark-results.json
+          if-no-files-found: error
+      - name: Upload final judge reproduction evidence
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: recovery-final-judge-reproduction
+          path: |
+            judge-reproduction.json
+            judge-reproduction/
           if-no-files-found: error
