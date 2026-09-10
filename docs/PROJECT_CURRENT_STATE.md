@@ -1,16 +1,14 @@
 # Project Current State
 
-Date: 2026-09-09
+Date: 2026-09-10
 
 ## Status
 
-M0, M1 and the deterministic M2 benchmark/recovery core are accepted. M3 now has an evidence-only Strands advisory chain, deterministic candidate-plan boundary, versioned B01-B10 advisory ground truth, exact-suite measurement, fail-closed rejection safety measurement, rejected-advisory incident-to-regression conversion, a deterministic judge artifact, an authority-free judge console/runbook, and a hash-manifested evidence package.
+M0, M1 and the deterministic M2 benchmark/recovery core are accepted. M3 now includes the evidence-only Strands advisory chain, deterministic Advisory Gate and B01-B10 measurement, fail-closed rejection/regression conversion, a deterministic judge artifact/package, full deterministic incident evidence across the recovery lifecycle, authority-free judge-console rendering, and a credential-free one-command incident reproduction path.
 
-**EvidenceView -> Investigator -> Recovery Planner -> Skeptic/Verifier -> deterministic Advisory Gate -> measured evidence / regression contract -> authority-free judge artifact / package**
+Current accepted `main` head before the open documentation-only PR #60:
 
-Current accepted `main` head:
-
-`0207168511ff3755d54945c10af6d4cfd749a970`
+`36874420379f66fa06b96f41d680552e9679fcea`
 
 The product remains a **recovery-first control layer for autonomous AI agents**, not a generic AI-security suite.
 
@@ -24,45 +22,39 @@ Core rules:
 
 **No restored authority without a verified replay.**
 
-## Accepted deterministic boundary
+## Deterministic trust boundary
 
 Accepted implementation includes:
 
-1. Recovery Contracts for write-capable tools with fail-closed missing/malformed contract behavior.
-2. Parameter-bound approvals for consequential actions; model/planner text is never authorization.
-3. Tamper-evident append-oriented action/evidence ledger with SHA-256 previous-hash/event-hash chaining and integrity verification.
-4. Source-incident binding, causal incident graph and blast-radius reconstruction across agent handoffs and shared state.
-5. Scoped containment and reverse-causal, dependency-aware, idempotent recovery.
-6. Shared-resource identities, field-scoped conflict preservation and explicit evidence-backed reconciliation for genuine same-resource writer conflicts.
-7. Reconciliation authority bound to incident, resource, source action IDs, contract version and fresh ledger evidence.
-8. Partial compensation failure semantics: failed and dependency-blocked compensation remain explicit residual effects rather than false recovery.
-9. Irreversible/externalized effects remain residual; repaired local state becomes an explicit recovery generation/fork instead of pretending external history was undone.
-10. Replay freshness bound to source attack/action evidence and recovery-plane evidence.
-11. Isolated Replay Lab whose verdict is derived from observed tamper-evident replay evidence rather than caller-provided success flags.
-12. Fail-closed authority restoration when replay evidence is missing, stale, cross-incident, forged, tampered or unsuccessful.
-13. One-time recovery-fork proofs and one-time parameter-bound authority consumption reconstructed from ledger evidence after runtime recreation.
-14. Authority-resurrection replay protection: a consumed approval cannot be reused by a recreated runtime to duplicate an external effect.
-15. Bounded runaway write-loop containment at the deterministic tool boundary.
-16. Recovery-path attack coverage: untrusted recovery-plan text cannot turn its own claimed authorization into permission for a high-impact write.
-17. Incident-to-regression evidence contracts that bind future regression cases to source incident identity, concrete evidence IDs and explicit invariants.
-18. An integrity-verified, incident-scoped read-only investigation boundary. Prompt payloads carry evidence only, never approvals, executors, capabilities or mutable ledger handles.
-19. A Strands Investigator that produces evidence-cited incident hypotheses without write tools or execution authority.
-20. A Strands Recovery Planner that produces ordered evidence-cited candidate steps and explicit residual risks without execution authority.
-21. An independent Strands Skeptic/Verifier that challenges investigator/planner claims against incident evidence and cannot restore authority.
-22. A deterministic Advisory Gate that rebinds all advisory proposals to the incident evidence view and fails closed on cross-incident evidence, missing/duplicate claim review, unsupported or uncertain skeptic verdicts, forged step evidence and unresolved dependencies. Passing this gate creates only a candidate recovery plan; it does not approve or execute recovery.
-23. Versioned deterministic advisory ground-truth fixtures for B01-B10 with a fail-closed loader requiring exact class coverage, unique scenario/incident identities, valid ground-truth evidence IDs and no model-output authorization claim.
-24. Credential-free scoring of bound Investigator -> Planner -> Skeptic -> Advisory Gate outputs for exact root-cause evidence match, ordered recovery-plan correctness and required advisory evidence completeness.
-25. Exact-suite scoring that rejects missing or extra scenario outputs rather than silently averaging partial coverage.
-26. Observation-only Advisory Gate rejection-safety measurement that detects acceptance mismatches and candidate-plan exposure when rejection was expected.
-27. Aggregate rejection-safety reporting over measured scenarios without granting approval, execution or restoration authority.
-28. Fail-closed conversion of properly rejected advisory evidence into deterministic regression contracts. Accepted decisions, missing rejection reasons or candidate-plan exposure cannot be converted as safe rejection regressions.
-29. A deterministic judge artifact that serializes measured B01-B10 advisory and Advisory Gate evidence without granting approval, execution or restoration authority.
-30. A deterministic judge-facing console and runbook that render only represented evidence and explicitly mark blast radius, containment, recovery execution, residual effects, replay and restoration as unrepresented when the artifact does not contain their own deterministic evidence.
-31. A credential-free evidence packager that validates the authority-free judge artifact and emits canonical JSON plus SHA-256 manifest entries. Attempts to package execution authority fail closed.
+1. Recovery Contracts for write-capable tools with fail-closed missing/malformed-contract behavior.
+2. Parameter-bound approvals for consequential actions. Model/planner text is never authorization.
+3. Tamper-evident append-oriented action/evidence ledger with chained hashes and integrity verification.
+4. Incident binding, causal reconstruction and blast-radius evidence across agent handoffs/shared state.
+5. Scoped containment and dependency-aware, idempotent recovery controls.
+6. Explicit conflict/reconciliation evidence for shared-resource writers.
+7. Partial-compensation semantics that keep failed or dependency-blocked effects visible.
+8. Irreversible/externalized effects remain residual; local repaired state never rewrites external history.
+9. Replay freshness and isolated Replay Lab evidence that can invalidate false restoration claims.
+10. Fail-closed authority restoration when replay evidence is absent, stale, cross-incident, forged, tampered or unsuccessful.
+11. One-time recovery/approval consumption reconstructed from ledger evidence after runtime recreation.
+12. Authority-resurrection protection and bounded runaway-write containment.
+13. Recovery-path attack coverage preventing untrusted recovery text from self-authorizing writes.
+14. Incident-to-regression contracts bound to source incident/evidence/invariants.
+15. Integrity-verified read-only evidence views for investigation.
+16. Strands Investigator, Recovery Planner and independent Skeptic/Verifier with no write/restore authority.
+17. Deterministic Advisory Gate that rebinds proposals to incident evidence and produces candidate plans only.
+18. Versioned deterministic B01-B10 advisory fixtures plus exact-suite, rejection-safety and advisory-evidence scoring.
+19. Fail-closed conversion of properly rejected advisory evidence into deterministic regression contracts.
+20. Deterministic judge artifacts/package with canonical JSON and SHA-256 manifests.
+21. Authority-free judge console/runbook that renders only represented evidence.
+22. Full deterministic incident evidence contract for blast radius, containment, recovery execution/result, residual effects, replay and restoration evidence.
+23. Judge-console rendering of that verified full incident evidence without granting execution/restoration authority.
+24. Credential-free one-command deterministic incident reproduction with canonical round-trip validation and hash manifesting.
+25. Final judge-readiness and claim-to-evidence boundaries that prohibit claims not supported by represented deterministic evidence.
 
 ## Benchmark contract coverage
 
-The deterministic aggregate benchmark contract covers all required competition classes B01-B10:
+The deterministic aggregate contract covers required competition classes:
 
 - B01 indirect prompt injection trajectory
 - B02 tool-output poisoning
@@ -75,9 +67,9 @@ The deterministic aggregate benchmark contract covers all required competition c
 - B09 runaway tool / denial-of-wallet loop
 - B10 recovery-path attack
 
-Additional deterministic coverage includes authority-resurrection / semantic replay attempts, concurrent/shared-state conflict and reconciliation behavior, and false-positive containment-scope measurement.
+Additional deterministic coverage includes authority-resurrection/semantic replay attempts, concurrent/shared-state conflict/reconciliation and false-positive containment-scope measurement.
 
-The last explicitly recorded aggregate security checkpoint remains the PR #25 deterministic report:
+The last explicitly recorded aggregate security checkpoint remains the bounded deterministic report from PR #25:
 
 - benchmark contract coverage: 10/10 classes
 - B06 blast-radius recall: 1.0
@@ -88,13 +80,13 @@ The last explicitly recorded aggregate security checkpoint remains the PR #25 de
 - authority-resurrection successes: 0
 - unsafe recovery executions across that aggregate deterministic contract report: 0
 
-These are **synthetic deterministic benchmark results only**, not production security-effectiveness claims. Later M3 advisory and judge-packaging work adds measurement and packaging machinery, but this authority file does not invent replacement aggregate numbers without a measured artifact recording them.
+These are **synthetic deterministic benchmark results only**, not production security-effectiveness claims. Later M3 work adds evidence and packaging machinery but does not create replacement aggregate numbers unless a measured artifact explicitly records them.
 
-## Latest accepted slices
+## Accepted M3 slices
 
-Accepted M3 slices now include:
+The accepted sequence includes:
 
-- PR #29: deterministic advisory recovery gate producing candidate-only plans
+- PR #29: deterministic Advisory Gate producing candidate-only plans
 - PR #30: advisory-chain deterministic ground-truth scorer
 - PRs #31-#40: versioned B01-B10 advisory ground-truth fixtures
 - PR #41: aggregate measured advisory benchmark scores
@@ -103,40 +95,44 @@ Accepted M3 slices now include:
 - PR #44: aggregate Advisory Gate rejection-safety reporting
 - PR #45: exact advisory fixture-suite scoring
 - PR #46: rejected advisory evidence to deterministic regression contracts
-- PR #47: current-state authority synchronization through the accepted advisory/regression milestone
+- PR #47: authority synchronization through advisory/regression milestone
 - PR #48: deterministic B01-B10 judge advisory artifact
-- PR #49: deterministic authority-free judge advisory console
+- PR #49: authority-free judge advisory console
 - PR #50: deterministic judge demo runbook
 - PR #51: deterministic judge evidence package with SHA-256 manifest
+- PR #53: full deterministic incident evidence contract
+- PR #54: bounded competitive recovery radar refresh
+- PR #55: verified full-incident evidence rendering in judge console
+- PR #56: one-command credential-free deterministic incident reproduction
+- PR #57: current judge-readiness checkpoint and claim boundary
+- PR #58: judge-readiness synchronization with accepted recovery evidence
+- PR #59: final judge-package claim-to-evidence boundary review
 
-PR #51 exact head `549593824d0733e91da0eea62fdc42fa3612b62e` passed `recovery-ci` before squash merge. It was merged into `main` as `0207168511ff3755d54945c10af6d4cfd749a970`.
+Accepted `main` after PR #59 is `36874420379f66fa06b96f41d680552e9679fcea`.
 
 ## Evidence limitations
 
 - The ledger is a prototype tamper-evident in-process log, not WORM storage, remote attestation or an externally anchored transparency log.
-- Replay Lab proves bounded replay against synthetic/owned state, not arbitrary full production transaction reconstruction.
+- Replay Lab proves bounded replay against synthetic/owned state, not arbitrary production transaction reconstruction.
 - Runaway-loop coverage proves post-containment write blocking, not token-cost metering or comprehensive denial-of-wallet prevention.
 - Current false-positive containment measurement covers bounded known scopes after the compromised scope is known; it does not measure generic attack-detection quality.
-- Advisory metrics are deterministic fixture measurements. They do not establish production root-cause accuracy or recovery-plan correctness for arbitrary incidents.
-- The current judge advisory artifact/package does not by itself prove the full incident -> containment -> recovery -> replay -> restoration story. Those phases must be represented only by their own deterministic evidence before the judge package can claim them.
-- Global production security effectiveness, broad recovery success rate and time-to-containment remain intentionally unclaimed.
+- Advisory and judge metrics/evidence are deterministic synthetic fixture measurements. They do not establish production root-cause accuracy, recovery-plan correctness or global security effectiveness.
+- Irreversible external effects are never claimed as undone.
+- Production recovery success rate and time-to-containment remain intentionally unclaimed.
 - No live Bedrock/AgentCore security-effectiveness claim exists yet.
 
-## Current milestone: M3 full judge evidence story
+## Current milestone: final competition package
 
-The credential-free advisory path is reproducible and packageable. The next highest-leverage work is to bind the already implemented deterministic incident, containment, recovery, residual-effect and replay/restoration evidence into the judge-facing package without weakening the trust boundary or fabricating a cross-phase success claim.
+The strongest credential-free path is now the source of truth for judging and CI. The remaining competition work is packaging/verification rather than expansion into a generic security platform.
 
-### Next implementation order
+Next order:
 
-1. Extend the deterministic judge evidence contract with a bounded end-to-end incident fixture that carries causal blast-radius, containment, recovery execution/result, residual-effect and replay/restoration evidence from existing deterministic modules. Each phase must remain independently verifiable and fail closed when evidence is absent or mismatched.
-2. Render that full incident evidence in the judge console while keeping advisory text clearly separate from authorization and execution truth.
-3. Add a one-command credential-free reproduction path that generates the package, verifies hashes and replays the bounded incident from synthetic/owned state.
-4. Keep the deterministic/mock path as the competition fallback and CI source of truth.
-5. Add a bounded live Strands + Bedrock path only after owner approval for model access/cost.
-6. Integrate AgentCore Gateway/Policy/observability only where it strengthens authorization outside the source agent and produces useful recovery evidence.
-7. Prepare the final competition demo/package from reproduced evidence. Public upload/submission remains owner-only.
-
-## Competition target
+1. Keep `docs/JUDGE_EVIDENCE_INDEX.md`, this authority file, README/runbook and exact submitted head consistent.
+2. Require exact-head deterministic CI and clean credential-free reproduction before accepting the package.
+3. Verify package hashes, residual-effect visibility, replay invalidation behavior and absence of secrets/customer data.
+4. Keep model/Strands advisory output visibly separate from deterministic authorization/execution truth.
+5. Use Bedrock/AgentCore only if owner-approved access/cost exists and only where it adds verifiable recovery evidence. The deterministic path remains the fallback/source of truth.
+6. Prepare public video/Devpost/Builder material, but public upload, terms acceptance and final submission remain owner-only.
 
 Demo story:
 
@@ -146,22 +142,22 @@ Agents for Humans deadline: 2026-09-14.
 
 RolePilot is a separate product and must continue independently. Do not mix production RolePilot or RolePilot competition code into this repository.
 
-## Owner-only gates expected later
+## Owner-only gates
 
 - AWS login/MFA or Builder ID
-- AWS promotional credits if still available
-- Bedrock model access / credentials
-- approval of any new AWS spend or persistent paid resource
-- public Devpost / Builder / video publishing
+- AWS credentials/model access
+- promotional credits or new spend/payment
+- public video/Devpost/Builder publishing
+- competition terms acceptance
 - final competition submission
 
-No owner action is required for the current credential-free implementation and packaging work.
+No owner action is required for the current credential-free implementation and package verification.
 
 ## Commercial validation after competition
 
 Initial offer: **Agent Recoverability Assessment** for one real write-capable agent workflow.
 
-Within roughly 30 days after the competition target:
+Within roughly 30 days after competition:
 
 - 10 qualified buyer/partner conversations
 - 2 concrete pilot/assessment interests
