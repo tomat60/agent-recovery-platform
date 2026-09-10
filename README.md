@@ -4,70 +4,95 @@ A recovery-first safety layer for autonomous AI agents.
 
 ## Thesis
 
-Most agent security products focus on prevention, monitoring, permissions, or detection. Those controls matter, but production incidents still happen. The hard question becomes: what exactly changed, what can be reversed, what requires compensation, what remains irrecoverable, and how can an operator prove that recovery actually worked?
+Most agent security products focus on prevention, monitoring, permissions or detection. Those controls matter, but production incidents still happen. The hard question becomes: what exactly changed, what can be reversed, what requires compensation, what remains irrecoverable, and how can an operator prove that recovery actually worked?
 
-This project is built around one rule:
+This project is built around two rules:
 
 > No autonomous write without a recovery path.
+>
+> No restored authority without a verified replay.
 
-The platform records consequential agent actions, classifies their recoverability, contains compromised authority, reconstructs blast radius, builds a recovery plan, executes only policy-approved recovery actions, and verifies the result through replay before authority can be restored.
+The platform records consequential agent actions, classifies recoverability, contains compromised authority, reconstructs blast radius, builds recovery candidates, executes only deterministic policy-approved recovery actions in owned/synthetic environments, verifies resulting state independently, and uses replay evidence before authority can be restored.
 
 ## Product boundary
 
-This is not intended to replace SIEM, IAM, EDR, model guardrails, prompt-injection scanners, or general AI governance suites. It integrates with those systems and owns a narrower outcome:
+This is not a SIEM, IAM, EDR, generic prompt-injection firewall or broad AI-governance suite. It integrates with prevention, detection and identity systems and owns a narrower outcome:
 
 **incident -> containment -> evidence -> recovery -> replay -> verified restoration**
 
-That scope keeps the product defensible and measurable while still addressing a large enterprise problem.
+Irreversible external effects are never represented as undone. Failed compensation remains visible as residual risk.
 
 ## Core capabilities
 
 1. **Recovery Contract Registry**
-   - Every write-capable tool declares its side effects, risk, reversibility, compensation path, verification method, and approval requirements.
-2. **Action Ledger**
-   - Records intended and observed side effects independently from the agent's natural-language claims.
+   - Every write-capable tool declares side effects, risk, reversibility, compensation path, verification method and approval requirements.
+2. **Action + Side-Effect Ledger**
+   - Records intended and observed effects independently from agent narration and protects represented evidence with chained integrity checks.
 3. **Containment Plane**
-   - Freezes tool, session, identity, or memory authority without destroying forensic evidence.
+   - Freezes tool, session, identity or memory authority without destroying evidence.
 4. **Investigation and Blast Radius**
-   - Reconstructs the causal chain across prompts, tool calls, memory, approvals, identities, and downstream actions.
-5. **Recovery Planner**
-   - Produces an ordered compensation plan with deterministic policy checks around consequential actions.
+   - Reconstructs causal chains across prompts, tool calls, memory, approvals, identities and downstream actions.
+5. **Recovery Planner + Deterministic Gate**
+   - Strands can propose recovery steps; deterministic controls rebind proposals to incident evidence and decide whether a candidate is executable.
 6. **Skeptic / Verifier**
-   - Independently challenges the root-cause hypothesis and recovery plan.
-7. **Replay Lab**
-   - Replays the incident in isolation and proves whether the same failure still succeeds after remediation.
-8. **Incident-to-Regression Loop**
-   - Converts confirmed incidents into permanent adversarial regression tests.
-
-## Initial buyer
-
-The first target is not government or a global bank. The initial buyer is an AI-native SaaS, fintech, devtools, or security company with roughly 20-500 employees that already operates agents with real write permissions but does not yet have a mature internal AI-security program.
-
-The first commercial offer should be a bounded **Agent Recoverability Assessment**, not a large enterprise platform contract. It maps one agent workflow, exercises controlled incidents, measures recovery coverage, verifies containment and compensation, and produces a remediation report.
+   - Independently challenges root-cause and recovery hypotheses. Model output never authorizes execution or restoration.
+7. **Recovery Executor + State Verification**
+   - Applies bounded reversible/compensating actions in synthetic or owned state and verifies the result independently.
+8. **Replay Lab**
+   - Replays the incident in isolation and can invalidate a false restoration claim.
+9. **Incident-to-Regression Loop**
+   - Converts confirmed incident evidence into permanent adversarial regression contracts.
 
 ## Competition build
 
-The first implementation is being built during the 2026 Agents for Humans competition window. Strands Agents SDK will be used for investigation, recovery planning, and verification. AWS AgentCore Gateway, Policy, and observability are preferred for the live path because they allow authorization and evidence collection outside the agent itself.
+The 2026 Agents for Humans build has a fully credential-free deterministic judge path. It covers B01-B10 adversarial fixture classes, full incident evidence, authority-free judge-console rendering, canonical JSON packaging with SHA-256 manifests, one-command incident reproduction and an exact-head package acceptance gate.
 
-The competition version will use synthetic systems and safe simulated side effects. It will never attack third-party infrastructure or perform real destructive actions.
+Strands Agents SDK is used for evidence-only investigation, recovery planning and skeptical review. Deterministic modules retain authority over contracts, approvals, recovery execution, verification and scoring.
+
+Amazon Bedrock and AgentCore remain optional live-path integrations. They are not required to reproduce the accepted deterministic evidence and no live AWS security-effectiveness claim is made without separate evidence and owner-approved access/cost.
+
+See:
+
+- `docs/JUDGE_EVIDENCE_INDEX.md` for the final claim-to-evidence boundary,
+- `docs/PROJECT_CURRENT_STATE.md` for the durable accepted-state checkpoint,
+- `docs/BENCHMARK.md` for the benchmark contract.
 
 ## Benchmark-first development
 
-A product claim is only accepted when the benchmark can prove it. Initial metrics:
+A product claim is accepted only when represented evidence can support it. The benchmark contract covers:
 
-- containment success rate
-- time to containment
+- containment success
 - blast-radius recall and precision
-- root-cause accuracy
-- recovery-plan correctness
-- recovery execution success
-- residual side effects after recovery
-- replay attack success rate after remediation
+- root-cause evidence where applicable
+- recovery-plan correctness where measured
+- recoverable-state restoration
+- residual-effect accuracy
+- unsafe recovery execution
+- replay attack success after remediation
 - evidence completeness
-- unsafe recovery action rate
-- false-positive containment rate
+- safe restoration
+- false-positive containment
 
-See `docs/BENCHMARK.md` for the evaluation contract.
+Recorded aggregate numbers in the repository are synthetic deterministic fixture measurements only. They are not production security-effectiveness claims.
+
+## Judge reproduction
+
+The default judge path is credential-free and deterministic:
+
+1. reproduce the bounded synthetic incident,
+2. validate the full incident evidence contract,
+3. render only represented evidence,
+4. canonicalize/package evidence and validate SHA-256 manifests,
+5. verify recovery/residual truth and replay behavior,
+6. run the exact-head final package acceptance gate.
+
+Public video, Devpost/Builder publishing, competition terms and final submission remain explicit owner actions.
+
+## Initial buyer
+
+The first target is an AI-native SaaS, fintech, devtools or security company already operating agents with real write permissions but without mature recovery controls.
+
+The first commercial offer is a bounded **Agent Recoverability Assessment** for one workflow, not a large enterprise-platform contract. It maps the workflow, classifies recovery paths, exercises controlled incidents, measures recovery coverage, verifies containment/compensation behavior and produces a remediation report.
 
 ## Repository map
 
@@ -77,16 +102,17 @@ See `docs/BENCHMARK.md` for the evaluation contract.
 - `docs/BENCHMARK.md` - benchmark scenarios and metrics
 - `docs/ARCHITECTURE.md` - target system architecture
 - `docs/PROJECT_CURRENT_STATE.md` - durable execution checkpoint
-- `src/agent_recovery/` - product code
-- `tests/` - deterministic safety and recovery tests
+- `docs/JUDGE_EVIDENCE_INDEX.md` - final judge claim/evidence map
+- `src/agent_recovery/` - deterministic recovery/control code
+- `tests/` - deterministic safety, benchmark and recovery tests
 
 ## Safety
 
-All development and demos use owned or synthetic environments. The project is defensive. It does not include credential theft, malware deployment, persistence, destructive third-party actions, or instructions for compromising external systems.
+All adversarial development and demos use owned or synthetic environments. The project is defensive. It does not include credential theft, malware deployment, persistence, destructive third-party actions or instructions for compromising external systems.
 
-## Status
+## Current status
 
-Bootstrap phase. Product strategy and benchmark are being defined before UI work.
+Final competition packaging and exact-head verification. Core deterministic recovery evidence and the credential-free judge path are implemented; remaining work is consistency/acceptance verification and owner-gated public submission, not expansion into a generic AI-security suite.
 
 ## License
 
