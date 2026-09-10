@@ -4,11 +4,11 @@ Date: 2026-09-10
 
 ## Status
 
-M0, M1 and the deterministic M2 benchmark/recovery core are accepted. M3 now includes the evidence-only Strands advisory chain, deterministic Advisory Gate and B01-B10 measurement, fail-closed rejection/regression conversion, a deterministic judge artifact/package, full deterministic incident evidence across the recovery lifecycle, authority-free judge-console rendering, and a credential-free one-command incident reproduction path.
+M0, M1 and the deterministic M2 benchmark/recovery core are accepted. M3 now includes the evidence-only Strands advisory chain, deterministic Advisory Gate and B01-B10 measurement, fail-closed rejection/regression conversion, deterministic judge packaging, full deterministic incident evidence across the recovery lifecycle, authority-free judge-console rendering, credential-free one-command incident reproduction, an exact judge evidence index, and a final exact-head package acceptance gate.
 
-Current accepted `main` head before the open documentation-only PR #60:
+Current accepted `main` head:
 
-`36874420379f66fa06b96f41d680552e9679fcea`
+`7e6107023dff7e5bc8a3293f4e6a22479088c595`
 
 The product remains a **recovery-first control layer for autonomous AI agents**, not a generic AI-security suite.
 
@@ -51,6 +51,8 @@ Accepted implementation includes:
 23. Judge-console rendering of that verified full incident evidence without granting execution/restoration authority.
 24. Credential-free one-command deterministic incident reproduction with canonical round-trip validation and hash manifesting.
 25. Final judge-readiness and claim-to-evidence boundaries that prohibit claims not supported by represented deterministic evidence.
+26. Judge evidence index tying claims to reproducible artifacts.
+27. Exact-head final package acceptance gate covering clean reproduction, canonical round-trip, SHA-256 manifests, residual-risk visibility, replay invalidation, secret/customer-data absence and documentation consistency.
 
 ## Benchmark contract coverage
 
@@ -107,8 +109,10 @@ The accepted sequence includes:
 - PR #57: current judge-readiness checkpoint and claim boundary
 - PR #58: judge-readiness synchronization with accepted recovery evidence
 - PR #59: final judge-package claim-to-evidence boundary review
+- PR #60: final judge evidence index and authority synchronization
+- PR #61: exact-head final package acceptance gate
 
-Accepted `main` after PR #59 is `36874420379f66fa06b96f41d680552e9679fcea`.
+Accepted `main` after PR #61 is `7e6107023dff7e5bc8a3293f4e6a22479088c595`.
 
 ## Evidence limitations
 
@@ -123,7 +127,7 @@ Accepted `main` after PR #59 is `36874420379f66fa06b96f41d680552e9679fcea`.
 
 ## Current milestone: final competition package
 
-The strongest credential-free path is now the source of truth for judging and CI. The remaining competition work is packaging/verification rather than expansion into a generic security platform.
+The strongest credential-free path is the source of truth for judging and CI. Remaining competition work is package consistency, exact-head verification and owner-gated public submission, not scope expansion.
 
 Next order:
 
