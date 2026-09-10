@@ -1,20 +1,21 @@
 # Judge Evidence Index
 
 Date: 2026-09-10
-Accepted base: `36874420379f66fa06b96f41d680552e9679fcea`
+Accepted main before this documentation sync: `7e6107023dff7e5bc8a3293f4e6a22479088c595`
 
 This index is a competition-packaging map only. It does not grant approval, execution, compensation, replay, restoration or production-security authority.
 
 ## Reproducible judge path
 
-The credential-free path must remain the default source of truth for judging and CI:
+The credential-free path is the default source of truth for judging and CI:
 
 1. reproduce the bounded synthetic incident,
 2. validate the deterministic incident evidence contract,
 3. render only represented evidence in the judge console,
 4. package canonical evidence with SHA-256 manifest entries,
-5. replay/verify the bounded synthetic recovery story,
-6. keep all advisory/model output separate from authorization and execution truth.
+5. replay and verify the bounded synthetic recovery story,
+6. keep all advisory/model output separate from authorization and execution truth,
+7. run the exact-head final package acceptance gate before owner review.
 
 ## Accepted evidence slices
 
@@ -27,6 +28,8 @@ The current accepted `main` contains the following judge-facing slices after the
 - PR #57: judge-readiness checkpoint and permitted/prohibited claim boundary.
 - PR #58: judge-readiness synchronization with accepted recovery evidence.
 - PR #59: final judge-package claim-to-evidence boundary review.
+- PR #60: final judge evidence index and synchronization of the durable authority checkpoint.
+- PR #61: exact-head final package acceptance gate covering reproduction, round-trip validity, manifest integrity, residual-risk visibility, replay invalidation, data hygiene and documentation consistency.
 
 ## Claims allowed by current evidence
 
@@ -39,7 +42,8 @@ Only claims directly represented by deterministic artifacts may be made, includi
 - expose unsuccessful compensation and irreversible effects as residual risk,
 - verify represented restored state independently,
 - use replay evidence to reject false restoration claims,
-- reproduce the bounded judge incident without cloud credentials.
+- reproduce the bounded judge incident without cloud credentials,
+- fail the final package gate when required evidence, integrity or documentation conditions are not met.
 
 These are synthetic deterministic benchmark/demo claims only.
 
@@ -68,11 +72,12 @@ The deterministic package is allowed to advance without AWS credentials. The fol
 
 ## Final packaging acceptance
 
-Before public submission, the package should be accepted only if all of the following are true on the exact submitted head:
+Before public submission, accept the package only when the exact submitted head proves all of the following:
 
 - deterministic CI is green,
 - one-command judge reproduction succeeds from a clean environment without paid model calls,
-- packaged hashes validate,
+- canonical incident evidence survives round-trip validation,
+- packaged SHA-256 hashes validate,
 - the console contains no authority claim not backed by represented deterministic evidence,
 - residual external effects remain visible,
 - replay can invalidate a false restoration assertion,
