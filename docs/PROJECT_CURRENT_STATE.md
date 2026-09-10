@@ -6,9 +6,11 @@ Date: 2026-09-10
 
 M0, M1 and the deterministic M2 benchmark/recovery core are accepted. M3 now includes the evidence-only Strands advisory chain, deterministic Advisory Gate and B01-B10 measurement, fail-closed rejection/regression conversion, deterministic judge packaging, full deterministic incident evidence across the recovery lifecycle, authority-free judge-console rendering, credential-free one-command incident reproduction, an exact judge evidence index, and a final exact-head package acceptance gate.
 
-Current accepted `main` head:
+Accepted package-evidence baseline before documentation-only synchronization:
 
-`55124093272e0f08bb974ebac95bffd8afe51665`
+`7e6107023dff7e5bc8a3293f4e6a22479088c595`
+
+Documentation-only synchronization PRs after that baseline are tracked by PR number below. Do not encode the current `main` SHA in this file as a durable authority value, because merging this file necessarily changes that SHA. The exact submitted head must instead be read from Git and verified by the final package acceptance gate.
 
 The product remains a **recovery-first control layer for autonomous AI agents**, not a generic AI-security suite.
 
@@ -113,8 +115,9 @@ The accepted sequence includes:
 - PR #60: final judge evidence index and authority synchronization
 - PR #61: exact-head final package acceptance gate
 - PR #62: final judge-package authority synchronization across README, current state and judge evidence index
+- PR #63: correction of the post-#62 documentation checkpoint
 
-Accepted `main` after PR #62 is `55124093272e0f08bb974ebac95bffd8afe51665`.
+PR #61 defines the accepted package-evidence baseline. PRs #62-#63 are documentation-only synchronization work and do not create new runtime/security evidence. The exact current or submitted `main` SHA must be read from Git at verification time rather than copied here as a self-invalidating constant.
 
 ## Evidence limitations
 
@@ -133,7 +136,7 @@ The strongest credential-free path is the source of truth for judging and CI. Re
 
 Next order:
 
-1. Keep `docs/JUDGE_EVIDENCE_INDEX.md`, this authority file, README/runbook and exact submitted head consistent.
+1. Keep `docs/JUDGE_EVIDENCE_INDEX.md`, this authority file, README/runbook and the exact submitted Git head consistent in meaning, without embedding a self-invalidating current-main SHA in documentation.
 2. Require exact-head deterministic CI and clean credential-free reproduction before accepting the package.
 3. Verify package hashes, residual-effect visibility, replay invalidation behavior and absence of secrets/customer data.
 4. Keep model/Strands advisory output visibly separate from deterministic authorization/execution truth.
