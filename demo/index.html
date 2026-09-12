@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Agent Recovery Platform — Judge Console</title>
+  <style>
+    :root{
+      --bg:#081019;--panel:#0f1a26;--panel2:#121f2e;--line:#21364d;--text:#eef6ff;--muted:#89a0b8;
+      --cyan:#4dd7ff;--green:#63e6a6;--amber:#f6c85f;--red:#ff6b7d;--blue:#7aa8ff;
+    }
+    *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 15% 0%,#10283d 0,#081019 38%);color:var(--text);font:15px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    .wrap{max-width:1480px;margin:0 auto;padding:28px}.top{display:flex;gap:20px;align-items:flex-start;justify-content:space-between;margin-bottom:22px}.brand{display:flex;gap:14px;align-items:center}.logo{width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,var(--cyan),var(--blue));display:grid;place-items:center;color:#06111c;font-weight:900}.eyebrow{color:var(--cyan);font-size:12px;letter-spacing:.15em;text-transform:uppercase;font-weight:700}.title{font-size:28px;font-weight:760;margin:2px 0 0}.subtitle{color:var(--muted);margin-top:5px}.badge{padding:8px 12px;border:1px solid #2d4a64;border-radius:999px;color:#bcd3e8;background:#0b1621;white-space:nowrap}.grid{display:grid;grid-template-columns:1.25fr .9fr;gap:18px}.card{background:linear-gradient(180deg,rgba(18,31,46,.96),rgba(12,23,34,.96));border:1px solid var(--line);border-radius:18px;box-shadow:0 18px 60px rgba(0,0,0,.22)}.pad{padding:20px}.card h2{font-size:16px;margin:0 0 14px}.section-label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px}.status-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:18px}.step{padding:11px;border-radius:12px;background:#0a1520;border:1px solid #1d3347;text-align:center;color:#9ab1c7;font-size:12px}.step strong{display:block;color:#eaf6ff;font-size:13px;margin-bottom:2px}.step.ok{border-color:#245c4b;background:#0b211b}.step.ok strong{color:var(--green)}.incident{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;background:#101d2a;border:1px solid #22394f;border-radius:13px;margin-bottom:18px}.incident strong{font-size:16px}.pill{display:inline-flex;align-items:center;gap:7px;padding:6px 9px;border-radius:999px;font-size:12px;font-weight:700}.pill.red{color:#ffd7dc;background:#3a141b;border:1px solid #6e2633}.pill.green{color:#d8ffea;background:#103024;border:1px solid #245c46}.pill.amber{color:#fff1c7;background:#362b11;border:1px solid #6b5420}.pill.blue{color:#dce8ff;background:#142748;border:1px solid #294a7e}.flow{display:grid;grid-template-columns:1fr 46px 1fr 46px 1fr;align-items:center;gap:8px;margin:22px 0}.node{min-height:140px;border-radius:16px;border:1px solid #284158;background:#0a1621;padding:15px;position:relative}.node.root{border-color:#67323d;box-shadow:inset 0 0 0 1px rgba(255,107,125,.08)}.node.restored{border-color:#275b49}.node .role{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}.node h3{font-size:15px;margin:5px 0 7px}.node p{color:#9db3c7;font-size:12px;margin:0 0 12px}.arrow{height:2px;background:#33506b;position:relative}.arrow:after{content:"";position:absolute;right:-1px;top:-4px;border-left:8px solid #33506b;border-top:5px solid transparent;border-bottom:5px solid transparent}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.metric{padding:13px;border-radius:13px;background:#0a1621;border:1px solid #20364b}.metric .v{font-size:25px;font-weight:780}.metric .k{font-size:11px;color:var(--muted);margin-top:3px}.good{color:var(--green)}.warn{color:var(--amber)}.timeline{display:grid;gap:10px}.event{display:grid;grid-template-columns:32px 1fr;gap:10px}.dot{width:26px;height:26px;border-radius:8px;background:#112437;border:1px solid #2a4965;display:grid;place-items:center;color:var(--cyan);font-size:12px;font-weight:800}.event .body{padding:4px 0 12px;border-bottom:1px solid #1b3043}.event:last-child .body{border-bottom:0}.event strong{font-size:13px}.event p{font-size:12px;color:var(--muted);margin:3px 0 0}.proof{display:grid;grid-template-columns:1fr 1fr;gap:10px}.proofbox{border-radius:13px;padding:14px;background:#09151f;border:1px solid #20374c}.proofbox .head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:8px}.proofbox p{color:var(--muted);font-size:12px;margin:0}.trust{margin-top:18px;padding:14px 16px;border-radius:13px;background:#0c1822;border:1px dashed #2a4965;color:#adc1d2;font-size:12px}.trust b{color:#e7f5ff}.footer{margin-top:16px;color:#637c92;font-size:11px;text-align:right}.small{font-size:11px;color:var(--muted)}
+    @media(max-width:980px){.grid{grid-template-columns:1fr}.status-strip{grid-template-columns:repeat(3,1fr)}.flow{grid-template-columns:1fr}.arrow{height:26px;width:2px;margin:auto}.arrow:after{right:-4px;top:auto;bottom:-1px;border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid #33506b}.metrics{grid-template-columns:repeat(2,1fr)}.proof{grid-template-columns:1fr}.top{flex-direction:column}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="top">
+      <div class="brand"><div class="logo">AR</div><div><div class="eyebrow">Agent Recovery Platform</div><div class="title">Incident Recovery Console</div><div class="subtitle">Deterministic evidence view — presentation only, no execution authority</div></div></div>
+      <div class="badge">Synthetic bounded evidence • judge-incident-evidence/v1</div>
+    </header>
+
+    <section class="status-strip">
+      <div class="step ok"><strong>Incident</strong>recorded</div>
+      <div class="step ok"><strong>Containment</strong>active</div>
+      <div class="step ok"><strong>Evidence</strong>bound</div>
+      <div class="step ok"><strong>Recovery</strong>verified</div>
+      <div class="step ok"><strong>Replay</strong>verified</div>
+      <div class="step ok"><strong>Restoration</strong>selective</div>
+    </section>
+
+    <div class="grid">
+      <section class="card pad">
+        <div class="section-label">Live scenario</div>
+        <div class="incident"><div><strong>Poisoned support input → shared state → downstream authority</strong><div class="small">Scenario: poisoned_support_to_shared_state_to_identity</div></div><span class="pill red">Root compromised</span></div>
+
+        <h2>Blast radius and authority state</h2>
+        <div class="flow">
+          <article class="node root"><div class="role">Root agent</div><h3>Support Agent</h3><p>Consumes poisoned external content and writes compromised shared state.</p><span class="pill red">Contained</span></article>
+          <div class="arrow"></div>
+          <article class="node restored"><div class="role">Downstream agent</div><h3>Workflow Agent</h3><p>Represented dependency recovered and independently replay-verified.</p><span class="pill green">Restored</span></article>
+          <div class="arrow"></div>
+          <article class="node restored"><div class="role">Downstream authority</div><h3>Identity Agent</h3><p>Recovered after represented obligations and replay evidence passed.</p><span class="pill green">Restored</span></article>
+        </div>
+
+        <div class="metrics">
+          <div class="metric"><div class="v good">3 / 3</div><div class="k">Blast actions detected</div></div>
+          <div class="metric"><div class="v good">1.0</div><div class="k">Recall / precision</div></div>
+          <div class="metric"><div class="v good">3</div><div class="k">Verified recoveries</div></div>
+          <div class="metric"><div class="v good">0</div><div class="k">Unsafe recoveries</div></div>
+        </div>
+
+        <div class="trust"><b>Trust boundary:</b> Strands agents investigate and propose. Deterministic code owns recovery execution and restoration. This console renders represented evidence only and grants no approval, compensation, replay or restoration authority.</div>
+      </section>
+
+      <aside class="card pad">
+        <div class="section-label">Incident lifecycle</div>
+        <h2>What the platform proved in this fixture</h2>
+        <div class="timeline">
+          <div class="event"><div class="dot">1</div><div class="body"><strong>Incident captured</strong><p>Consequential writes are represented in a tamper-evident local ledger.</p></div></div>
+          <div class="event"><div class="dot">2</div><div class="body"><strong>Blast radius reconstructed</strong><p>All 3 expected represented actions were identified in the bounded fixture.</p></div></div>
+          <div class="event"><div class="dot">3</div><div class="body"><strong>Authority contained</strong><p>The compromised root remains contained while dependent authorities are held for recovery.</p></div></div>
+          <div class="event"><div class="dot">4</div><div class="body"><strong>Recovery verified</strong><p>3 represented recoveries completed with 0 platform residual effects in this scenario.</p></div></div>
+          <div class="event"><div class="dot">5</div><div class="body"><strong>Replay passed</strong><p>Replay verification is positive and no unsafe recovery execution was observed.</p></div></div>
+          <div class="event"><div class="dot">6</div><div class="body"><strong>Selective restoration</strong><p>2 downstream authorities restored; compromised root authority remains blocked.</p></div></div>
+        </div>
+      </aside>
+    </div>
+
+    <section class="card pad" style="margin-top:18px">
+      <div class="section-label">Independent evidence gates</div>
+      <div class="proof">
+        <div class="proofbox"><div class="head"><strong>Replay Gate</strong><span class="pill green">Verified</span></div><p>Bounded replay of the represented attack path completed without an unsafe recovery execution.</p></div>
+        <div class="proofbox"><div class="head"><strong>Restoration Gate</strong><span class="pill green">2 restored</span></div><p>Only downstream represented authority is restored. The compromised root is explicitly not restored.</p></div>
+      </div>
+      <div class="footer">Claim boundary: synthetic deterministic evidence only; does not establish production security effectiveness.</div>
+    </section>
+  </main>
+</body>
+</html>
