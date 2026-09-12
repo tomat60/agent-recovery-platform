@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Agent Recovery Platform competition architecture</title>
+  <desc id="desc">Two-zone architecture separating Strands advisory reasoning from the deterministic recovery control plane.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#07111b"/><stop offset="1" stop-color="#0b1724"/></linearGradient>
+    <linearGradient id="agent" x1="0" x2="1"><stop stop-color="#132b46"/><stop offset="1" stop-color="#102238"/></linearGradient>
+    <linearGradient id="control" x1="0" x2="1"><stop stop-color="#10281f"/><stop offset="1" stop-color="#0b2019"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-opacity=".25"/></filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#5e7f9d"/></marker>
+    <style>
+      .h1{font:700 34px Inter,Arial,sans-serif;fill:#f0f7ff}.h2{font:700 21px Inter,Arial,sans-serif;fill:#eef7ff}.label{font:600 16px Inter,Arial,sans-serif;fill:#d9e7f4}.small{font:500 13px Inter,Arial,sans-serif;fill:#89a4bb}.tiny{font:600 11px Inter,Arial,sans-serif;fill:#79a4c8;letter-spacing:1.4px}.box{rx:16;ry:16;stroke-width:1.5}.flow{stroke:#5e7f9d;stroke-width:2.2;fill:none;marker-end:url(#arrow)}.dash{stroke-dasharray:7 7}.badge{font:700 11px Inter,Arial,sans-serif;letter-spacing:1.1px}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <text x="80" y="72" class="h1">Agent Recovery Platform</text>
+  <text x="80" y="104" class="small">Recovery-first safety layer for write-capable autonomous agents</text>
+
+  <rect x="70" y="145" width="1460" height="220" rx="24" fill="#0b1a29" stroke="#24415e"/>
+  <text x="100" y="182" class="tiny">ADVISORY REASONING ZONE</text>
+  <text x="100" y="214" class="h2">Strands agents reason over evidence, but never grant authority</text>
+
+  <rect class="box" x="110" y="245" width="210" height="82" fill="#101c29" stroke="#27445f"/><text x="135" y="277" class="label">Incident Evidence</text><text x="135" y="301" class="small">ledger-bounded view</text>
+  <rect class="box" x="405" y="235" width="220" height="100" fill="url(#agent)" stroke="#31608b"/><text x="437" y="273" class="label">Investigator</text><text x="437" y="298" class="small">root cause + citations</text>
+  <rect class="box" x="700" y="235" width="220" height="100" fill="url(#agent)" stroke="#31608b"/><text x="727" y="273" class="label">Recovery Planner</text><text x="727" y="298" class="small">candidate plan + residuals</text>
+  <rect class="box" x="995" y="235" width="220" height="100" fill="url(#agent)" stroke="#31608b"/><text x="1047" y="273" class="label">Skeptic</text><text x="1047" y="298" class="small">challenge unsafe claims</text>
+  <rect x="1280" y="242" width="190" height="86" rx="14" fill="#30141b" stroke="#74303f"/><text x="1310" y="277" class="badge" fill="#ff9dab">NO EXECUTION</text><text x="1310" y="300" class="badge" fill="#ff9dab">AUTHORITY</text>
+  <path class="flow" d="M320 286 H397"/><path class="flow" d="M625 286 H692"/><path class="flow" d="M920 286 H987"/>
+
+  <rect x="70" y="405" width="1460" height="380" rx="24" fill="#0a1712" stroke="#285443"/>
+  <text x="100" y="443" class="tiny" fill="#72cfa2">DETERMINISTIC RECOVERY CONTROL PLANE</text>
+  <text x="100" y="475" class="h2">Only deterministic gates may mutate state or restore authority</text>
+
+  <rect class="box" x="105" y="520" width="190" height="82" fill="url(#control)" stroke="#2b6b51"/><text x="127" y="551" class="label">Recovery Contracts</text><text x="127" y="576" class="small">side effects + verifier</text>
+  <rect class="box" x="345" y="520" width="190" height="82" fill="url(#control)" stroke="#2b6b51"/><text x="382" y="551" class="label">Action Ledger</text><text x="382" y="576" class="small">represented evidence</text>
+  <rect class="box" x="585" y="520" width="190" height="82" fill="url(#control)" stroke="#2b6b51"/><text x="619" y="551" class="label">Causal Graph</text><text x="619" y="576" class="small">blast radius + lineage</text>
+  <rect class="box" x="825" y="520" width="190" height="82" fill="url(#control)" stroke="#2b6b51"/><text x="856" y="551" class="label">Containment</text><text x="856" y="576" class="small">authority held fail-closed</text>
+  <rect class="box" x="1065" y="520" width="190" height="82" fill="url(#control)" stroke="#2b6b51"/><text x="1095" y="551" class="label">Recovery Engine</text><text x="1095" y="576" class="small">reverse / compensate</text>
+  <rect class="box" x="1305" y="520" width="165" height="82" fill="url(#control)" stroke="#2b6b51"/><text x="1341" y="551" class="label">Verifier</text><text x="1331" y="576" class="small">state + residual truth</text>
+
+  <path class="flow" d="M295 561 H337"/><path class="flow" d="M535 561 H577"/><path class="flow" d="M775 561 H817"/><path class="flow" d="M1015 561 H1057"/><path class="flow" d="M1255 561 H1297"/>
+
+  <rect class="box" x="465" y="660" width="250" height="86" fill="#0e231b" stroke="#2b6b51"/><text x="538" y="692" class="label">Replay Lab</text><text x="500" y="718" class="small">bounded exact represented attack replay</text>
+  <rect class="box" x="835" y="660" width="250" height="86" fill="#0e231b" stroke="#2b6b51"/><text x="881" y="692" class="label">Restoration Gate</text><text x="868" y="718" class="small">current scope-bound evidence only</text>
+  <path class="flow" d="M1388 602 C1388 642 1225 703 1093 703"/><path class="flow" d="M715 703 H827"/>
+  <path class="flow dash" d="M810 335 V420 C810 450 680 468 680 512"/>
+  <text x="827" y="393" class="small">candidate plan is rebound to deterministic evidence</text>
+
+  <rect x="1170" y="660" width="300" height="86" rx="16" fill="#111f2b" stroke="#2a4863"/><text x="1235" y="692" class="label">Judge Evidence / Console</text><text x="1202" y="718" class="small">read-only presentation; zero authorization effect</text>
+  <path class="flow" d="M1085 703 H1162"/>
+
+  <rect x="70" y="815" width="1460" height="50" rx="14" fill="#0b1520" stroke="#20384c"/>
+  <text x="100" y="846" class="small">Core invariant: no restored authority without complete represented recovery evidence and a current scope-bound replay.</text>
+  <text x="1198" y="846" class="small">Synthetic bounded evidence • claim boundaries explicit</text>
+</svg>
