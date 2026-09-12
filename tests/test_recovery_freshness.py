@@ -43,7 +43,8 @@ def replay_for(
 
 def prepared_incident(incident_id: str):
     engine = make_engine()
-    scope = "agent:support-agent"
+    root_scope = "agent:support-agent"
+    release_scope = "agent:workflow-agent"
     trigger = engine.ledger.record(
         EventType.EXTERNAL_INPUT,
         incident_id,
@@ -56,10 +57,11 @@ def prepared_incident(incident_id: str):
         params={"key": "instruction", "value": "poisoned"},
         causal_parent_event_ids=(trigger.event_id,),
     )
-    engine.contain(incident_id, scope, reason="source compromised")
+    engine.contain(incident_id, root_scope, reason="source compromised")
+    engine.contain(incident_id, release_scope, reason="dependent authority held during recovery")
     recovery = engine.recover(incident_id=incident_id, action_event_id=action.action_event.event_id)
     assert recovery.status is RecoveryStatus.VERIFIED
-    return engine, scope, trigger
+    return engine, release_scope, trigger
 
 
 def test_recovery_evidence_change_invalidates_verified_replay() -> None:
@@ -92,7 +94,7 @@ def test_recovery_evidence_change_invalidates_verified_replay() -> None:
     assert result.reason == "stale_recovery_evidence"
 
 
-def test_fresh_replay_after_recovery_change_can_restore_authority() -> None:
+def test_fresh_replay_after_recovery_change_can_restore_downstream_authority() -> None:
     incident_id = "incident-recovery-refresh"
     engine, scope, trigger = prepared_incident(incident_id)
     engine.contain(incident_id, "agent:observer", reason="additional recovery evidence")
