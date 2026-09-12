@@ -181,7 +181,7 @@ class ReplayLab:
     def _replay_contract_manifest(engine: RecoveryEngine) -> tuple[tuple[str, str], ...]:
         registry = getattr(engine, "_contracts", None)
         if not isinstance(registry, dict):
-            raise ValueError("replay runtime does not expose deterministic contract identity")
+            raise TypeError("replay runtime does not expose deterministic contract identity")
         manifest: list[tuple[str, str]] = []
         for tool_id, contract in registry.items():
             version = getattr(contract, "contract_version", None)
@@ -247,9 +247,7 @@ class ReplayLab:
             item for item in source_contract_manifest if item not in replay_contract_manifest
         )
         if missing_or_changed:
-            raise ValueError(
-                f"replay environment contract mismatch: {missing_or_changed}"
-            )
+            raise ValueError(f"replay environment contract mismatch: {missing_or_changed}")
 
         for scope in action.containment_scopes:
             replay_engine.contain(
