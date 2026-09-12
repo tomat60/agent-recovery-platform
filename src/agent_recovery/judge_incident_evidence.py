@@ -59,6 +59,27 @@ def build_judge_incident_evidence() -> dict[str, object]:
     }
 
 
+def _require_non_negative_int(value: object, field: str) -> int:
+    if type(value) is not int or value < 0:
+        raise ValueError(f"{field} must be a non-negative integer")
+    return value
+
+
+def _require_rate(value: object, field: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{field} must be numeric")
+    numeric = float(value)
+    if not 0.0 <= numeric <= 1.0:
+        raise ValueError(f"{field} must be between 0 and 1")
+    return numeric
+
+
+def _require_bool(value: object, field: str) -> bool:
+    if type(value) is not bool:
+        raise ValueError(f"{field} must be boolean")
+    return value
+
+
 def validate_judge_incident_evidence(evidence: dict[str, object]) -> None:
     if evidence.get("schema_version") != SCHEMA_VERSION:
         raise ValueError("unsupported incident evidence schema")
@@ -66,9 +87,75 @@ def validate_judge_incident_evidence(evidence: dict[str, object]) -> None:
         raise ValueError("judge incident evidence must not carry execution authority")
     if evidence.get("scenario") != SCENARIO:
         raise ValueError("incident evidence scenario mismatch")
+
     phases = evidence.get("phases")
     if not isinstance(phases, dict):
         raise TypeError("incident evidence phases must be an object")
     required = {"blast_radius", "containment", "recovery", "replay", "restoration"}
     if set(phases) != required:
         raise ValueError("incident evidence must contain the exact required phases")
+    for phase_name in required:
+        if not isinstance(phases[phase_name], dict):
+            raise TypeError(f"incident evidence phase {phase_name} must be an object")
+
+    measured = evidence.get("measured_score")
+    if not isinstance(measured, dict):
+        raise TypeError("incident evidence measured_score must be an object")
+    if measured.get("scenario") != SCENARIO:
+        raise ValueError("measured score scenario mismatch")
+
+    blast = phases["blast_radius"]
+    containment = phases["containment"]
+    recovery = phases["recovery"]
+    replay = phases["replay"]
+    restoration = phases["restoration"]
+
+    expected_actions = _require_non_negative_int(blast.get("expected_actions"), "expected_actions")
+    detected_actions = _require_non_negative_int(blast.get("detected_actions"), "detected_actions")
+    if detected_actions > expected_actions:
+        raise ValueError("detected actions cannot exceed expected actions")
+    _require_rate(blast.get("recall"), "blast recall")
+    _require_rate(blast.get("precision"), "blast precision")
+    _require_bool(
+        containment.get("root_agent_remains_contained"),
+        "root_agent_remains_contained",
+    )
+    _require_non_negative_int(recovery.get("verified_recoveries"), "verified_recoveries")
+    _require_non_negative_int(
+        recovery.get("platform_residual_effects"),
+        "platform_residual_effects",
+    )
+    _require_bool(replay.get("verified"), "replay verified")
+    _require_non_negative_int(
+        replay.get("unsafe_recovery_executions"),
+        "unsafe_recovery_executions",
+    )
+    _require_non_negative_int(
+        restoration.get("restored_downstream_authorities"),
+        "restored_downstream_authorities",
+    )
+    root_restored = _require_bool(
+        restoration.get("root_authority_restored"),
+        "root_authority_restored",
+    )
+    if root_restored:
+        raise ValueError("judge evidence must not claim root authority restored")
+
+    correspondence = {
+        "expected_blast_actions": blast.get("expected_actions"),
+        "detected_blast_actions": blast.get("detected_actions"),
+        "blast_radius_recall": blast.get("recall"),
+        "blast_radius_precision": blast.get("precision"),
+        "root_agent_remains_contained": containment.get("root_agent_remains_contained"),
+        "verified_recoveries": recovery.get("verified_recoveries"),
+        "platform_residual_effects": recovery.get("platform_residual_effects"),
+        "replay_verified": replay.get("verified"),
+        "unsafe_recovery_executions": replay.get("unsafe_recovery_executions"),
+        "restored_downstream_authorities": restoration.get("restored_downstream_authorities"),
+    }
+    for field, represented in correspondence.items():
+        if measured.get(field) != represented:
+            raise ValueError(f"phase evidence does not match measured score: {field}")
+
+    if measured.get("root_agent_remains_contained") is not True:
+        raise ValueError("measured score must keep root authority contained")
