@@ -53,9 +53,12 @@ Amazon Bedrock and AgentCore remain optional live-path integrations. They are no
 
 See:
 
+- `docs/ARCHITECTURE_DIAGRAM.md` for the submission-ready architecture diagram,
 - `docs/JUDGE_EVIDENCE_INDEX.md` for the final claim-to-evidence boundary,
 - `docs/PROJECT_CURRENT_STATE.md` for the durable accepted-state checkpoint,
-- `docs/BENCHMARK.md` for the benchmark contract.
+- `docs/BENCHMARK.md` for the benchmark contract,
+- `docs/SUBMISSION_DRAFT.md` for the owner-gated submission draft,
+- `docs/GPT6_AUDIT_HANDOFF.md` for the owner-gated adversarial review handoff.
 
 ## Benchmark-first development
 
@@ -101,8 +104,11 @@ The first commercial offer is a bounded **Agent Recoverability Assessment** for 
 - `docs/RECOVERY_CONTRACT_SPEC.md` - contract model for reversible and compensatable actions
 - `docs/BENCHMARK.md` - benchmark scenarios and metrics
 - `docs/ARCHITECTURE.md` - target system architecture
+- `docs/ARCHITECTURE_DIAGRAM.md` - submission-ready architecture diagram
 - `docs/PROJECT_CURRENT_STATE.md` - durable execution checkpoint
 - `docs/JUDGE_EVIDENCE_INDEX.md` - final judge claim/evidence map
+- `docs/SUBMISSION_DRAFT.md` - final owner-review submission copy
+- `docs/GPT6_AUDIT_HANDOFF.md` - adversarial architecture audit prompt and acceptance format
 - `src/agent_recovery/` - deterministic recovery/control code
 - `tests/` - deterministic safety, benchmark and recovery tests
 
