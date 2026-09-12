@@ -32,6 +32,32 @@ Official sources:
 - https://agentsforhumans.devpost.com/rules
 - https://agentsforhumans.devpost.com/details/faqs
 
+## AWS account runway confirmed 2026-09-12
+
+The owner successfully activated a new AWS Free account plan.
+
+Observed account state:
+- USD 100.00 initial credits available
+- 182 days remaining in the free-plan exploration period
+- USD 0.00 current-month cost at activation
+- no paid-plan upgrade required for the current competition plan
+
+Current AWS documentation lists both Amazon Bedrock and Amazon Bedrock AgentCore among services supported in the new free-plan experience. New customers can earn up to an additional USD 100 through five guided activities, USD 20 each:
+- AWS Budgets
+- Amazon Bedrock playground
+- AWS Lambda web app
+- Amazon EC2 instance
+- Amazon RDS database
+
+Cost-control order:
+1. complete the AWS Budgets activity first and set conservative alerts
+2. complete the Bedrock playground activity second because it directly supports the competition path
+3. do not launch EC2/RDS merely for credits until the core submission is secure
+4. test AgentCore only with a bounded experiment tied to the actual demo/architecture claim
+5. remain on Free plan before submission unless a verified blocker requires otherwise
+
+Do not expose account identifiers, credentials, access keys or billing details in the repository or submission evidence.
+
 ## Current project position against the rubric
 
 ### Technical Implementation
@@ -151,7 +177,7 @@ Produce one competition-facing diagram with two visible trust zones:
    - Restoration Gate
    - Judge Evidence/Console
 
-Optional AWS path must be visually marked as optional/owner-approved unless actually verified:
+Optional AWS path must be visually marked according to verified state:
 - Amazon Bedrock
 - AgentCore Gateway/Policy
 - CloudWatch/trace evidence
