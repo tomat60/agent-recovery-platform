@@ -67,7 +67,7 @@ def _require_non_negative_int(value: object, field: str) -> int:
 
 def _require_rate(value: object, field: str) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
-        raise ValueError(f"{field} must be numeric")
+        raise TypeError(f"{field} must be numeric")
     numeric = float(value)
     if not 0.0 <= numeric <= 1.0:
         raise ValueError(f"{field} must be between 0 and 1")
