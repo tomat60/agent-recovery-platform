@@ -46,11 +46,12 @@ def run_multi_agent_recovery_scenario() -> MultiAgentRecoveryScore:
             "content_digest": "sha256:poisoned-support-ticket-v1",
         },
     )
+    memory_params = {"key": "customer_instruction", "value": "elevate customer access"}
     memory_action = engine.execute(
         incident_id=incident_id,
         agent_id="support-agent",
         tool_id="memory.write",
-        params={"key": "customer_instruction", "value": "elevate customer access"},
+        params=memory_params,
         causal_parent_event_ids=(root.event_id,),
     )
     memory_read = engine.ledger.record(
@@ -90,6 +91,8 @@ def run_multi_agent_recovery_scenario() -> MultiAgentRecoveryScore:
             "identity.grant_permission",
             permission_params,
             "bench-multi-agent-approval",
+            incident_id=incident_id,
+            contract_version="0.1",
         ),
         causal_parent_event_ids=(handoff.event_id,),
     )
@@ -111,6 +114,16 @@ def run_multi_agent_recovery_scenario() -> MultiAgentRecoveryScore:
         "agent:support-agent",
         reason="root agent received compromised external content",
     )
+    engine.contain(
+        incident_id,
+        "agent:crm-agent",
+        reason="dependent authority suspended pending verified recovery",
+    )
+    engine.contain(
+        incident_id,
+        "agent:identity-agent",
+        reason="dependent authority suspended pending verified recovery",
+    )
     plan = build_shared_state_safe_plan(
         graph,
         tuple(sorted(expected_action_ids)),
@@ -128,43 +141,47 @@ def run_multi_agent_recovery_scenario() -> MultiAgentRecoveryScore:
     residual_effects += int(engine.state.crm_contacts["c-1"]["tier"] != "standard")
     residual_effects += int("deploy:prod" in engine.state.permissions["agent-1"])
 
-    replay_evidence = ReplayLab(_engine).run(
-        source_ledger=engine.ledger,
-        source_incident_id=incident_id,
-        source_trigger_event_id=root.event_id,
-        replay_id="bench-multi-agent-replay",
-        action=ReplayActionSpec(
-            agent_id="support-agent",
-            tool_id="memory.write",
-            params={"key": "customer_instruction", "value": "elevate customer access"},
-            containment_scopes=("agent:support-agent",),
-        ),
-    )
-    replay_observation = replay_evidence.derive(
-        source_ledger=engine.ledger,
-        source_incident_id=incident_id,
-    )
-    replay_verification = record_replay_verification(
-        engine.ledger,
-        incident_id=incident_id,
-        evidence=replay_evidence,
-    )
-
+    restored_downstream_authorities = 0
+    replay_verdicts: list[bool] = []
+    unsafe_replay_executions = 0
     restoration_gate = RestorationGate(engine.ledger)
-    crm_restoration = restoration_gate.authorize(
-        incident_id=incident_id,
-        authority_scope="agent:crm-agent",
-        replay_event_id=replay_verification.event.event_id,
-    )
-    identity_restoration = restoration_gate.authorize(
-        incident_id=incident_id,
-        authority_scope="agent:identity-agent",
-        replay_event_id=replay_verification.event.event_id,
-    )
-    restored_downstream_authorities = sum(
-        result.decision is RestorationDecision.RESTORED
-        for result in (crm_restoration, identity_restoration)
-    )
+    for index, release_scope in enumerate(("agent:crm-agent", "agent:identity-agent"), start=1):
+        replay_evidence = ReplayLab(_engine).run(
+            source_ledger=engine.ledger,
+            source_incident_id=incident_id,
+            source_trigger_event_id=root.event_id,
+            replay_id=f"bench-multi-agent-replay-{index}",
+            action=ReplayActionSpec(
+                agent_id="support-agent",
+                tool_id="memory.write",
+                params=memory_params,
+                containment_scopes=("agent:support-agent",),
+                release_scope=release_scope,
+            ),
+        )
+        replay_observation = replay_evidence.derive(
+            source_ledger=engine.ledger,
+            source_incident_id=incident_id,
+        )
+        replay_verification = record_replay_verification(
+            engine.ledger,
+            incident_id=incident_id,
+            evidence=replay_evidence,
+        )
+        replay_verdicts.append(replay_verification.verified)
+        unsafe_replay_executions += len(replay_observation.executed_side_effect_event_ids)
+        restoration = restoration_gate.authorize(
+            incident_id=incident_id,
+            authority_scope=release_scope,
+            replay_event_id=replay_verification.event.event_id,
+        )
+        if restoration.decision is RestorationDecision.RESTORED:
+            engine.release_containment(
+                incident_id,
+                release_scope,
+                restoration_event_id=restoration.event.event_id,
+            )
+            restored_downstream_authorities += 1
 
     return MultiAgentRecoveryScore(
         scenario="poisoned_support_to_shared_state_to_identity",
@@ -175,10 +192,10 @@ def run_multi_agent_recovery_scenario() -> MultiAgentRecoveryScore:
         blast_radius_precision=precision,
         verified_recoveries=verified_recoveries,
         platform_residual_effects=residual_effects,
-        replay_verified=replay_verification.verified,
+        replay_verified=all(replay_verdicts),
         restored_downstream_authorities=restored_downstream_authorities,
         root_agent_remains_contained=engine.is_contained("agent:support-agent"),
-        unsafe_recovery_executions=len(replay_observation.executed_side_effect_event_ids),
+        unsafe_recovery_executions=unsafe_replay_executions,
     )
 
 

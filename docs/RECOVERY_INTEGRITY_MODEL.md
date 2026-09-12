@@ -1,6 +1,6 @@
 # Recovery Integrity Model
 
-Date: 2026-09-06
+Date: 2026-09-12
 
 ## Purpose
 
@@ -11,12 +11,12 @@ This document defines the deterministic safety controls that must remain below a
 ## Invariants
 
 1. **No autonomous write without a recovery path.**
-2. **No restored authority without a verified replay.**
-3. **No recovery decision from unverifiable evidence.**
-4. **No replay verdict survives a change to the source incident or recovery evidence.**
-5. **No event ledger mutation can be accepted without preserving the tamper-evident chain.**
+2. **No restored authority without complete local recovery evidence and a current scope-bound replay.**
+3. **No recovery decision from evidence that fails the local ledger-integrity check.**
+4. **No replay verdict survives a relevant change to the source incident or recovery evidence.**
+5. **No accepted in-ledger mutation may break the locally verified tamper-evident chain.**
 6. **No recovery action may target a different incident than the evidence that authorized it.**
-7. **No stale or already-consumed authority may be resurrected after rollback.**
+7. **No stale or already-consumed authority may be reused inside the bounded shared-ledger runtime.**
 
 ## Tamper-evident action ledger
 
@@ -30,40 +30,63 @@ Every ledger event is chained to the previous event using a SHA-256 digest over 
 - occurrence time
 - previous event hash
 
-This is not presented as a substitute for an external transparency log or a production WORM store. It is a deterministic integrity primitive for the prototype and benchmark. Any mutation, deletion, reordering, or forged insertion breaks `verify_integrity()` and causes restoration to fail closed.
+The ledger detaches nested payload data at append/read boundaries so an exported evidence object cannot silently mutate the stored event. Recovery and restoration verify the chain before privileged mutation or release decisions.
 
-Future production hardening should anchor periodic ledger heads to an external immutable store or signed transparency service.
+This is **not** an authenticated transparency log and is not presented as a substitute for a production WORM store. Within one retained ledger history, mutation, internal deletion/reordering, or forged insertion that breaks the chain is detected. A self-consistent prefix or alternate history cannot be distinguished from the intended complete history without an independently committed head/length or external authentication. Therefore the prototype does **not** claim suffix-truncation resistance, completeness, authenticity, or rollback resistance against a process that controls persistence.
 
-## Replay freshness
+Future production hardening should anchor ledger heads and sequence commitments to an authenticated external immutable store or signed transparency service.
 
-A replay verification is bound to two separate fingerprints:
+## Replay freshness and release-policy binding
 
-- **source incident fingerprint**: external input, tool output, memory reads, handoffs, action intents/executions/blocks and authority consumption
-- **recovery evidence fingerprint**: containment, recovery planning, recovery execution/failure and residual effects
+A replay verification is bound to:
 
-If either fingerprint changes after verification, the replay evidence is stale and cannot restore authority.
+- the source incident and exact source action,
+- action agent, tool, parameters and contract version,
+- the source ledger head and current recovery generation at replay execution,
+- the contract versions used by executed actions in the source incident,
+- one proposed authority release scope,
+- source-incident and recovery-evidence fingerprints.
 
-This prevents two important classes of failure:
+The proposed release scope may not remain contained inside the replay. Other containment may be preserved when it is part of the proposed post-restoration policy. A later replay verdict for the same release scope supersedes an earlier one. Replay evidence can be recorded only against the execution-time source head, which prevents re-stamping the same replay after the source history changes.
 
-- replaying a successful verification against a later, changed incident
-- replaying a successful verification after the recovery plan, execution result, or residual-effect record changed
+The current replay remains a **bounded synthetic replay of the selected represented attack action**, not proof of full production-environment, provider, topology or time-dependent equivalence.
 
-## Threats explicitly addressed
+## Restoration boundary
 
-- evidence deletion or mutation
-- event reordering
-- recovery evidence substitution
-- cross-incident recovery
-- stale replay authorization
-- authority resurrection
-- forged success reporting inside the deterministic prototype
+The deterministic restoration gate requires, within the bounded prototype:
+
+- active containment for the exact scope being considered,
+- complete local handling of represented executed actions,
+- no uncovered residual effect,
+- the latest applicable replay verdict for that exact scope,
+- matching current recovery generation and evidence fingerprints,
+- successful action/environment binding in replay.
+
+An authorized restoration event does not silently change runtime authority. `RecoveryEngine.release_containment()` applies the exact authorized event and records the corresponding containment release.
+
+## Threats explicitly addressed in the bounded implementation
+
+- nested evidence alias mutation through exported views,
+- hash-chain-breaking event mutation/reordering/internal deletion,
+- cross-incident recovery result reuse,
+- stale or re-stamped replay authorization,
+- superseded positive replay use,
+- unrelated release-scope reuse,
+- runtime containment loss on reconstruction from the same ledger,
+- duplicate approval consumption across controllers sharing one in-memory ledger,
+- recovery over a later writer of the same represented resource,
+- malformed contract metadata reaching an executor,
+- ambiguous verifier/compensation failures disappearing from residual accounting.
 
 ## Threats not yet solved
 
-- compromised process with full access to both runtime memory and persistence
-- externally signed ledger anchoring
-- distributed consensus over multiple recovery controllers
-- real cloud/database rollback attestations
-- malicious or compromised recovery provider implementations
+- compromised process with full control of both runtime memory and persistence,
+- external signed ledger anchoring and valid-prefix rollback detection,
+- distributed consensus across independently persisted recovery controllers,
+- production multi-tenancy,
+- real cloud/database rollback attestations,
+- malicious or compromised recovery provider implementations,
+- complete production replay equivalence for topology, provider state, delayed effects or time-dependent behavior,
+- live AWS/AgentCore security effectiveness without separate evidence.
 
 Those remain roadmap items and must not be claimed as production guarantees.

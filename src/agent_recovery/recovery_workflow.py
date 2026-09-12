@@ -77,7 +77,7 @@ def execute_recovery_plan(
                 incident_id=incident_id,
                 action_event_id=step.action_event_id,
             )
-        except RuntimeError as exc:
+        except Exception as exc:
             failure = engine.ledger.record(
                 EventType.RECOVERY_FAILED,
                 incident_id,
