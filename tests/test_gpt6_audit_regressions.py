@@ -37,7 +37,8 @@ def make_engine(
 
 def prepared_recovery(incident_id: str = "audit"):
     engine = make_engine()
-    scope = "agent:source"
+    source_scope = "agent:source"
+    release_scope = "agent:downstream"
     trigger = engine.ledger.record(
         EventType.EXTERNAL_INPUT,
         incident_id,
@@ -51,13 +52,14 @@ def prepared_recovery(incident_id: str = "audit"):
         params=params,
         causal_parent_event_ids=(trigger.event_id,),
     )
-    engine.contain(incident_id, scope, reason="compromised")
+    engine.contain(incident_id, source_scope, reason="compromised source")
+    engine.contain(incident_id, release_scope, reason="dependent authority held")
     recovery = engine.recover(
         incident_id=incident_id,
         action_event_id=action.action_event.event_id,
     )
     assert recovery.status is RecoveryStatus.VERIFIED
-    return engine, trigger, action, params, scope
+    return engine, trigger, action, params, release_scope
 
 
 def replay_for(
@@ -138,6 +140,48 @@ def test_wrong_tool_replay_cannot_be_used_as_attack_proof() -> None:
     engine, trigger, _, params, scope = prepared_recovery("wrong-tool")
     with pytest.raises(ValueError, match="exactly one matching source action"):
         replay_for(engine, trigger.event_id, params, scope, tool_id="nonexistent.tool")
+
+
+def test_replay_environment_requires_all_source_contract_versions() -> None:
+    engine = make_engine()
+    incident_id = "environment-binding"
+    trigger = engine.ledger.record(EventType.EXTERNAL_INPUT, incident_id, {"source": "synthetic"})
+    params = {"key": "instruction", "value": "poison"}
+    engine.execute(
+        incident_id=incident_id,
+        agent_id="source",
+        tool_id="memory.write",
+        params=params,
+        causal_parent_event_ids=(trigger.event_id,),
+    )
+    engine.execute(
+        incident_id=incident_id,
+        agent_id="crm-agent",
+        tool_id="crm.update_contact",
+        params={"contact_id": "c-1", "field": "tier", "value": "vip"},
+        causal_parent_event_ids=(trigger.event_id,),
+    )
+
+    def incomplete_factory() -> RecoveryEngine:
+        replay_engine = RecoveryEngine(SyntheticEnterprise())
+        memory_contract = next(c for c in synthetic_contracts() if c.tool_id == "memory.write")
+        replay_engine.register(memory_contract)
+        return replay_engine
+
+    with pytest.raises(ValueError, match="environment contract mismatch"):
+        ReplayLab(incomplete_factory).run(
+            source_ledger=engine.ledger,
+            source_incident_id=incident_id,
+            source_trigger_event_id=trigger.event_id,
+            replay_id="replay-environment-binding",
+            action=ReplayActionSpec(
+                agent_id="source",
+                tool_id="memory.write",
+                params=params,
+                containment_scopes=("agent:source",),
+                release_scope="agent:downstream",
+            ),
+        )
 
 
 def test_replay_proof_cannot_be_restamped_after_source_state_changes() -> None:
