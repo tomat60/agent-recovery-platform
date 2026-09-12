@@ -41,10 +41,11 @@ def run_memory_replay(
     )
 
 
-def test_verified_recovery_and_scope_bound_replay_allow_authority_restoration() -> None:
+def test_verified_recovery_and_scope_bound_replay_allow_downstream_restoration() -> None:
     engine = make_engine()
     incident_id = "restore-1"
-    scope = "agent:support-agent"
+    root_scope = "agent:support-agent"
+    release_scope = "agent:workflow-agent"
     trigger = engine.ledger.record(
         EventType.EXTERNAL_INPUT,
         incident_id,
@@ -57,7 +58,8 @@ def test_verified_recovery_and_scope_bound_replay_allow_authority_restoration() 
         params={"key": "instruction", "value": "poisoned"},
         causal_parent_event_ids=(trigger.event_id,),
     )
-    engine.contain(incident_id, scope, reason="source compromised")
+    engine.contain(incident_id, root_scope, reason="source compromised")
+    engine.contain(incident_id, release_scope, reason="dependent authority held during recovery")
     recovery = engine.recover(
         incident_id=incident_id,
         action_event_id=action.action_event.event_id,
@@ -71,31 +73,64 @@ def test_verified_recovery_and_scope_bound_replay_allow_authority_restoration() 
             engine,
             trigger.event_id,
             contained=True,
-            release_scope=scope,
+            release_scope=release_scope,
         ),
     )
     assert replay.verified is True
     assert replay.event.payload["evidence_source"] == "isolated_replay_lab"
-    assert replay.event.payload["authority_scope"] == scope
+    assert replay.event.payload["authority_scope"] == release_scope
 
     result = RestorationGate(engine.ledger).authorize(
         incident_id=incident_id,
-        authority_scope=scope,
+        authority_scope=release_scope,
         replay_event_id=replay.event.event_id,
     )
     assert result.decision is RestorationDecision.RESTORED
     engine.release_containment(
         incident_id,
-        scope,
+        release_scope,
         restoration_event_id=result.event.event_id,
     )
-    assert engine.is_contained(scope) is False
+    assert engine.is_contained(release_scope) is False
+    assert engine.is_contained(root_scope) is True
+
+
+def test_replay_cannot_keep_the_proposed_release_scope_contained() -> None:
+    engine = make_engine()
+    incident_id = "restore-release-policy"
+    scope = "agent:support-agent"
+    trigger = engine.ledger.record(
+        EventType.EXTERNAL_INPUT,
+        incident_id,
+        {"source": "poisoned_ticket"},
+    )
+    engine.execute(
+        incident_id=incident_id,
+        agent_id="support-agent",
+        tool_id="memory.write",
+        params={"key": "instruction", "value": "poisoned"},
+        causal_parent_event_ids=(trigger.event_id,),
+    )
+    engine.contain(incident_id, scope, reason="source compromised")
+
+    try:
+        run_memory_replay(
+            engine,
+            trigger.event_id,
+            contained=True,
+            release_scope=scope,
+        )
+    except ValueError as exc:
+        assert "proposed release scope" in str(exc)
+    else:
+        raise AssertionError("replay accepted a scope that remained contained")
 
 
 def test_restoration_blocks_unrecovered_or_unrelated_authority() -> None:
     engine = make_engine()
     incident_id = "restore-unrecovered"
-    scope = "agent:support-agent"
+    root_scope = "agent:support-agent"
+    release_scope = "agent:workflow-agent"
     trigger = engine.ledger.record(
         EventType.EXTERNAL_INPUT,
         incident_id,
@@ -108,18 +143,19 @@ def test_restoration_blocks_unrecovered_or_unrelated_authority() -> None:
         params={"key": "instruction", "value": "poisoned"},
         causal_parent_event_ids=(trigger.event_id,),
     )
-    engine.contain(incident_id, scope, reason="source compromised")
+    engine.contain(incident_id, root_scope, reason="source compromised")
+    engine.contain(incident_id, release_scope, reason="dependent authority held during recovery")
     evidence = run_memory_replay(
         engine,
         trigger.event_id,
         contained=True,
-        release_scope=scope,
+        release_scope=release_scope,
     )
     replay = record_replay_verification(engine.ledger, incident_id=incident_id, evidence=evidence)
 
     unrecovered = RestorationGate(engine.ledger).authorize(
         incident_id=incident_id,
-        authority_scope=scope,
+        authority_scope=release_scope,
         replay_event_id=replay.event.event_id,
     )
     unrelated = RestorationGate(engine.ledger).authorize(
@@ -136,7 +172,8 @@ def test_restoration_blocks_unrecovered_or_unrelated_authority() -> None:
 def test_replay_evidence_becomes_stale_if_incident_changes_after_verification() -> None:
     engine = make_engine()
     incident_id = "restore-2"
-    scope = "agent:support-agent"
+    root_scope = "agent:support-agent"
+    release_scope = "agent:workflow-agent"
     trigger = engine.ledger.record(
         EventType.EXTERNAL_INPUT,
         incident_id,
@@ -149,7 +186,8 @@ def test_replay_evidence_becomes_stale_if_incident_changes_after_verification() 
         params={"key": "instruction", "value": "poisoned"},
         causal_parent_event_ids=(trigger.event_id,),
     )
-    engine.contain(incident_id, scope, reason="source compromised")
+    engine.contain(incident_id, root_scope, reason="source compromised")
+    engine.contain(incident_id, release_scope, reason="dependent authority held during recovery")
     engine.recover(incident_id=incident_id, action_event_id=first.action_event.event_id)
     replay = record_replay_verification(
         engine.ledger,
@@ -158,7 +196,7 @@ def test_replay_evidence_becomes_stale_if_incident_changes_after_verification() 
             engine,
             trigger.event_id,
             contained=True,
-            release_scope=scope,
+            release_scope=release_scope,
         ),
     )
     engine.ledger.record(
@@ -169,7 +207,7 @@ def test_replay_evidence_becomes_stale_if_incident_changes_after_verification() 
     )
     result = RestorationGate(engine.ledger).authorize(
         incident_id=incident_id,
-        authority_scope=scope,
+        authority_scope=release_scope,
         replay_event_id=replay.event.event_id,
     )
     assert result.decision is RestorationDecision.BLOCKED
@@ -179,7 +217,8 @@ def test_replay_evidence_becomes_stale_if_incident_changes_after_verification() 
 def test_replay_with_observed_side_effects_cannot_restore_authority() -> None:
     engine = make_engine()
     incident_id = "restore-3"
-    scope = "agent:support-agent"
+    root_scope = "agent:support-agent"
+    release_scope = "agent:workflow-agent"
     trigger = engine.ledger.record(
         EventType.EXTERNAL_INPUT,
         incident_id,
@@ -192,13 +231,14 @@ def test_replay_with_observed_side_effects_cannot_restore_authority() -> None:
         params={"key": "instruction", "value": "poisoned"},
         causal_parent_event_ids=(trigger.event_id,),
     )
-    engine.contain(incident_id, scope, reason="source compromised")
+    engine.contain(incident_id, root_scope, reason="source compromised")
+    engine.contain(incident_id, release_scope, reason="dependent authority held during recovery")
     engine.recover(incident_id=incident_id, action_event_id=action.action_event.event_id)
     evidence = run_memory_replay(
         engine,
         trigger.event_id,
         contained=False,
-        release_scope=scope,
+        release_scope=release_scope,
     )
     observation = evidence.derive(source_ledger=engine.ledger, source_incident_id=incident_id)
     assert observation.entry_action_blocked_by_containment is False
@@ -208,7 +248,7 @@ def test_replay_with_observed_side_effects_cannot_restore_authority() -> None:
     assert replay.verified is False
     result = RestorationGate(engine.ledger).authorize(
         incident_id=incident_id,
-        authority_scope=scope,
+        authority_scope=release_scope,
         replay_event_id=replay.event.event_id,
     )
     assert result.decision is RestorationDecision.BLOCKED
