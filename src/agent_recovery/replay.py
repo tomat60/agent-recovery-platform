@@ -32,6 +32,8 @@ class ReplayEvidence:
     action_tool_id: str
     action_params_digest: str
     action_contract_version: str
+    source_contract_manifest: tuple[tuple[str, str], ...]
+    replay_contract_manifest: tuple[tuple[str, str], ...]
     replay_ledger: ActionLedger
     replay_trigger_event_id: str
     replay_action_event_id: str
@@ -91,6 +93,10 @@ class ReplayEvidence:
             self.source_trigger_event_id,
             self.source_action_event_id,
         )
+        environment_matches = all(
+            (tool_id, version) in self.replay_contract_manifest
+            for tool_id, version in self.source_contract_manifest
+        )
 
         executed = tuple(
             event.event_id
@@ -105,6 +111,7 @@ class ReplayEvidence:
             source_payload_matches=replay_trigger.payload == source_trigger.payload,
             source_action_matches=source_action_matches and source_action_is_on_trigger_path,
             replay_action_matches=replay_action_matches,
+            environment_matches=environment_matches,
             entry_action_blocked_by_containment=containment_blocked,
             executed_side_effect_event_ids=executed,
             replay_ledger_head=self.replay_ledger.head_hash,
@@ -120,6 +127,7 @@ class ReplayObservation:
     source_payload_matches: bool
     source_action_matches: bool
     replay_action_matches: bool
+    environment_matches: bool
     entry_action_blocked_by_containment: bool
     executed_side_effect_event_ids: tuple[str, ...]
     replay_ledger_head: str
@@ -130,6 +138,7 @@ class ReplayObservation:
             self.source_payload_matches
             and self.source_action_matches
             and self.replay_action_matches
+            and self.environment_matches
             and bool(self.release_scope)
             and bool(self.replay_ledger_head)
         )
@@ -149,6 +158,38 @@ class ReplayLab:
     def __init__(self, engine_factory: Callable[[], RecoveryEngine]) -> None:
         self._engine_factory = engine_factory
 
+    @staticmethod
+    def _source_contract_manifest(
+        source_ledger: ActionLedger,
+        *,
+        source_incident_id: str,
+    ) -> tuple[tuple[str, str], ...]:
+        contracts: set[tuple[str, str]] = set()
+        for event in source_ledger.events(incident_id=source_incident_id):
+            if event.event_type is not EventType.ACTION_EXECUTED:
+                continue
+            tool_id = event.payload.get("tool_id")
+            version = event.payload.get("contract_version")
+            if not isinstance(tool_id, str) or not tool_id:
+                raise ValueError("executed source action lacks tool identity")
+            if not isinstance(version, str) or not version:
+                raise ValueError("executed source action lacks contract identity")
+            contracts.add((tool_id, version))
+        return tuple(sorted(contracts))
+
+    @staticmethod
+    def _replay_contract_manifest(engine: RecoveryEngine) -> tuple[tuple[str, str], ...]:
+        registry = getattr(engine, "_contracts", None)
+        if not isinstance(registry, dict):
+            raise ValueError("replay runtime does not expose deterministic contract identity")
+        manifest: list[tuple[str, str]] = []
+        for tool_id, contract in registry.items():
+            version = getattr(contract, "contract_version", None)
+            if not isinstance(tool_id, str) or not isinstance(version, str) or not version:
+                raise ValueError("replay runtime has unusable contract identity")
+            manifest.append((tool_id, version))
+        return tuple(sorted(manifest))
+
     def run(
         self,
         *,
@@ -166,6 +207,8 @@ class ReplayLab:
             raise ValueError("replay source trigger must be an external input")
         if not action.release_scope:
             raise ValueError("replay must be bound to one proposed release scope")
+        if action.release_scope in action.containment_scopes:
+            raise ValueError("replay cannot keep the proposed release scope contained")
 
         params_digest = digest_params(action.params)
         graph = IncidentGraph.from_ledger(source_ledger, incident_id=source_incident_id)
@@ -192,9 +235,22 @@ class ReplayLab:
         if not isinstance(contract_version, str) or not contract_version:
             raise ValueError("source action lacks contract identity")
 
+        source_contract_manifest = self._source_contract_manifest(
+            source_ledger,
+            source_incident_id=source_incident_id,
+        )
         source_head = source_ledger.head_hash
         generation = current_generation(source_ledger, incident_id=source_incident_id)
         replay_engine = self._engine_factory()
+        replay_contract_manifest = self._replay_contract_manifest(replay_engine)
+        missing_or_changed = tuple(
+            item for item in source_contract_manifest if item not in replay_contract_manifest
+        )
+        if missing_or_changed:
+            raise ValueError(
+                f"replay environment contract mismatch: {missing_or_changed}"
+            )
+
         for scope in action.containment_scopes:
             replay_engine.contain(
                 replay_id,
@@ -228,6 +284,8 @@ class ReplayLab:
             action_tool_id=action.tool_id,
             action_params_digest=params_digest,
             action_contract_version=contract_version,
+            source_contract_manifest=source_contract_manifest,
+            replay_contract_manifest=replay_contract_manifest,
             replay_ledger=replay_engine.ledger,
             replay_trigger_event_id=replay_trigger.event_id,
             replay_action_event_id=replay_result.action_event.event_id,
