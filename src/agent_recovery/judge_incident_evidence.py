@@ -120,8 +120,11 @@ def validate_judge_incident_evidence(evidence: dict[str, object]) -> None:
         containment.get("root_agent_remains_contained"),
         "root_agent_remains_contained",
     )
-    _require_non_negative_int(recovery.get("verified_recoveries"), "verified_recoveries")
-    _require_non_negative_int(
+    verified_recoveries = _require_non_negative_int(
+        recovery.get("verified_recoveries"),
+        "verified_recoveries",
+    )
+    platform_residual_effects = _require_non_negative_int(
         recovery.get("platform_residual_effects"),
         "platform_residual_effects",
     )
@@ -130,7 +133,7 @@ def validate_judge_incident_evidence(evidence: dict[str, object]) -> None:
         replay.get("unsafe_recovery_executions"),
         "unsafe_recovery_executions",
     )
-    _require_non_negative_int(
+    restored_downstream = _require_non_negative_int(
         restoration.get("restored_downstream_authorities"),
         "restored_downstream_authorities",
     )
@@ -140,6 +143,12 @@ def validate_judge_incident_evidence(evidence: dict[str, object]) -> None:
     )
     if root_restored:
         raise ValueError("judge evidence must not claim root authority restored")
+    if verified_recoveries > expected_actions:
+        raise ValueError("verified recoveries cannot exceed represented incident actions")
+    if platform_residual_effects > expected_actions:
+        raise ValueError("residual effects cannot exceed represented incident actions")
+    if restored_downstream > verified_recoveries:
+        raise ValueError("restored authority cannot exceed verified recoveries")
 
     correspondence = {
         "expected_blast_actions": blast.get("expected_actions"),
