@@ -17,6 +17,20 @@ class InvestigatorRuntimeError(ValueError):
     """Raised when investigator output cannot be safely bound to incident evidence."""
 
 
+def _normalize_model_json(raw: str) -> str:
+    """Accept raw JSON or exactly one JSON markdown fence, and nothing else."""
+
+    text = raw.strip()
+    lines = text.splitlines()
+    if (
+        len(lines) >= 3
+        and lines[0].strip().lower() in {"```", "```json"}
+        and lines[-1].strip() == "```"
+    ):
+        return "\n".join(lines[1:-1]).strip()
+    return text
+
+
 @dataclass(frozen=True)
 class InvestigatorResult:
     proposal: AgentProposal
@@ -85,7 +99,7 @@ def run_strands_investigator(
         raise InvestigatorRuntimeError("investigator returned an empty response")
 
     try:
-        parsed = json.loads(raw)
+        parsed = json.loads(_normalize_model_json(raw))
     except json.JSONDecodeError as exc:
         raise InvestigatorRuntimeError(
             "investigator response must be valid JSON"
