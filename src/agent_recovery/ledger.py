@@ -87,6 +87,75 @@ class ActionLedger:
         with self._lock:
             return self._events[-1].event_hash if self._events else ""
 
+    def _event_by_id_unlocked(self, event_id: str) -> LedgerEvent | None:
+        return next((event for event in self._events if event.event_id == event_id), None)
+
+    def _validate_append_policy(self, event: LedgerEvent) -> None:
+        """Fail closed on security-sensitive claims regardless of append entry point."""
+
+        payload = event.payload
+        if (
+            event.event_type is EventType.VERIFICATION
+            and payload.get("verification_kind") == "adversarial_replay"
+            and payload.get("verified") is True
+        ):
+            source_action_event_id = payload.get("source_action_event_id")
+            authority_scope = payload.get("authority_scope")
+            source_incident_id = payload.get("source_incident_id")
+            if not isinstance(source_action_event_id, str) or not source_action_event_id:
+                raise ValueError("positive replay requires source action identity")
+            if not isinstance(authority_scope, str) or not authority_scope:
+                raise ValueError("positive replay requires authority scope")
+            if source_incident_id != event.incident_id:
+                raise ValueError("positive replay source incident mismatch")
+            source_action = self._event_by_id_unlocked(source_action_event_id)
+            if source_action is None or source_action.event_type is not EventType.ACTION_EXECUTED:
+                raise ValueError("positive replay requires an executed source action")
+            if source_action.incident_id != event.incident_id:
+                raise ValueError("positive replay source action incident mismatch")
+            if source_action_event_id not in event.parent_event_ids:
+                raise ValueError("positive replay must causally bind the source action")
+            source_agent = source_action.payload.get("agent_id")
+            if isinstance(source_agent, str) and authority_scope == f"agent:{source_agent}":
+                raise ValueError("positive replay cannot authorize restoration of its source agent")
+
+        if event.event_type is EventType.CONTAINMENT and payload.get("active") is False:
+            scope = payload.get("scope")
+            restoration_event_id = payload.get("restoration_event_id")
+            released_hold_event_id = payload.get("released_hold_event_id")
+            if not isinstance(scope, str) or not scope:
+                raise ValueError("containment release requires scope")
+            if not isinstance(restoration_event_id, str) or not restoration_event_id:
+                raise ValueError("containment release requires restoration evidence")
+            if not isinstance(released_hold_event_id, str) or not released_hold_event_id:
+                raise ValueError("containment release requires exact hold identity")
+
+            restoration = self._event_by_id_unlocked(restoration_event_id)
+            hold = self._event_by_id_unlocked(released_hold_event_id)
+            if restoration is None or restoration.event_type is not EventType.RESTORATION:
+                raise ValueError("containment release restoration evidence is invalid")
+            if restoration.incident_id != event.incident_id:
+                raise ValueError("containment release restoration incident mismatch")
+            if restoration.payload.get("authorized") is not True:
+                raise ValueError("containment release requires authorized restoration")
+            if restoration.payload.get("authority_scope") != scope:
+                raise ValueError("containment release restoration scope mismatch")
+            if not self._events or self._events[-1].event_hash != restoration.event_hash:
+                raise ValueError("containment release restoration is stale or already consumed")
+
+            if hold is None or hold.event_type is not EventType.CONTAINMENT:
+                raise ValueError("containment release hold evidence is invalid")
+            if hold.incident_id != event.incident_id:
+                raise ValueError("containment release hold incident mismatch")
+            if hold.payload.get("active") is not True or hold.payload.get("scope") != scope:
+                raise ValueError("containment release hold does not match scope")
+            if released_hold_event_id not in self._active_containment_holds_unlocked():
+                raise ValueError("containment release hold is no longer active")
+            if restoration_event_id not in event.parent_event_ids:
+                raise ValueError("containment release must depend on restoration evidence")
+            if released_hold_event_id not in event.parent_event_ids:
+                raise ValueError("containment release must depend on the exact hold")
+
     def append(self, event: LedgerEvent) -> LedgerEvent:
         with self._lock:
             if event.event_id in self._ids:
@@ -94,6 +163,8 @@ class ActionLedger:
             missing_parents = [parent for parent in event.parent_event_ids if parent not in self._ids]
             if missing_parents:
                 raise LedgerIntegrityError(f"missing parent event(s): {missing_parents}")
+
+            self._validate_append_policy(event)
 
             previous_hash = self._events[-1].event_hash if self._events else ""
             if event.previous_hash not in ("", previous_hash):
@@ -109,33 +180,6 @@ class ActionLedger:
             self._ids.add(chained.event_id)
             return _detached_event(chained)
 
-    def _validate_record_policy(
-        self,
-        event_type: EventType,
-        payload: Mapping[str, Any],
-    ) -> None:
-        """Fail closed on event claims that violate deterministic restoration policy."""
-
-        if event_type is not EventType.VERIFICATION:
-            return
-        if payload.get("verification_kind") != "adversarial_replay":
-            return
-        if payload.get("verified") is not True:
-            return
-        source_action_event_id = payload.get("source_action_event_id")
-        authority_scope = payload.get("authority_scope")
-        if not isinstance(source_action_event_id, str) or not isinstance(authority_scope, str):
-            return
-        source_action = next(
-            (event for event in self._events if event.event_id == source_action_event_id),
-            None,
-        )
-        if source_action is None or source_action.event_type is not EventType.ACTION_EXECUTED:
-            return
-        source_agent = source_action.payload.get("agent_id")
-        if isinstance(source_agent, str) and authority_scope == f"agent:{source_agent}":
-            raise ValueError("positive replay cannot authorize restoration of its source agent")
-
     def record(
         self,
         event_type: EventType,
@@ -144,16 +188,14 @@ class ActionLedger:
         *,
         parent_event_ids: Iterable[str] = (),
     ) -> LedgerEvent:
-        with self._lock:
-            self._validate_record_policy(event_type, payload)
-            return self.append(
-                LedgerEvent(
-                    event_type=event_type,
-                    incident_id=incident_id,
-                    payload=deepcopy(dict(payload)),
-                    parent_event_ids=tuple(parent_event_ids),
-                )
+        return self.append(
+            LedgerEvent(
+                event_type=event_type,
+                incident_id=incident_id,
+                payload=deepcopy(dict(payload)),
+                parent_event_ids=tuple(parent_event_ids),
             )
+        )
 
     def authority_consumed(self, approval_id: str) -> bool:
         with self._lock:
