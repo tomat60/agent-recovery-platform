@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Iterable, Mapping
+from copy import deepcopy
 from dataclasses import dataclass
 from enum import Enum
 
@@ -468,10 +469,11 @@ class RecoveryEngine:
 
         assert contract.recovery_params_builder is not None
         assert contract.recovery_executor is not None
+        trusted_execution_result = self.ledger.get(action_event_id).payload.get("execution_result")
+        expected = self._expected_recovered_state(trusted_execution_result)
         recovery_params = dict(
             contract.recovery_params_builder(execution_result, observed_after, original_params)
         )
-        expected = self._expected_recovered_state(execution_result, recovery_params)
         generation = current_generation(self.ledger, incident_id=incident_id)
 
         recovery_parent_event_id = action_event_id
@@ -624,9 +626,33 @@ class RecoveryEngine:
             RecoveryStatus.VERIFIED if verified else RecoveryStatus.FAILED,
             recovered,
             verification,
+            residual_reason=None if verified else "recovery_verification_mismatch",
         )
         if verified:
             self._recovery_results[action_event_id] = result
+        else:
+            failed = self.ledger.record(
+                EventType.RECOVERY_FAILED,
+                incident_id,
+                {
+                    "action_event_id": action_event_id,
+                    "tool_id": contract.tool_id,
+                    "reason": "recovery_verification_mismatch",
+                    "recovery_generation": generation,
+                },
+                parent_event_ids=(verification.event_id,),
+            )
+            self.ledger.record(
+                EventType.RESIDUAL_EFFECT,
+                incident_id,
+                {
+                    "action_event_id": action_event_id,
+                    "tool_id": contract.tool_id,
+                    "reason": "recovery_verification_mismatch",
+                    "recovery_failure_event_id": failed.event_id,
+                },
+                parent_event_ids=(failed.event_id,),
+            )
         return result
 
     def reconcile_conflict(
@@ -1009,10 +1035,7 @@ class RecoveryEngine:
     @staticmethod
     def _expected_recovered_state(
         execution_result: object,
-        recovery_params: Mapping[str, object],
     ) -> object:
-        if "expected_state" in recovery_params:
-            return recovery_params["expected_state"]
         if isinstance(execution_result, Mapping) and "before" in execution_result:
-            return execution_result["before"]
+            return deepcopy(execution_result["before"])
         raise ValueError("recovery target must be fixed from preserved pre-action evidence")

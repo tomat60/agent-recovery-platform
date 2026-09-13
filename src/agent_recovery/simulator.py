@@ -41,7 +41,10 @@ class SyntheticEnterprise:
         value = params["value"]
         if contact_id not in self.crm_contacts:
             raise SimulationError("contact not found")
-        before = deepcopy(self.crm_contacts[contact_id])
+        before = {
+            "exists": field_name in self.crm_contacts[contact_id],
+            "value": deepcopy(self.crm_contacts[contact_id].get(field_name)),
+        }
         self.crm_contacts[contact_id][field_name] = value
         return {"before": before, "after": deepcopy(self.crm_contacts[contact_id])}
 
