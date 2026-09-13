@@ -4,15 +4,19 @@ Date: 2026-09-13
 
 ## Status
 
-Security acceptance is complete for the accepted code anchor:
+Security acceptance is complete for the accepted security code anchor:
 
 `b997384addd8781e0dac153d92adabcf9cc11757`
 
 Post-merge GitHub Actions run `34762391263` passed on that exact code state with Python 3.10, Python 3.12, Ruff, **153 deterministic tests**, B01-B10 benchmark smoke, credential-free judge reproduction, canonical semantic validation, authority-free packaging and SHA-256 manifest verification.
 
-The current execution lane is **presentation-only competition packaging**: interactive Judge Console, architecture diagram, final video, Devpost copy and final exact-head CI after those non-security assets are merged.
+The final presentation-only competition package has also been merged to `main` at:
 
-Security/runtime code is frozen unless a concrete new blocker appears.
+`3c3f47b489559d4557aaab08bf6e179171f4c9f0`
+
+Exact-main GitHub Actions run `34764352757` (`recovery-ci` #250) passed on that package head. The merged package includes the interactive Judge Console, architecture diagram, final video production plan, Devpost copy and submission checklist while preserving the accepted 153-test security baseline.
+
+Security/runtime code is frozen unless a concrete new blocker appears. Remaining competition steps are owner-gated production/publication actions, primarily final video recording/assembly, public video upload, Builder/Devpost account actions, competition terms and final Submit.
 
 ## Product thesis
 
@@ -95,6 +99,13 @@ For `b997384addd8781e0dac153d92adabcf9cc11757`:
 
 Scenario-specific unsafe-recovery fields remain visible, but the project does not present them as one globally comparable production metric.
 
+For the merged presentation package at `3c3f47b489559d4557aaab08bf6e179171f4c9f0`:
+
+- exact-main GitHub Actions run: `34764352757`
+- `recovery-ci` run number: 250
+- conclusion: PASS
+- package remains presentation-only and does not add model authority or security/runtime behavior
+
 ## Integrity and replay limits
 
 The project explicitly does not claim:
@@ -113,27 +124,27 @@ The ledger is a locally tamper-evident retained history, not a signed/WORM trans
 
 ## Current submission lane
 
-Active branch: `submission-final-2026-09-13`, based on accepted main code anchor `b997384a...`.
+The presentation-only submission lane has been merged and exact-main CI has passed.
 
-Presentation-only work in this lane:
+Merged competition assets on `main` include:
 
 - `demo/index.html` interactive Judge Incident Recovery Console,
 - `docs/assets/architecture-competition.svg`,
 - `docs/VIDEO_PRODUCTION_PLAN.md`,
 - `docs/DEVPOST_FINAL_DRAFT.md`,
 - `docs/SUBMISSION_FINAL_CHECKLIST.md`,
-- synchronization of README and final package claim language.
+- synchronized README and final package claim language.
 
-After this lane is complete:
+Remaining steps:
 
-1. open a presentation-only PR to `main`,
-2. require exact-head CI/package verification,
-3. record final `main` SHA from Git,
-4. capture Judge Console + architecture + CI evidence for the demo video,
-5. record Paweł's voiceover in short sections,
-6. assemble and review the final video,
-7. add the public video URL to Devpost,
-8. owner enters AWS Builder ID, accepts competition terms and performs final Submit.
+1. capture Judge Console + architecture + CI evidence for the demo video,
+2. record Paweł's voiceover in short sections,
+3. assemble and review the final video,
+4. publish the approved video,
+5. add the public video URL to Devpost,
+6. owner enters AWS Builder ID, accepts competition terms and performs final Submit.
+
+Do not expand security/runtime scope during this deadline window unless fresh evidence identifies a concrete blocker.
 
 ## Owner-only gates
 
