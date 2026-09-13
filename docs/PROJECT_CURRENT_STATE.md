@@ -10,9 +10,15 @@ Pre-audit competition baseline:
 
 That exact build had green CI with 120 deterministic tests on Python 3.10 and 3.12, benchmark smoke and credential-free judge reproduction. A GPT-6 adversarial architecture audit found reproducible lifecycle counterexamples that the green suite did not cover.
 
-Draft PR #67 on `audit-blockers-2026-09-12` remediated the original audit and reached a green 139-test exact head. A targeted GPT-6 re-audit then attacked that exact head `9251510b94e8da42e59b7878b0826d5c519b7e0e` and found four additional submission-blocking lifecycle flaws. Those findings have now been remediated on the same Draft PR and converted into permanent regressions.
+Draft PR #67 on `audit-blockers-2026-09-12` remediated the original audit and reached a green 139-test exact head. A targeted GPT-6 re-audit then attacked exact head `9251510b94e8da42e59b7878b0826d5c519b7e0e` and found four additional submission-blocking lifecycle flaws. Those findings have now been remediated on the same Draft PR and converted into permanent regressions.
 
-The candidate is not accepted main authority until the final exact-head CI/package run, final narrow read-only GPT-6 verification and merge gate pass.
+Current frozen candidate head for final narrow verification:
+
+`85b877577b1ec1cb8ba26f03e452dddbb26a7c1a`
+
+Exact-head CI run `34738049109` is green on Python 3.10 and 3.12 with Ruff, **152 passed tests**, B01-B10 benchmark smoke, credential-free judge reproduction, canonical semantic validation and SHA-256 manifest verification.
+
+The candidate is not accepted main authority until final narrow read-only GPT-6 verification and merge gate pass.
 
 The product remains a recovery-first control layer for autonomous AI agents, not a generic AI-security suite.
 
@@ -72,25 +78,26 @@ The candidate now includes:
 25. Judge incident evidence validates semantic ranges, cross-field correspondence and bounded upper relationships.
 26. Original audit, targeted re-audit and mutation-survivor counterexamples are represented as permanent deterministic regressions.
 
-## Current validation evidence on the branch
+## Exact-head validation evidence
 
-The final candidate suite contains 152 deterministic tests after the latest re-audit regressions. The final merge/submission claim must use the terminal exact-head CI result, not an earlier green head.
-
-The immediately preceding fully green hardened head passed:
+On frozen candidate `85b877577b1ec1cb8ba26f03e452dddbb26a7c1a`, CI run `34738049109` passed:
 
 - Ruff,
-- Python 3.10 and 3.12,
-- 150 tests before the two additional direct-ledger-admission regressions,
-- B01-B10 benchmark smoke,
-- bounded B06 blast-radius recall 1.0,
-- bounded B06 blast-radius precision 1.0,
+- Python 3.10,
+- Python 3.12,
+- 152 deterministic tests,
+- B01-B10 contract coverage 10/10,
+- B06 bounded three-agent blast-radius recall 1.0,
+- B06 bounded three-agent blast-radius precision 1.0,
+- B06 verified recoveries 3,
+- B06 restored downstream authorities 2,
+- B06 root agent remains contained true,
 - measured authority-resurrection successes 0,
+- B07 explicit residual effects 2,
 - credential-free judge reproduction,
-- canonical incident evidence round-trip,
+- canonical incident evidence round-trip and semantic validation,
 - SHA-256 judge manifest verification,
 - authority-free judge reproduction manifest.
-
-The current exact head must independently pass the same gates with all 152 tests before GPT-6 final verification or merge.
 
 Scenario-specific `unsafe_recovery_executions` fields remain part of benchmark outputs, but the project does not present their aggregate as one globally comparable execution-rate metric because individual scenarios have different bounded meanings.
 
@@ -129,11 +136,11 @@ Do not convert these into claims of universal attack prevention, arbitrary produ
 
 Draft PR #67 remains unmerged until all are true:
 
-1. Exact current PR-head CI is green on Python 3.10 and 3.12 with the complete 152-test suite, benchmark smoke and judge reproduction.
+1. Exact current PR-head CI is green on Python 3.10 and 3.12 with the complete 152-test suite, benchmark smoke and judge reproduction. **PASS on `85b877...`, run `34738049109`.**
 2. `docs/GPT6_FINAL_VERIFY_HANDOFF.md` is used for a narrow read-only GPT-6 verification that retests N1-N4, M-SEM, M-DIRECT and mutation gaps M07/M10/M12 rather than repeating a full repository audit.
 3. Any new confirmed Critical/High submission blocker is fixed and regression-tested.
 4. README, this file, `RECOVERY_INTEGRITY_MODEL.md`, `JUDGE_EVIDENCE_INDEX.md` and `SUBMISSION_DRAFT.md` describe the same bounded guarantees.
-5. Final exact-head package acceptance and clean judge reproduction pass after the final code/document head is frozen.
+5. Final exact-head package acceptance and clean judge reproduction remain green on the frozen candidate.
 
 Only then should PR #67 be merged and the visual/demo/submission branches synchronized onto accepted main.
 
