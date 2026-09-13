@@ -116,20 +116,17 @@ class RecoveryEngine:
             tuple[str, RecoveryContract, dict[str, object], object, object],
         ] = {}
         self._recovery_results: dict[str, RecoveryResult] = {}
-        self._contained_scopes = self._reconstruct_containment()
 
     def register(self, contract: RecoveryContract) -> None:
         contract.validate()
         self._contracts[contract.tool_id] = contract
 
     def contain(self, incident_id: str, scope: str, *, reason: str) -> LedgerEvent:
-        event = self.ledger.record(
+        return self.ledger.record(
             EventType.CONTAINMENT,
             incident_id,
             {"scope": scope, "reason": reason, "active": True},
         )
-        self._contained_scopes.add(scope)
-        return event
 
     def release_containment(
         self,
@@ -138,7 +135,7 @@ class RecoveryEngine:
         *,
         restoration_event_id: str,
     ) -> LedgerEvent:
-        """Apply one exact authorized restoration decision to runtime containment."""
+        """Apply one fresh restoration decision to one exact incident hold."""
 
         self.ledger.verify_integrity()
         restoration = self.ledger.get(restoration_event_id)
@@ -150,10 +147,17 @@ class RecoveryEngine:
             raise ValueError("release requires authorized restoration")
         if restoration.payload.get("authority_scope") != scope:
             raise ValueError("restoration scope mismatch")
-        if scope not in self._contained_scopes:
-            raise ValueError("scope is not currently contained")
+        if self.ledger.head_hash != restoration.event_hash:
+            raise ValueError("restoration decision is stale or already consumed")
 
-        event = self.ledger.record(
+        hold = self.ledger.latest_active_containment_hold(
+            incident_id=incident_id,
+            scope=scope,
+        )
+        if hold is None:
+            raise ValueError("scope has no active incident hold")
+
+        return self.ledger.record(
             EventType.CONTAINMENT,
             incident_id,
             {
@@ -161,14 +165,13 @@ class RecoveryEngine:
                 "reason": "authorized_restoration_applied",
                 "active": False,
                 "restoration_event_id": restoration.event_id,
+                "released_hold_event_id": hold.event_id,
             },
-            parent_event_ids=(restoration.event_id,),
+            parent_event_ids=(restoration.event_id, hold.event_id),
         )
-        self._contained_scopes.discard(scope)
-        return event
 
     def is_contained(self, scope: str) -> bool:
-        return scope in self._contained_scopes
+        return self.ledger.is_scope_contained(scope)
 
     def execute(
         self,
@@ -213,7 +216,9 @@ class RecoveryEngine:
             )
             return ActionResult(ActionDecision.BLOCKED, intent, blocked)
 
-        if self.is_contained(f"tool:{tool_id}") or self.is_contained(f"agent:{agent_id}"):
+        candidate_scopes = (f"tool:{tool_id}", f"agent:{agent_id}")
+        blocking_scopes = tuple(scope for scope in candidate_scopes if self.is_contained(scope))
+        if blocking_scopes:
             blocked = self.ledger.record(
                 EventType.ACTION_BLOCKED,
                 incident_id,
@@ -224,6 +229,7 @@ class RecoveryEngine:
                     "contract_version": contract.contract_version,
                     "recovery_class": contract.recovery_class.value,
                     "reason": "contained",
+                    "containment_scopes": blocking_scopes,
                 },
                 parent_event_ids=(intent.event_id,),
             )
@@ -529,7 +535,35 @@ class RecoveryEngine:
             },
             parent_event_ids=(recovery_parent_event_id,),
         )
-        recovery_result = contract.recovery_executor(self.state, recovery_params)
+        try:
+            recovery_result = contract.recovery_executor(self.state, recovery_params)
+        except Exception as exc:
+            failed = self.ledger.record(
+                EventType.RECOVERY_FAILED,
+                incident_id,
+                {
+                    "action_event_id": action_event_id,
+                    "tool_id": contract.tool_id,
+                    "reason": "recovery_executor_exception",
+                    "error_type": type(exc).__name__,
+                    "recovery_generation": generation,
+                },
+                parent_event_ids=(planned.event_id,),
+            )
+            self.ledger.record(
+                EventType.RESIDUAL_EFFECT,
+                incident_id,
+                {
+                    "action_event_id": action_event_id,
+                    "tool_id": contract.tool_id,
+                    "reason": "recovery_executor_exception",
+                    "recovery_failure_event_id": failed.event_id,
+                    "error_type": type(exc).__name__,
+                },
+                parent_event_ids=(failed.event_id,),
+            )
+            raise
+
         recovered = self.ledger.record(
             EventType.RECOVERY_EXECUTED,
             incident_id,
@@ -544,7 +578,35 @@ class RecoveryEngine:
         )
 
         verification_params = self._verification_params(original_params, recovery_params)
-        verified_state = contract.verifier(self.state, verification_params)
+        try:
+            verified_state = contract.verifier(self.state, verification_params)
+        except Exception as exc:
+            failed = self.ledger.record(
+                EventType.RECOVERY_FAILED,
+                incident_id,
+                {
+                    "action_event_id": action_event_id,
+                    "tool_id": contract.tool_id,
+                    "reason": "recovery_verifier_exception",
+                    "error_type": type(exc).__name__,
+                    "recovery_generation": generation,
+                },
+                parent_event_ids=(recovered.event_id,),
+            )
+            self.ledger.record(
+                EventType.RESIDUAL_EFFECT,
+                incident_id,
+                {
+                    "action_event_id": action_event_id,
+                    "tool_id": contract.tool_id,
+                    "reason": "recovery_verifier_exception",
+                    "recovery_failure_event_id": failed.event_id,
+                    "error_type": type(exc).__name__,
+                },
+                parent_event_ids=(failed.event_id,),
+            )
+            raise
+
         verified = verified_state == expected
         verification = self.ledger.record(
             EventType.VERIFICATION,
@@ -785,18 +847,11 @@ class RecoveryEngine:
         )
 
     def _reconstruct_containment(self) -> set[str]:
-        active: set[str] = set()
-        for event in self.ledger.events():
-            if event.event_type is not EventType.CONTAINMENT:
-                continue
-            scope = event.payload.get("scope")
-            if not isinstance(scope, str) or not scope:
-                continue
-            if event.payload.get("active") is True:
-                active.add(scope)
-            elif event.payload.get("active") is False:
-                active.discard(scope)
-        return active
+        return {
+            str(event.payload["scope"])
+            for event in self.ledger.active_containment_holds()
+            if isinstance(event.payload.get("scope"), str)
+        }
 
     def _record_uncertain_action(
         self,
