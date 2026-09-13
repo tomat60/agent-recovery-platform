@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import runpy
 from typing import Any, Literal
 
@@ -33,20 +34,20 @@ class _PlannerOutput(_StrictModel):
     residual_risks: list[str]
 
 
-class _SkepticChallengeOutput(_StrictModel):
-    claim_id: str
+class _ChallengeBody(_StrictModel):
     verdict: Literal["supported", "rejected", "uncertain"]
     reason: str
     evidence_event_ids: list[str]
 
 
-class _SkepticOutput(_StrictModel):
+class _SkepticStructuredOutput(_StrictModel):
     summary: str
     evidence_event_ids: list[str]
-    challenges: list[_SkepticChallengeOutput]
+    investigator_challenge: _ChallengeBody
+    recovery_plan_challenge: _ChallengeBody
 
 
-def _structured_invoke(output_model: type[_StrictModel]):
+def _structured_invoke(output_model: type[_StrictModel], *, system_prompt: str):
     def invoke(prompt: str, *, model: Any = None) -> str:
         try:
             from strands import Agent
@@ -56,6 +57,7 @@ def _structured_invoke(output_model: type[_StrictModel]):
             ) from exc
 
         kwargs: dict[str, Any] = {
+            "system_prompt": system_prompt,
             "tools": [],
             "callback_handler": None,
         }
@@ -72,8 +74,59 @@ def _structured_invoke(output_model: type[_StrictModel]):
     return invoke
 
 
-strands_investigator._default_invoke = _structured_invoke(_InvestigatorOutput)
-strands_recovery_planner._default_invoke = _structured_invoke(_PlannerOutput)
-strands_skeptic._default_invoke = _structured_invoke(_SkepticOutput)
+def _skeptic_structured_invoke(prompt: str, *, model: Any = None) -> str:
+    try:
+        from strands import Agent
+    except ImportError as exc:  # pragma: no cover
+        raise RuntimeError(
+            "Strands SDK is not installed; install the 'agent' optional dependency"
+        ) from exc
+
+    structured_prompt = (
+        strands_skeptic._SYSTEM_PROMPT
+        + "\nFor this live structured-output adapter, return two dedicated challenge objects: "
+        "investigator_challenge for claim_id 'investigator' and recovery_plan_challenge for "
+        "claim_id 'recovery-plan'. Do not merge, omit, or duplicate them."
+    )
+    kwargs: dict[str, Any] = {
+        "system_prompt": structured_prompt,
+        "tools": [],
+        "callback_handler": None,
+    }
+    if model is not None:
+        kwargs["model"] = model
+
+    agent = Agent(**kwargs)
+    result = agent(prompt, structured_output_model=_SkepticStructuredOutput)
+    structured = result.structured_output
+    if structured is None:
+        raise RuntimeError("Strands returned no structured skeptic output")
+
+    payload = {
+        "summary": structured.summary,
+        "evidence_event_ids": structured.evidence_event_ids,
+        "challenges": [
+            {
+                "claim_id": "investigator",
+                **structured.investigator_challenge.model_dump(),
+            },
+            {
+                "claim_id": "recovery-plan",
+                **structured.recovery_plan_challenge.model_dump(),
+            },
+        ],
+    }
+    return json.dumps(payload, separators=(",", ":"))
+
+
+strands_investigator._default_invoke = _structured_invoke(
+    _InvestigatorOutput,
+    system_prompt=strands_investigator._SYSTEM_PROMPT,
+)
+strands_recovery_planner._default_invoke = _structured_invoke(
+    _PlannerOutput,
+    system_prompt=strands_recovery_planner._SYSTEM_PROMPT,
+)
+strands_skeptic._default_invoke = _skeptic_structured_invoke
 
 runpy.run_path("scripts/run_live_strands_judge_proof.py", run_name="__main__")
