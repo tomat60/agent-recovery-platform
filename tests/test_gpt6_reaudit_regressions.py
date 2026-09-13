@@ -125,23 +125,12 @@ def test_replay_only_tool_containment_cannot_justify_source_release() -> None:
         release_scope=scope,
         containment_scopes=("tool:memory.write",),
     )
-    replay = record_replay_verification(
-        engine.ledger,
-        incident_id="source-release",
-        evidence=evidence,
-    )
-    result = RestorationGate(engine.ledger).authorize(
-        incident_id="source-release",
-        authority_scope=scope,
-        replay_event_id=replay.event.event_id,
-    )
-    if result.decision is RestorationDecision.RESTORED:
-        with pytest.raises(ValueError):
-            engine.release_containment(
-                "source-release",
-                scope,
-                restoration_event_id=result.event.event_id,
-            )
+    with pytest.raises(ValueError, match="source agent"):
+        record_replay_verification(
+            engine.ledger,
+            incident_id="source-release",
+            evidence=evidence,
+        )
     assert engine.is_contained(scope) is True
 
 
@@ -154,15 +143,21 @@ def test_factory_cannot_hide_containment_of_released_scope() -> None:
         replay_engine.contain("replay-hidden", scope, reason="preconfigured")
         return replay_engine
 
-    with pytest.raises(ValueError):
-        replay_evidence(
-            engine,
-            trigger.event_id,
+    evidence = replay_evidence(
+        engine,
+        trigger.event_id,
+        incident_id="hidden",
+        release_scope=scope,
+        containment_scopes=(),
+        factory=hidden_factory,
+    )
+    with pytest.raises(ValueError, match="source agent"):
+        record_replay_verification(
+            engine.ledger,
             incident_id="hidden",
-            release_scope=scope,
-            containment_scopes=(),
-            factory=hidden_factory,
+            evidence=evidence,
         )
+    assert engine.is_contained(scope) is True
 
 
 def test_stale_restoration_cannot_be_applied() -> None:
