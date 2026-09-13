@@ -8,7 +8,8 @@ This is not a new repository audit and not a repeat of the prior re-audit. Reuse
 
 Resolve Draft PR #67 independently, record its exact current head and compare it with the previously re-audited head `9251510b94e8da42e59b7878b0826d5c519b7e0e`. Stop if you cannot inspect the exact current PR head.
 
-Verify exact-head CI status and test count before judging the remediation.
+Expected current remediation head at handoff time: `3f0a96d8e3ec9a09f62eb89a5470da9844410d59`.
+Expected exact-head CI run at handoff time: `34737984445`, with 152 tests passing on both Python 3.10 and Python 3.12, Ruff green, benchmark smoke green and judge reproduction green. Do not trust these values blindly; verify them independently before judging the remediation.
 
 ## Primary goal
 
