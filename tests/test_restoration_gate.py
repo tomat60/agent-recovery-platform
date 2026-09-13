@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from agent_recovery.catalog import synthetic_contracts
 from agent_recovery.engine import ActionDecision, Approval, RecoveryEngine, RecoveryStatus
 from agent_recovery.ledger import EventType
@@ -258,25 +260,19 @@ def test_replay_with_observed_side_effects_cannot_restore_authority() -> None:
 def test_forged_verification_without_replay_lab_provenance_is_rejected() -> None:
     engine = make_engine()
     trigger = engine.ledger.record(EventType.EXTERNAL_INPUT, "restore-forged", {"source": "x"})
-    forged = engine.ledger.record(
-        EventType.VERIFICATION,
-        "restore-forged",
-        {
-            "verification_kind": "adversarial_replay",
-            "source_incident_id": "restore-forged",
-            "source_fingerprint": "forged",
-            "recovery_fingerprint": "forged",
-            "verified": True,
-        },
-        parent_event_ids=(trigger.event_id,),
-    )
-    result = RestorationGate(engine.ledger).authorize(
-        incident_id="restore-forged",
-        authority_scope="agent:support-agent",
-        replay_event_id=forged.event_id,
-    )
-    assert result.decision is RestorationDecision.BLOCKED
-    assert result.reason == "untrusted_replay_evidence_source"
+    with pytest.raises(ValueError, match="source action identity"):
+        engine.ledger.record(
+            EventType.VERIFICATION,
+            "restore-forged",
+            {
+                "verification_kind": "adversarial_replay",
+                "source_incident_id": "restore-forged",
+                "source_fingerprint": "forged",
+                "recovery_fingerprint": "forged",
+                "verified": True,
+            },
+            parent_event_ids=(trigger.event_id,),
+        )
 
 
 def test_consumed_approval_cannot_resurrect_after_engine_recreation() -> None:
