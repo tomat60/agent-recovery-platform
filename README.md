@@ -4,7 +4,7 @@ A recovery-first safety layer for autonomous AI agents.
 
 ## Thesis
 
-Most agent security products focus on prevention, monitoring, permissions or detection. Those controls matter, but production incidents still happen. The hard question becomes: what exactly changed, what can be reversed, what requires compensation, what remains irrecoverable, and how can an operator prove that recovery actually worked?
+Most agent security products focus on prevention, monitoring, permissions or detection. Those controls matter, but incidents still happen. The hard question becomes: what exactly changed, what can be reversed, what requires compensation, what remains irrecoverable, and what evidence is sufficient before authority is restored?
 
 This project is built around two rules:
 
@@ -12,7 +12,9 @@ This project is built around two rules:
 >
 > No restored authority without complete recovery evidence and a current scope-bound replay.
 
-The platform records consequential agent actions, classifies recoverability, contains compromised authority, reconstructs blast radius, builds recovery candidates, executes only deterministic policy-approved recovery actions in owned/synthetic environments, verifies resulting state independently, and uses bounded replay evidence before represented authority can be restored.
+The platform records consequential agent actions, classifies recoverability, contains compromised authority, reconstructs blast radius, builds recovery candidates, executes only deterministic policy-approved recovery actions in owned/synthetic environments, verifies resulting state independently, and uses bounded replay evidence before represented downstream authority can be restored.
+
+The competition path intentionally keeps the compromised replay source/root agent contained rather than claiming that its own replay proves it safe to restore.
 
 ## Product boundary
 
@@ -29,7 +31,7 @@ Irreversible external effects are never represented as undone. Failed compensati
 2. **Action + Side-Effect Ledger**
    - Records intended and observed effects independently from agent narration, detaches exported evidence from stored payloads and protects the retained local history with chained integrity checks. The prototype does not claim authenticated completeness or valid-prefix rollback resistance without external anchoring.
 3. **Containment Plane**
-   - Freezes tool, session, identity or memory authority without destroying evidence and reconstructs represented active containment from the retained ledger.
+   - Freezes tool, session, identity or memory authority without destroying evidence. Controllers sharing one in-memory ledger observe the same represented active holds, and independent incidents can retain separate holds on the same scope.
 4. **Investigation and Blast Radius**
    - Reconstructs causal chains across prompts, tool calls, memory, approvals, identities and downstream actions represented in the ledger.
 5. **Recovery Planner + Deterministic Gate**
@@ -37,10 +39,12 @@ Irreversible external effects are never represented as undone. Failed compensati
 6. **Skeptic / Verifier**
    - Independently challenges root-cause and recovery hypotheses. Model output never authorizes execution or restoration.
 7. **Recovery Executor + State Verification**
-   - Applies bounded reversible/compensating actions in synthetic or owned state and compares an independent read to a recovery target fixed from preserved pre-action evidence.
+   - Applies bounded reversible/compensating actions in synthetic or owned state and compares an independent read to a recovery target fixed from preserved pre-action evidence. Direct recovery adapter failures remain explicit as failure/residual evidence.
 8. **Replay Lab**
-   - Replays an exact represented attack action in an isolated synthetic runtime, binds the run to source/recovery state, source contract versions and one proposed release scope, and can invalidate a false restoration claim. It is not a claim of complete production-environment replay equivalence.
-9. **Incident-to-Regression Loop**
+   - Replays an exact represented attack action in an isolated synthetic runtime, binds the run to source/recovery state, source contract versions and one proposed release scope, and can invalidate a false restoration claim. The competition path rejects positive replay admission that would restore that replay's own source agent. This is not a claim of complete production-environment replay equivalence.
+9. **Fresh Scoped Restoration**
+   - Applies an authorized downstream restoration only while the decision is still the ledger head and only to one exact active incident hold. Intervening work or reuse makes the decision stale.
+10. **Incident-to-Regression Loop**
    - Converts confirmed incident evidence into permanent adversarial regression contracts.
 
 ## Competition build
@@ -49,16 +53,18 @@ The 2026 Agents for Humans build has a fully credential-free deterministic judge
 
 Strands Agents SDK is used for evidence-only investigation, recovery planning and skeptical review. Deterministic modules retain authority over contracts, approvals, recovery execution, verification and scoring.
 
-Amazon Bedrock and AgentCore remain optional live-path integrations. They are not required to reproduce the accepted deterministic evidence and no live AWS security-effectiveness claim is made without separate evidence and owner-approved access/cost.
+Amazon Bedrock and AgentCore remain optional live-path integrations. They are not required to reproduce the deterministic evidence and no live AWS security-effectiveness claim is made without separate evidence and owner-approved access/cost.
 
 See:
 
 - `docs/ARCHITECTURE_DIAGRAM.md` for the submission-ready architecture diagram,
 - `docs/JUDGE_EVIDENCE_INDEX.md` for the final claim-to-evidence boundary,
-- `docs/PROJECT_CURRENT_STATE.md` for the durable accepted-state checkpoint,
+- `docs/PROJECT_CURRENT_STATE.md` for the durable candidate-state checkpoint,
 - `docs/BENCHMARK.md` for the benchmark contract,
 - `docs/SUBMISSION_DRAFT.md` for the owner-gated submission draft,
-- `docs/GPT6_AUDIT_HANDOFF.md` for the adversarial review handoff that produced the pre-submission blocker set.
+- `docs/GPT6_AUDIT_HANDOFF.md` for the original adversarial review handoff,
+- `docs/GPT6_REAUDIT_HANDOFF.md` for the targeted re-audit handoff,
+- `docs/GPT6_FINAL_VERIFY_HANDOFF.md` for the final narrow read-only verification gate.
 
 ## Benchmark-first development
 
@@ -70,13 +76,13 @@ A product claim is accepted only when represented evidence can support it. The b
 - recovery-plan correctness where measured
 - recoverable-state restoration
 - residual-effect accuracy
-- unsafe recovery execution
+- scenario-specific unsafe-recovery evidence
 - bounded replay attack success after remediation
 - evidence completeness within the represented fixture
 - safe scoped restoration
 - false-positive containment
 
-Recorded aggregate numbers in the repository are synthetic deterministic fixture measurements only. They are not production security-effectiveness claims.
+Recorded aggregate numbers in the repository are synthetic deterministic fixture measurements only. Scenario fields with different meanings are not presented as one globally comparable unsafe-recovery execution-rate metric. None of these measurements are production security-effectiveness claims.
 
 ## Judge reproduction
 
@@ -109,7 +115,7 @@ The first commercial offer is a bounded **Agent Recoverability Assessment** for 
 - `docs/PROJECT_CURRENT_STATE.md` - durable execution checkpoint
 - `docs/JUDGE_EVIDENCE_INDEX.md` - final judge claim/evidence map
 - `docs/SUBMISSION_DRAFT.md` - owner-gated submission copy
-- `docs/GPT6_AUDIT_HANDOFF.md` - adversarial architecture audit prompt and acceptance format
+- `docs/GPT6_FINAL_VERIFY_HANDOFF.md` - final narrow adversarial verification contract
 - `src/agent_recovery/` - deterministic recovery/control code
 - `tests/` - deterministic safety, benchmark and recovery tests
 
@@ -119,7 +125,7 @@ All adversarial development and demos use owned or synthetic environments. The p
 
 ## Current status
 
-Pre-submission adversarial hardening. The original exact-head build passed its deterministic suite but a GPT-6 adversarial architecture audit found lifecycle counterexamples outside that suite. Those findings are being converted into fail-closed code paths and permanent regressions on a gated branch before final competition packaging. No production-security claim is inferred from a green synthetic build.
+Pre-submission adversarial hardening is at the final verification gate. The original green 120-test build and a later green 139-test hardened build were both attacked by GPT-6, and each pass found lifecycle counterexamples that ordinary regressions had missed. The current Draft PR converts both audit passes and the relevant mutation survivors into fail-closed code paths and permanent tests. It remains unmerged until the complete current exact-head CI/package gates are green and the final narrow GPT-6 verification finds no submission-blocking Critical/High issue.
 
 ## License
 
