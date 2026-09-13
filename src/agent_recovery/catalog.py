@@ -15,7 +15,9 @@ def synthetic_contracts() -> tuple[RecoveryContract, ...]:
             recovery_class=RecoveryClass.REVERSIBLE,
             executor=lambda state, params: _enterprise(state).update_contact(params),
             verifier=lambda state, params: _enterprise(state).get_contact_field(params),
-            recovery_executor=lambda state, params: _enterprise(state).restore_contact_field(params),
+            recovery_executor=lambda state, params: _enterprise(state).restore_contact_field(
+                params
+            ),
             recovery_params_builder=_restore_contact_field_params,
             reconciliation_executor=lambda state, params: _enterprise(state).restore_contact_field(
                 params
@@ -83,11 +85,17 @@ def _restore_contact_field_params(
     if not isinstance(before, Mapping):
         raise TypeError("contact before state must be a mapping")
     field_name = str(original_params["field"])
+    previous_exists = field_name in before
+    previous_value = before.get(field_name)
     return {
         "contact_id": original_params["contact_id"],
         "field": field_name,
-        "previous_exists": field_name in before,
-        "previous_value": before.get(field_name),
+        "previous_exists": previous_exists,
+        "previous_value": previous_value,
+        "expected_state": {
+            "exists": previous_exists,
+            "value": previous_value,
+        },
     }
 
 
@@ -112,9 +120,18 @@ def _revoke_permission_params(
     observed_after: object,
     original_params: Mapping[str, object],
 ) -> Mapping[str, object]:
+    if not isinstance(execution_result, Mapping) or "before" not in execution_result:
+        raise TypeError("permission grant did not preserve before state")
+    before = execution_result["before"]
+    if not isinstance(before, (list, tuple)):
+        raise TypeError("permission before state must be a sequence")
+    previous_permissions = tuple(sorted(str(permission) for permission in before))
+    permission = str(original_params["permission"])
     return {
         "principal": original_params["principal"],
-        "permission": original_params["permission"],
+        "permission": permission,
+        "permission_was_present": permission in previous_permissions,
+        "expected_state": list(previous_permissions),
     }
 
 
@@ -125,9 +142,11 @@ def _restore_memory_params(
 ) -> Mapping[str, object]:
     if not isinstance(execution_result, Mapping):
         raise TypeError("memory write did not preserve before state")
+    previous = execution_result.get("before")
     return {
         "key": original_params["key"],
-        "previous": execution_result.get("before"),
+        "previous": previous,
+        "expected_state": previous,
     }
 
 

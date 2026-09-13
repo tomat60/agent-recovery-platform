@@ -77,7 +77,31 @@ def execute_recovery_plan(
                 incident_id=incident_id,
                 action_event_id=step.action_event_id,
             )
-        except RuntimeError as exc:
+        except Exception as exc:
+            # The public engine boundary records adapter/verifier failures itself. Reuse
+            # that canonical evidence instead of double-counting it in the plan wrapper.
+            engine_failures = [
+                event
+                for event in engine.ledger.events(incident_id=incident_id)
+                if event.event_type is EventType.RECOVERY_FAILED
+                and event.payload.get("action_event_id") == step.action_event_id
+                and event.payload.get("reason")
+                in {"recovery_executor_exception", "recovery_verifier_exception"}
+            ]
+            if engine_failures:
+                engine_residuals = [
+                    event
+                    for event in engine.ledger.events(incident_id=incident_id)
+                    if event.event_type is EventType.RESIDUAL_EFFECT
+                    and event.payload.get("action_event_id") == step.action_event_id
+                    and event.payload.get("reason")
+                    in {"recovery_executor_exception", "recovery_verifier_exception"}
+                ]
+                failed.append(step.action_event_id)
+                unavailable.add(step.action_event_id)
+                residuals.extend(event.event_id for event in engine_residuals)
+                continue
+
             failure = engine.ledger.record(
                 EventType.RECOVERY_FAILED,
                 incident_id,

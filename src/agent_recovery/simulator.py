@@ -90,8 +90,12 @@ class SyntheticEnterprise:
     def revoke_permission(self, params: Mapping[str, object]) -> dict[str, Any]:
         principal = str(params["principal"])
         permission = str(params["permission"])
-        self.permissions.setdefault(principal, set()).discard(permission)
-        return {"after": sorted(self.permissions[principal])}
+        permissions = self.permissions.setdefault(principal, set())
+        if bool(params.get("permission_was_present", False)):
+            permissions.add(permission)
+        else:
+            permissions.discard(permission)
+        return {"after": sorted(permissions)}
 
     def get_permissions(self, params: Mapping[str, object]) -> list[str]:
         principal = str(params["principal"])

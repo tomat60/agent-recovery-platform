@@ -99,7 +99,7 @@ def test_cross_agent_same_field_conflict_still_fails_closed() -> None:
         action_event_id=first.action_event.event_id,
     )
     assert result.status is RecoveryStatus.FAILED
-    assert result.residual_reason == "shared_state_conflict_requires_reconciliation"
+    assert result.residual_reason == "later_resource_writer_requires_recovery_or_reconciliation"
     assert engine.state.crm_contacts["c-1"]["tier"] == "blocked"
 
 

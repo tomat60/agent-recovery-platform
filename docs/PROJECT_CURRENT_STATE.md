@@ -1,155 +1,162 @@
 # Project Current State
 
-Date: 2026-09-10
+Date: 2026-09-13
 
 ## Status
 
-M0, M1 and the deterministic M2 benchmark/recovery core are accepted. M3 now includes the evidence-only Strands advisory chain, deterministic Advisory Gate and B01-B10 measurement, fail-closed rejection/regression conversion, deterministic judge packaging, full deterministic incident evidence across the recovery lifecycle, authority-free judge-console rendering, credential-free one-command incident reproduction, an exact judge evidence index, and a final exact-head package acceptance gate.
+Pre-audit competition baseline:
 
-Accepted package-evidence baseline before documentation-only synchronization:
+`de835c3b571261e2398c0dbb619647fa1c2860fa`
 
-`7e6107023dff7e5bc8a3293f4e6a22479088c595`
+That exact build had green CI with 120 deterministic tests on Python 3.10 and 3.12, benchmark smoke and credential-free judge reproduction. A GPT-6 adversarial architecture audit found reproducible lifecycle counterexamples that the green suite did not cover.
 
-Documentation-only synchronization PRs after that baseline are tracked by PR number below. Do not encode the current `main` SHA in this file as a durable authority value, because merging this file necessarily changes that SHA. The exact submitted head must instead be read from Git and verified by the final package acceptance gate.
+Draft PR #67 on `audit-blockers-2026-09-12` remediated the original audit and reached a green 139-test exact head. A targeted GPT-6 re-audit then attacked exact head `9251510b94e8da42e59b7878b0826d5c519b7e0e` and found four additional submission-blocking lifecycle flaws. Those findings have now been remediated on the same Draft PR and converted into permanent regressions.
 
-The product remains a **recovery-first control layer for autonomous AI agents**, not a generic AI-security suite.
+The latest fully validated candidate ancestor before this state synchronization was `85b877577b1ec1cb8ba26f03e452dddbb26a7c1a`. CI run `34738049109` was green on Python 3.10 and 3.12 with Ruff, **152 passed tests**, B01-B10 benchmark smoke, credential-free judge reproduction, canonical semantic validation and SHA-256 manifest verification.
+
+Because changing this file changes the branch head, the final candidate SHA must always be read from Git and verified again after the documentation state is frozen. This document deliberately does not claim that its own parent SHA is the final submission head.
+
+The candidate is not accepted main authority until final exact-head CI/package verification, final narrow read-only GPT-6 verification and the merge gate pass.
+
+The product remains a recovery-first control layer for autonomous AI agents, not a generic AI-security suite.
 
 Category:
 
 **incident -> containment -> evidence -> recovery -> replay -> verified restoration**
 
-Core rules:
+Core rules for the bounded competition implementation:
 
-**No autonomous write without a recovery path.**
+**No autonomous write without a validated Recovery Contract.**
 
-**No restored authority without a verified replay.**
+**No represented downstream authority release without complete represented recovery evidence and a current scope-bound replay.**
 
-## Deterministic trust boundary
+The competition path intentionally keeps the compromised replay source/root agent contained rather than claiming that its own replay proves it safe to restore.
 
-Accepted implementation includes:
+## Adversarial hardening history
 
-1. Recovery Contracts for write-capable tools with fail-closed missing/malformed-contract behavior.
-2. Parameter-bound approvals for consequential actions. Model/planner text is never authorization.
-3. Tamper-evident append-oriented action/evidence ledger with chained hashes and integrity verification.
-4. Incident binding, causal reconstruction and blast-radius evidence across agent handoffs/shared state.
-5. Scoped containment and dependency-aware, idempotent recovery controls.
-6. Explicit conflict/reconciliation evidence for shared-resource writers.
-7. Partial-compensation semantics that keep failed or dependency-blocked effects visible.
-8. Irreversible/externalized effects remain residual; local repaired state never rewrites external history.
-9. Replay freshness and isolated Replay Lab evidence that can invalidate false restoration claims.
-10. Fail-closed authority restoration when replay evidence is absent, stale, cross-incident, forged, tampered or unsuccessful.
-11. One-time recovery/approval consumption reconstructed from ledger evidence after runtime recreation.
-12. Authority-resurrection protection and bounded runaway-write containment.
-13. Recovery-path attack coverage preventing untrusted recovery text from self-authorizing writes.
-14. Incident-to-regression contracts bound to source incident/evidence/invariants.
-15. Integrity-verified read-only evidence views for investigation.
-16. Strands Investigator, Recovery Planner and independent Skeptic/Verifier with no write/restore authority.
-17. Deterministic Advisory Gate that rebinds proposals to incident evidence and produces candidate plans only.
-18. Versioned deterministic B01-B10 advisory fixtures plus exact-suite, rejection-safety and advisory-evidence scoring.
-19. Fail-closed conversion of properly rejected advisory evidence into deterministic regression contracts.
-20. Deterministic judge artifacts/package with canonical JSON and SHA-256 manifests.
-21. Authority-free judge console/runbook that renders only represented evidence.
-22. Full deterministic incident evidence contract for blast radius, containment, recovery execution/result, residual effects, replay and restoration evidence.
-23. Judge-console rendering of that verified full incident evidence without granting execution/restoration authority.
-24. Credential-free one-command deterministic incident reproduction with canonical round-trip validation and hash manifesting.
-25. Final judge-readiness and claim-to-evidence boundaries that prohibit claims not supported by represented deterministic evidence.
-26. Judge evidence index tying claims to reproducible artifacts.
-27. Exact-head final package acceptance gate covering clean reproduction, canonical round-trip, SHA-256 manifests, residual-risk visibility, replay invalidation, secret/customer-data absence and documentation consistency.
-28. Final judge-package authority docs synchronized across README, this state file and the judge evidence index.
+The first audit exposed composed lifecycle failures including incomplete restoration gates, wrong-action/stale replay use, containment loss after reconstruction, duplicate approval use across controllers, shared-state recovery hazards, malformed contract metadata, compensator-selected verification targets, recovery approval misuse, evidence aliasing and missing failure accounting.
 
-## Benchmark contract coverage
+The targeted re-audit of `9251510...` found four further blockers:
 
-The deterministic aggregate contract covers required competition classes:
+1. A source agent could be released after a replay that was made safe only by a different or hidden containment boundary.
+2. An authorized restoration decision could become stale before application or be reused after a renewed hold.
+3. Containment was cached per controller, so a controller created before another controller's containment could still execute.
+4. One incident's release of a scope could erase another incident's independent hold on the same scope.
 
-- B01 indirect prompt injection trajectory
-- B02 tool-output poisoning
-- B03 memory poisoning
-- B04 approval bypass attempt
-- B05 over-scoped identity / privilege escalation
-- B06 cascading multi-agent failure
-- B07 partial compensating workflow failure
-- B08 irreversible external effect
-- B09 runaway tool / denial-of-wallet loop
-- B10 recovery-path attack
+The current candidate addresses those findings rather than narrowing them away.
 
-Additional deterministic coverage includes authority-resurrection/semantic replay attempts, concurrent/shared-state conflict/reconciliation and false-positive containment-scope measurement.
+## Candidate deterministic trust boundary in PR #67
 
-The last explicitly recorded aggregate security checkpoint remains the bounded deterministic report from PR #25:
+The candidate now includes:
 
-- benchmark contract coverage: 10/10 classes
-- B06 blast-radius recall: 1.0
-- B06 blast-radius precision: 1.0
-- measured containment success rate: 1.0 across the then-measured deterministic scenarios
-- measured replay attack success rate: 0.0 for the then-measured replay scenario
-- false-positive containment rate: 0.0 across 3 known-benign scopes in that bounded fixture
-- authority-resurrection successes: 0
-- unsafe recovery executions across that aggregate deterministic contract report: 0
+1. Strict Recovery Contract validation before executor invocation.
+2. Advisory-only model/planner output with no execution authority.
+3. Parameter-bound action approvals and context-bound recovery approvals.
+4. Single-use approval consumption at the shared in-memory ledger boundary.
+5. Shared-ledger authoritative active containment, observed by already-created and recreated controllers.
+6. Independent containment holds per incident and scope, with union-of-active-holds enforcement.
+7. Fresh, single-use restoration application bound to one exact active hold.
+8. Fail-closed positive replay admission when a replay would authorize restoration of its own source agent.
+9. Direct ledger append paths subject to the same source-agent positive-replay and exact containment-release admission policy.
+10. Deep-detached ledger/event payloads so exported evidence cannot alias stored nested state.
+11. Integrity verification before privileged recovery/restoration decisions and before cached recovery reuse.
+12. Incident binding before recovery-result cache reuse.
+13. Cross-incident and later-writer protection for represented mutable resources.
+14. Recovery targets fixed from preserved pre-action evidence before compensation executes.
+15. Pre-existing permissions preserved when recovering a no-op grant.
+16. Ambiguous action executor/verifier outcomes recorded as uncertain represented effects and residual obligations.
+17. Direct recovery executor/verifier failures recorded as explicit recovery failure and residual evidence.
+18. Exact source-action replay binding for agent, tool, parameter digest and contract version.
+19. Replay bound to source ledger head and recovery generation at run time.
+20. Replay runtime contract-manifest checks for represented executed source actions.
+21. One proposed release scope per replay; that exact release scope may not remain explicitly listed in replay containment.
+22. Later applicable replay verdicts supersede earlier ones for the same release scope.
+23. Re-stamping old ReplayEvidence after source/recovery change is rejected.
+24. Restoration requires active containment, complete represented local recovery obligations, no uncovered residual and the latest applicable current positive replay for the exact scope.
+25. Judge incident evidence validates semantic ranges, cross-field correspondence and bounded upper relationships.
+26. Original audit, targeted re-audit and mutation-survivor counterexamples are represented as permanent deterministic regressions.
 
-These are **synthetic deterministic benchmark results only**, not production security-effectiveness claims. Later M3 work adds evidence and packaging machinery but does not create replacement aggregate numbers unless a measured artifact explicitly records them.
+## Validation evidence
 
-## Accepted M3 slices
+Validated ancestor `85b877577b1ec1cb8ba26f03e452dddbb26a7c1a`, run `34738049109`, passed:
 
-The accepted sequence includes:
+- Ruff,
+- Python 3.10,
+- Python 3.12,
+- 152 deterministic tests,
+- B01-B10 contract coverage 10/10,
+- B06 bounded three-agent blast-radius recall 1.0,
+- B06 bounded three-agent blast-radius precision 1.0,
+- B06 verified recoveries 3,
+- B06 restored downstream authorities 2,
+- B06 root agent remains contained true,
+- measured authority-resurrection successes 0,
+- B07 explicit residual effects 2,
+- credential-free judge reproduction,
+- canonical incident evidence round-trip and semantic validation,
+- SHA-256 judge manifest verification,
+- authority-free judge reproduction manifest.
 
-- PR #29: deterministic Advisory Gate producing candidate-only plans
-- PR #30: advisory-chain deterministic ground-truth scorer
-- PRs #31-#40: versioned B01-B10 advisory ground-truth fixtures
-- PR #41: aggregate measured advisory benchmark scores
-- PR #42: fail-closed exact B01-B10 fixture-suite loader
-- PR #43: fail-closed Advisory Gate rejection-safety measurement
-- PR #44: aggregate Advisory Gate rejection-safety reporting
-- PR #45: exact advisory fixture-suite scoring
-- PR #46: rejected advisory evidence to deterministic regression contracts
-- PR #47: authority synchronization through advisory/regression milestone
-- PR #48: deterministic B01-B10 judge advisory artifact
-- PR #49: authority-free judge advisory console
-- PR #50: deterministic judge demo runbook
-- PR #51: deterministic judge evidence package with SHA-256 manifest
-- PR #53: full deterministic incident evidence contract
-- PR #54: bounded competitive recovery radar refresh
-- PR #55: verified full-incident evidence rendering in judge console
-- PR #56: one-command credential-free deterministic incident reproduction
-- PR #57: current judge-readiness checkpoint and claim boundary
-- PR #58: judge-readiness synchronization with accepted recovery evidence
-- PR #59: final judge-package claim-to-evidence boundary review
-- PR #60: final judge evidence index and authority synchronization
-- PR #61: exact-head final package acceptance gate
-- PR #62: final judge-package authority synchronization across README, current state and judge evidence index
-- PR #63: correction of the post-#62 documentation checkpoint
+The final branch head must reproduce these gates after all documentation is frozen.
 
-PR #61 defines the accepted package-evidence baseline. PRs #62-#63 are documentation-only synchronization work and do not create new runtime/security evidence. The exact current or submitted `main` SHA must be read from Git at verification time rather than copied here as a self-invalidating constant.
+Scenario-specific `unsafe_recovery_executions` fields remain part of benchmark outputs, but the project does not present their aggregate as one globally comparable execution-rate metric because individual scenarios have different bounded meanings.
 
-## Evidence limitations
+## Integrity and replay limits
 
-- The ledger is a prototype tamper-evident in-process log, not WORM storage, remote attestation or an externally anchored transparency log.
-- Replay Lab proves bounded replay against synthetic/owned state, not arbitrary production transaction reconstruction.
-- Runaway-loop coverage proves post-containment write blocking, not token-cost metering or comprehensive denial-of-wallet prevention.
-- Current false-positive containment measurement covers bounded known scopes after the compromised scope is known; it does not measure generic attack-detection quality.
-- Advisory and judge metrics/evidence are deterministic synthetic fixture measurements. They do not establish production root-cause accuracy, recovery-plan correctness or global security effectiveness.
-- Irreversible external effects are never claimed as undone.
-- Production recovery success rate and time-to-containment remain intentionally unclaimed.
-- No live Bedrock/AgentCore security-effectiveness claim exists yet.
+The project states these boundaries explicitly:
 
-## Current milestone: final competition package
+- The ledger is a locally tamper-evident retained history, not an authenticated transparency log or WORM store.
+- Hash chaining detects chain-breaking mutation/reordering/internal deletion within retained history; without an externally committed head/length it does not prove completeness or detect rollback to a self-consistent valid prefix.
+- Single-use approval and containment-hold behavior is demonstrated for controllers sharing one in-memory `ActionLedger`; distributed/persistent consensus is not implemented.
+- Replay is a bounded synthetic replay of one exact represented attack action. It binds source/recovery state, represented source contract versions and one proposed release scope, but it is not proof of full production topology, provider state, delayed-effect or time-dependent equivalence.
+- The compromised source/root agent is not claimed safe to restore and remains contained in the demonstrated competition path.
+- Causal and shared-resource guarantees are limited to relationships/resource identities represented in ledger/contracts. Missing instrumentation cannot be inferred away.
+- Runaway-loop coverage demonstrates post-containment write blocking, not complete token/read cost control.
+- Judge artifacts and benchmark results are synthetic deterministic evidence, not global or production security effectiveness.
+- No live Bedrock/AgentCore security-effectiveness claim exists.
+- Production multi-tenancy, external attestation, malicious recovery providers, distributed controllers and authenticated capability issuance remain outside the competition implementation.
 
-The strongest credential-free path is the source of truth for judging and CI. Remaining competition work is package consistency, exact-head verification and owner-gated public submission, not scope expansion.
+## Competition evidence boundary
 
-Next order:
+Allowed claims must remain bounded to deterministic evidence. The project may claim that the represented fixtures demonstrate:
 
-1. Keep `docs/JUDGE_EVIDENCE_INDEX.md`, this authority file, README/runbook and the exact submitted Git head consistent in meaning, without embedding a self-invalidating current-main SHA in documentation.
-2. Require exact-head deterministic CI and clean credential-free reproduction before accepting the package.
-3. Verify package hashes, residual-effect visibility, replay invalidation behavior and absence of secrets/customer data.
-4. Keep model/Strands advisory output visibly separate from deterministic authorization/execution truth.
-5. Use Bedrock/AgentCore only if owner-approved access/cost exists and only where it adds verifiable recovery evidence. The deterministic path remains the fallback/source of truth.
-6. Prepare public video/Devpost/Builder material, but public upload, terms acceptance and final submission remain owner-only.
+- fail-closed missing/malformed contract handling before represented side effects,
+- parameter/context-bound approvals in the bounded engine,
+- shared-ledger authoritative containment and independent incident holds,
+- represented cross-agent blast-radius reconstruction,
+- explicit recovery/residual truth,
+- rejection of the audited source-agent replay/restoration counterexample,
+- fresh single-use application of scoped downstream restoration,
+- prevention of the audited same-resource recovery clobber/resurrection sequences,
+- credential-free deterministic reproduction and packaging.
 
-Demo story:
+Do not convert these into claims of universal attack prevention, arbitrary production rollback, globally complete evidence, remote forgery resistance or production recovery effectiveness.
 
-**attack -> cross-agent propagation -> blast-radius graph -> scoped containment -> investigator -> recovery planner -> skeptic challenge -> deterministic candidate gate -> dependency-safe recovery -> residual truth -> adversarial replay -> verified restoration**
+## Current gate: final narrow verification before merge
 
-Agents for Humans deadline: 2026-09-14.
+Draft PR #67 remains unmerged until all are true:
 
-RolePilot is a separate product and must continue independently. Do not mix production RolePilot or RolePilot competition code into this repository.
+1. Exact final PR-head CI is green on Python 3.10 and 3.12 with the complete 152-test suite, benchmark smoke and judge reproduction.
+2. `docs/GPT6_FINAL_VERIFY_HANDOFF.md` is used for a narrow read-only GPT-6 verification that retests N1-N4, M-SEM, M-DIRECT and mutation gaps M07/M10/M12 rather than repeating a full repository audit.
+3. Any new confirmed Critical/High submission blocker is fixed and regression-tested.
+4. README, this file, `RECOVERY_INTEGRITY_MODEL.md`, `JUDGE_EVIDENCE_INDEX.md` and `SUBMISSION_DRAFT.md` describe the same bounded guarantees.
+5. Final exact-head package acceptance and clean judge reproduction remain green on the frozen candidate.
+
+Only then should PR #67 be merged and the visual/demo/submission branches synchronized onto accepted main.
+
+## Post-competition research backlog
+
+Priority research remains:
+
+- stateful/property/model checking over lifecycle transitions,
+- true concurrency, TOCTOU and ABA schedules,
+- authenticated durable evidence with externally committed sequence/head,
+- distributed controller/approval consensus,
+- framework-neutral causal trace ingestion and independent recall measurement,
+- full replay topology/provider/environment reconstruction,
+- authenticated capability/issuer boundaries around approval and recovery-control APIs,
+- denial-of-wallet budgets/cancellation/backpressure,
+- production multi-tenancy and cloud rollback attestation.
 
 ## Owner-only gates
 
@@ -160,17 +167,6 @@ RolePilot is a separate product and must continue independently. Do not mix prod
 - competition terms acceptance
 - final competition submission
 
-No owner action is required for the current credential-free implementation and package verification.
+Agents for Humans deadline: 2026-09-14.
 
-## Commercial validation after competition
-
-Initial offer: **Agent Recoverability Assessment** for one real write-capable agent workflow.
-
-Within roughly 30 days after competition:
-
-- 10 qualified buyer/partner conversations
-- 2 concrete pilot/assessment interests
-- 1 MSSP/security/AI consultancy partner candidate
-- limited independent senior AppSec/cloud/AI-security review before a serious external pilot
-
-Do not build heavy multi-tenant enterprise SaaS before this validation.
+RolePilot is a separate product and must continue independently. Do not mix production RolePilot or RolePilot competition code into this repository.

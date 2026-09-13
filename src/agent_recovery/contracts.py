@@ -52,12 +52,23 @@ class RecoveryContract:
     contract_version: str = "0.1"
 
     def validate(self) -> None:
-        if not self.tool_id.strip():
+        if not isinstance(self.tool_id, str) or not self.tool_id.strip():
             raise ContractError("tool_id is required")
-        if not self.action_type.strip():
+        if not isinstance(self.action_type, str) or not self.action_type.strip():
             raise ContractError("action_type is required")
-        if not self.contract_version.strip():
+        if not isinstance(self.contract_version, str) or not self.contract_version.strip():
             raise ContractError("contract_version is required")
+        if not isinstance(self.risk_level, RiskLevel):
+            raise ContractError("risk_level must be a RiskLevel")
+        if not isinstance(self.recovery_class, RecoveryClass):
+            raise ContractError("recovery_class must be a RecoveryClass")
+        for name, value in (
+            ("approval_before_action", self.approval_before_action),
+            ("approval_before_recovery", self.approval_before_recovery),
+            ("parameter_bound_approval", self.parameter_bound_approval),
+        ):
+            if type(value) is not bool:
+                raise ContractError(f"{name} must be boolean")
         if not callable(self.executor):
             raise ContractError("executor must be callable")
         if not callable(self.verifier):
@@ -100,8 +111,10 @@ class RecoveryContract:
         if self.approval_before_recovery and not self.parameter_bound_approval:
             raise ContractError("recovery approvals must be parameter-bound")
 
-        if not self.containment_scopes:
+        if isinstance(self.containment_scopes, str) or not self.containment_scopes:
             raise ContractError("at least one containment scope is required")
+        if any(not isinstance(scope, str) or not scope.strip() for scope in self.containment_scopes):
+            raise ContractError("containment scopes must be non-empty strings")
 
     def resource_keys(self, params: Params) -> tuple[str, ...]:
         """Return canonical mutable-resource identities touched by this action.
