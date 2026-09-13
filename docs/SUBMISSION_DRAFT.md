@@ -16,11 +16,11 @@ Professional Agents
 
 ## One-line thesis
 
-When an autonomous agent is compromised or goes wrong, the platform reconstructs represented side effects, contains affected authority, recovers what is recoverable, preserves residual risk, runs a bounded adversarial replay and restores only represented authority for which the deterministic evidence gate passes.
+When an autonomous agent is compromised or goes wrong, the platform reconstructs represented side effects, contains affected authority, recovers what is recoverable, preserves residual risk, runs a bounded adversarial replay and restores only represented downstream authority for which the deterministic evidence gate passes.
 
 ## Problem
 
-Organizations are giving AI agents permission to modify customer records, shared memory, access controls, code, configuration and communication systems. Prevention and monitoring matter, but no defense is perfect. Once a write-capable agent is manipulated or fails, teams still need to answer a harder operational question: what changed, how far did the incident propagate, what can be reversed, what requires compensation, what can never be undone, and when is it safe to restore the agent's authority?
+Organizations are giving AI agents permission to modify customer records, shared memory, access controls, code, configuration and communication systems. Prevention and monitoring matter, but no defense is perfect. Once a write-capable agent is manipulated or fails, teams still need to answer a harder operational question: what changed, how far did the incident propagate, what can be reversed, what requires compensation, what can never be undone, and when is it safe to restore authority?
 
 A generic kill switch stops future actions but does not reconstruct or repair the state already changed. A simple rollback can also be unsafe in multi-agent workflows because later actions may depend on earlier ones and some external effects are irreversible.
 
@@ -43,6 +43,8 @@ After an incident, read-only Strands agents investigate evidence, reconstruct re
 
 After recovery, an isolated Replay Lab reruns an exact represented attack action. The replay is bound to the source action, source/recovery state, contract versions used by the represented incident and one proposed release scope. The proposed release scope cannot remain contained during the replay. Stale, superseded, action-mismatched, environment-contract-mismatched or cross-incident replay evidence fails closed. This is a bounded synthetic replay, not proof of complete production topology/provider equivalence.
 
+The competition path intentionally does not support restoring the compromised source agent from its own replay. Positive replay admission for the source agent fails closed and the demonstrated root agent remains contained. Selective restoration is limited to represented downstream authority supported by current evidence.
+
 Irreversible external effects remain explicitly visible as residual risk instead of being falsely reported as undone.
 
 ## What makes it different
@@ -53,7 +55,7 @@ The differentiating loop is:
 
 `cross-agent causality -> recovery integrity -> residual truth -> adversarial replay -> selective restoration`
 
-The platform treats the recovery path itself as a security boundary. Within the bounded trusted-ledger runtime, approvals are single-use, recovery is incident-bound, containment is reconstructed from represented evidence, replay is execution-time/freshness/scope-bound, and restoration requires complete represented recovery obligations plus the latest applicable positive replay.
+The platform treats the recovery path itself as a security boundary. Within the bounded trusted-ledger runtime, approvals are single-use, recovery is incident-bound, active containment is authoritative across controllers sharing the ledger, independent incident holds are preserved, replay is execution-time/freshness/scope-bound, and restoration application is fresh and single-use for one exact hold.
 
 This competition build does not claim remote proof-forgery resistance, distributed consensus, production multi-tenancy, externally anchored evidence completeness or live cloud rollback attestation.
 
@@ -101,7 +103,7 @@ Current PR validation evidence is synthetic and deterministic, not a production-
 
 On the adversarially hardened validation branch:
 
-- 139 deterministic tests pass on both Python 3.10 and Python 3.12.
+- 152 deterministic tests are expected in the final exact-head suite on both Python 3.10 and Python 3.12; the final submission must quote the terminal CI result, not this draft expectation.
 - The required adversarial benchmark contract covers B01-B10.
 - B06 three-agent blast-radius recall: 1.0 in the bounded fixture.
 - B06 three-agent blast-radius precision: 1.0 in the bounded fixture.
@@ -109,8 +111,8 @@ On the adversarially hardened validation branch:
 - Replay attack success rate: 0.0 in the currently measured bounded replay scenario.
 - False-positive containment rate: 0.0 across three known-benign scopes in the bounded fixture.
 - Authority resurrection successes: 0 in the measured attempt.
-- Unsafe recovery executions: 0 across the aggregate deterministic benchmark report.
-- GPT-6 adversarial counterexamples have been converted into permanent regression tests, including reconstruction, approval reuse, replay freshness/scope/environment binding, shared-state protection, malformed contracts, recovery approval purpose, evidence aliasing, failure accounting and judge-artifact semantics.
+- Scenario-specific unsafe-recovery fields remain visible in the benchmark report, but they are not presented as one globally comparable execution-rate metric because the scenarios have different bounded semantics.
+- GPT-6 adversarial counterexamples have been converted into permanent regression tests, including reconstruction, approval reuse, replay freshness/scope/environment binding, source-agent self-restoration rejection, restoration freshness/single-use, shared-controller containment, independent incident holds, shared-state protection, malformed contracts, recovery approval purpose, evidence aliasing, direct recovery failure accounting and judge-artifact semantics.
 
 The repository explicitly records the limits of those measurements. They do not establish global or production effectiveness.
 
@@ -127,7 +129,7 @@ The repository explicitly records the limits of those measurements. They do not 
 - B09 runaway tool / denial-of-wallet style loop
 - B10 recovery-path attack
 
-Additional deterministic tests cover authority reconstruction, approval single-use across shared controllers, replay freshness and supersession, cross-incident proof misuse, proposed-release-policy replay, source contract-manifest binding, cross-incident shared-state writers, reconciliation, evidence integrity at recovery entry and false-positive containment scope.
+Additional deterministic tests cover authority reconstruction, approval single-use across shared controllers, replay freshness and supersession, cross-incident proof misuse, proposed-release-policy replay, source contract-manifest binding, cross-incident shared-state writers, reconciliation, evidence integrity at recovery entry, false-positive containment scope, exact containment-hold release, direct ledger admission and stale restoration application.
 
 ## Reproducibility
 
@@ -156,7 +158,9 @@ The commercial path starts with an Agent Recoverability Assessment for one write
 
 The project began with a simple recovery-contract and action-ledger thesis. Competitive research showed that single-agent rollback and rewind already had credible implementations, so the design moved toward the harder gap: multi-agent causal recovery with shared state, recovery-path integrity and verified restoration.
 
-The build was developed benchmark-first. A pre-submission GPT-6 adversarial architecture audit then deliberately tried to falsify the safety thesis against a green 120-test build. It found lifecycle counterexamples that ordinary tests had missed, including false restoration authorization, replay-context confusion, containment loss after reconstruction, approval reuse across controllers and shared-state recovery hazards. Those findings were treated as blockers rather than hidden: the fixes and falsification cases became the adversarial hardening branch and permanent regression coverage.
+The build was developed benchmark-first. A pre-submission GPT-6 adversarial architecture audit deliberately tried to falsify the safety thesis against a green 120-test build. It found lifecycle counterexamples that ordinary tests had missed, including false restoration authorization, replay-context confusion, containment loss after reconstruction, approval reuse across controllers and shared-state recovery hazards. Those findings were treated as blockers rather than hidden.
+
+A second targeted GPT-6 re-audit attacked the hardened 139-test build rather than trusting its regressions. It found four additional lifecycle blockers: source-agent restoration could be justified by a replay made safe by a different containment boundary, restoration decisions were stale/reusable at application time, containment was not authoritative across already-created controllers sharing a ledger, and releasing one incident could erase another incident's hold on the same scope. The remediation moved containment truth into the shared ledger, bound release to one fresh exact hold, made positive source-agent replay admission fail closed, added direct recovery failure evidence and strengthened judge semantics. Those counterexamples are now permanent regressions.
 
 ## Challenges
 
@@ -164,19 +168,22 @@ The hardest design problem was keeping AI useful without making it an authority 
 
 A second challenge was truthful recovery semantics. An external message that has already been delivered cannot be called rolled back. The platform therefore separates recovered local state from explicit residual external effects.
 
-A third challenge was recognizing that a green test suite is not a proof. The adversarial audit exposed individually valid transitions that composed into unsafe lifecycle behavior, forcing the project to strengthen replay, restoration, shared-state and reconstruction invariants rather than merely add more happy-path fixtures.
+A third challenge was recognizing that a green test suite is not a proof. Both adversarial passes exposed individually plausible transitions that composed into unsafe lifecycle behavior, forcing the project to strengthen replay, restoration, shared-state and reconstruction invariants rather than merely add more happy-path fixtures.
 
 ## Accomplishments
 
 - Built an end-to-end recovery lifecycle rather than a detection-only agent.
 - Added multi-agent causal blast-radius reconstruction.
-- Made active containment reconstructable from the retained ledger.
+- Made active containment authoritative from shared retained-ledger holds.
+- Preserved independent incident holds on the same authority scope.
 - Made approvals single-use across controllers sharing the bounded in-memory ledger.
+- Made restoration application fresh, single-use and bound to one exact active hold.
 - Added fail-closed malformed-contract, evidence-integrity and ambiguous-effect accounting.
 - Bound replay to the represented source action, execution-time state, source contract versions and proposed release scope.
-- Required complete represented recovery evidence before selective restoration.
+- Intentionally kept source/root self-restoration unsupported in the competition path.
+- Required complete represented recovery evidence before selective downstream restoration.
 - Preserved irreversible effects and failed compensation as explicit residual truth.
-- Converted an external adversarial architecture audit into permanent regression coverage.
+- Converted two external adversarial audit passes into permanent regression coverage.
 - Kept the complete judge path reproducible without credentials or paid model calls.
 - Narrowed claims where the prototype does not provide production-grade evidence.
 
@@ -209,13 +216,13 @@ After the competition:
 
 4:15-4:40 - Selective downstream restoration, root agent remains contained.
 
-4:40-4:55 - Evidence: adversarial audit, regression tests, benchmark coverage and reproducible package.
+4:40-4:55 - Evidence: two adversarial audit passes, permanent regressions, benchmark coverage and reproducible package.
 
 4:55-5:00 - Close: `No restored authority without complete recovery evidence and a current scope-bound replay.`
 
 ## Final submission owner checklist
 
-- Merge only after the hardened PR is green and the targeted adversarial re-audit has no submission blocker.
+- Merge only after the hardened PR is green and the final narrow GPT-6 verification has no submission blocker.
 - Confirm final public repository head and rerun exact-head acceptance.
 - Confirm MIT license is visible in repository metadata/About.
 - Attach/export the architecture diagram.
