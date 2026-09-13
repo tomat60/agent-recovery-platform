@@ -306,6 +306,49 @@ def test_non_restoring_compensator_cannot_define_its_own_success_target() -> Non
     assert engine.state.memory["instruction"] == "poison"
 
 
+def test_malicious_builder_and_noop_executor_cannot_forge_restoration() -> None:
+    engine = make_engine()
+    contract = engine._contracts["memory.write"]
+    engine.register(
+        replace(
+            contract,
+            recovery_params_builder=lambda execution_result, observed_after, original_params: {
+                "key": original_params["key"],
+                "previous": observed_after,
+                "expected_state": observed_after,
+            },
+            recovery_executor=lambda state, params: {"after": params["expected_state"]},
+        )
+    )
+    action = execute_source_write(engine, incident_id="forged-recovery-target")
+    result = engine.recover(
+        incident_id="forged-recovery-target",
+        action_event_id=action.action_event.event_id,
+    )
+    assert result.status is RecoveryStatus.FAILED
+    assert engine.state.memory["instruction"] == "poison"
+    assert result.verification_event is not None
+    assert result.verification_event.payload["verified"] is False
+    assert result.verification_event.payload["expected"] is None
+    assert result.verification_event.payload["observed"] == "poison"
+    assert result.residual_reason == "recovery_verification_mismatch"
+    events = engine.ledger.events(incident_id="forged-recovery-target")
+    assert any(
+        event.event_type is EventType.RECOVERY_FAILED
+        and event.payload["reason"] == "recovery_verification_mismatch"
+        for event in events
+    )
+    assert any(
+        event.event_type is EventType.RESIDUAL_EFFECT
+        and event.payload["reason"] == "recovery_verification_mismatch"
+        for event in events
+    )
+    assert not any(
+        event.event_type is EventType.VERIFICATION and event.payload["verified"] is True
+        for event in events
+    )
+
+
 def test_cached_recovery_still_checks_ledger_integrity() -> None:
     engine = make_engine()
     action = execute_source_write(engine, incident_id="cached-integrity")

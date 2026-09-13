@@ -333,7 +333,7 @@ def test_original_action_approval_cannot_authorize_recovery() -> None:
     assert failed.status is RecoveryStatus.FAILED
     assert failed.recovery_event.payload["reason"] == "missing_or_mismatched_recovery_approval"
 
-    recovery_params = {"key": "instruction", "previous": None, "expected_state": None}
+    recovery_params = {"key": "instruction", "previous": None}
     exact = Approval.for_recovery(
         "memory.write",
         recovery_params,

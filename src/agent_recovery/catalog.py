@@ -82,20 +82,16 @@ def _restore_contact_field_params(
     if not isinstance(execution_result, Mapping) or "before" not in execution_result:
         raise TypeError("contact update did not preserve before state")
     before = execution_result["before"]
-    if not isinstance(before, Mapping):
-        raise TypeError("contact before state must be a mapping")
+    if not isinstance(before, Mapping) or "exists" not in before:
+        raise TypeError("contact before state must record field existence")
     field_name = str(original_params["field"])
-    previous_exists = field_name in before
-    previous_value = before.get(field_name)
+    previous_exists = bool(before["exists"])
+    previous_value = before.get("value")
     return {
         "contact_id": original_params["contact_id"],
         "field": field_name,
         "previous_exists": previous_exists,
         "previous_value": previous_value,
-        "expected_state": {
-            "exists": previous_exists,
-            "value": previous_value,
-        },
     }
 
 
@@ -131,7 +127,6 @@ def _revoke_permission_params(
         "principal": original_params["principal"],
         "permission": permission,
         "permission_was_present": permission in previous_permissions,
-        "expected_state": list(previous_permissions),
     }
 
 
@@ -146,7 +141,6 @@ def _restore_memory_params(
     return {
         "key": original_params["key"],
         "previous": previous,
-        "expected_state": previous,
     }
 
 
