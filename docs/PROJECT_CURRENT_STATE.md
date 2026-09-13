@@ -12,13 +12,11 @@ That exact build had green CI with 120 deterministic tests on Python 3.10 and 3.
 
 Draft PR #67 on `audit-blockers-2026-09-12` remediated the original audit and reached a green 139-test exact head. A targeted GPT-6 re-audit then attacked exact head `9251510b94e8da42e59b7878b0826d5c519b7e0e` and found four additional submission-blocking lifecycle flaws. Those findings have now been remediated on the same Draft PR and converted into permanent regressions.
 
-Current frozen candidate head for final narrow verification:
+The latest fully validated candidate ancestor before this state synchronization was `85b877577b1ec1cb8ba26f03e452dddbb26a7c1a`. CI run `34738049109` was green on Python 3.10 and 3.12 with Ruff, **152 passed tests**, B01-B10 benchmark smoke, credential-free judge reproduction, canonical semantic validation and SHA-256 manifest verification.
 
-`85b877577b1ec1cb8ba26f03e452dddbb26a7c1a`
+Because changing this file changes the branch head, the final candidate SHA must always be read from Git and verified again after the documentation state is frozen. This document deliberately does not claim that its own parent SHA is the final submission head.
 
-Exact-head CI run `34738049109` is green on Python 3.10 and 3.12 with Ruff, **152 passed tests**, B01-B10 benchmark smoke, credential-free judge reproduction, canonical semantic validation and SHA-256 manifest verification.
-
-The candidate is not accepted main authority until final narrow read-only GPT-6 verification and merge gate pass.
+The candidate is not accepted main authority until final exact-head CI/package verification, final narrow read-only GPT-6 verification and the merge gate pass.
 
 The product remains a recovery-first control layer for autonomous AI agents, not a generic AI-security suite.
 
@@ -78,9 +76,9 @@ The candidate now includes:
 25. Judge incident evidence validates semantic ranges, cross-field correspondence and bounded upper relationships.
 26. Original audit, targeted re-audit and mutation-survivor counterexamples are represented as permanent deterministic regressions.
 
-## Exact-head validation evidence
+## Validation evidence
 
-On frozen candidate `85b877577b1ec1cb8ba26f03e452dddbb26a7c1a`, CI run `34738049109` passed:
+Validated ancestor `85b877577b1ec1cb8ba26f03e452dddbb26a7c1a`, run `34738049109`, passed:
 
 - Ruff,
 - Python 3.10,
@@ -98,6 +96,8 @@ On frozen candidate `85b877577b1ec1cb8ba26f03e452dddbb26a7c1a`, CI run `34738049
 - canonical incident evidence round-trip and semantic validation,
 - SHA-256 judge manifest verification,
 - authority-free judge reproduction manifest.
+
+The final branch head must reproduce these gates after all documentation is frozen.
 
 Scenario-specific `unsafe_recovery_executions` fields remain part of benchmark outputs, but the project does not present their aggregate as one globally comparable execution-rate metric because individual scenarios have different bounded meanings.
 
@@ -136,7 +136,7 @@ Do not convert these into claims of universal attack prevention, arbitrary produ
 
 Draft PR #67 remains unmerged until all are true:
 
-1. Exact current PR-head CI is green on Python 3.10 and 3.12 with the complete 152-test suite, benchmark smoke and judge reproduction. **PASS on `85b877...`, run `34738049109`.**
+1. Exact final PR-head CI is green on Python 3.10 and 3.12 with the complete 152-test suite, benchmark smoke and judge reproduction.
 2. `docs/GPT6_FINAL_VERIFY_HANDOFF.md` is used for a narrow read-only GPT-6 verification that retests N1-N4, M-SEM, M-DIRECT and mutation gaps M07/M10/M12 rather than repeating a full repository audit.
 3. Any new confirmed Critical/High submission blocker is fixed and regression-tested.
 4. README, this file, `RECOVERY_INTEGRITY_MODEL.md`, `JUDGE_EVIDENCE_INDEX.md` and `SUBMISSION_DRAFT.md` describe the same bounded guarantees.
