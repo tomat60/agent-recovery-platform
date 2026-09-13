@@ -1,19 +1,21 @@
 # Judge Evidence Index
 
-Date: 2026-09-12
+Date: 2026-09-13
 
 Pre-audit baseline: `de835c3b571261e2398c0dbb619647fa1c2860fa`
 
+Targeted re-audited head: `9251510b94e8da42e59b7878b0826d5c519b7e0e`
+
 Candidate hardened branch: `audit-blockers-2026-09-12` / Draft PR #67.
 
-This index is a competition-packaging map only. It does not grant approval, execution, compensation, replay, restoration or production-security authority. PR #67 remains unaccepted until targeted adversarial re-review and final exact-head verification pass.
+This index is a competition-packaging map only. It does not grant approval, execution, compensation, replay, restoration or production-security authority. PR #67 remains unaccepted until final narrow adversarial verification and final exact-head acceptance pass.
 
 ## Reproducible judge path
 
 The credential-free path is the default source of truth for judging and CI:
 
 1. reproduce the bounded synthetic incident,
-2. validate the represented deterministic incident evidence and cross-field semantics,
+2. validate represented deterministic incident evidence and cross-field semantics,
 3. render only represented evidence in the judge console,
 4. package canonical evidence with SHA-256 manifest entries,
 5. run bounded exact-action replay under the proposed release policy,
@@ -22,41 +24,53 @@ The credential-free path is the default source of truth for judging and CI:
 
 ## Adversarial hardening evidence
 
-The original green 120-test baseline was independently adversarially audited. Confirmed counterexamples were converted into code changes and permanent regression tests on PR #67. The branch includes evidence for:
+The original green 120-test baseline was independently adversarially audited. Confirmed counterexamples were converted into code changes and permanent regression tests. A second targeted GPT-6 re-audit attacked exact hardened head `9251510...` and found four additional lifecycle blockers. Those blockers are now represented in the candidate remediation.
+
+The branch includes regression evidence for:
 
 - containment surviving recreation from the same retained ledger,
-- one-shot approval consumption across pre-existing controllers sharing one `ActionLedger`,
+- containment becoming visible to controllers created before another controller adds a hold,
+- independent incident holds being preserved for the same scope,
+- release consuming one exact active incident hold rather than clearing a global scope bit,
+- restoration application becoming stale after intervening ledger work and being single-use,
+- positive replay admission failing closed when it would authorize restoration of the replayed source agent,
+- direct ledger append paths being subject to source-agent replay and exact-hold release policy,
+- one-shot approval consumption across controllers sharing one `ActionLedger`,
 - malformed Recovery Contract metadata failing before executor side effects,
 - recovery preserving pre-existing valid permissions,
 - recovery approval purpose/context binding,
 - exported nested evidence not aliasing stored ledger/recovery state,
-- ledger corruption blocking recovery before mutation,
+- ledger corruption blocking recovery before mutation or cached success reuse,
 - ambiguous post-effect observation and compensation failure remaining explicit,
+- direct recovery executor/verifier failures leaving failure and residual evidence,
 - cached recovery result incident binding,
 - later/cross-incident shared-resource writers blocking unsafe before-image recovery,
 - exact source-action replay binding,
 - execution-time replay freshness and anti-restamping,
 - supersession of older replay success by a later applicable failure,
-- proposed release scope not remaining contained during its replay,
+- proposed release scope not remaining explicitly contained through the ordinary replay specification,
 - represented source contract-version presence in the replay runtime,
 - restoration requiring complete represented recovery and exact scope-bound replay,
-- semantic judge-evidence validation.
+- semantic judge-evidence validation including bounded upper relationships.
 
-The latest green validation run before documentation synchronization passed 139 tests on Python 3.10 and 3.12, plus benchmark smoke and judge reproduction. A later documentation/code head must rerun CI before it can inherit that evidence.
+The current candidate suite contains 152 deterministic tests. Public/final claims must cite the terminal exact-head run after all documentation and code changes are frozen.
 
 ## Claims allowed by current candidate evidence
 
-Only claims directly represented by deterministic artifacts may be made. The hardened bounded implementation can claim evidence that it can:
+Only claims directly represented by deterministic artifacts may be made. The bounded implementation can claim evidence that it can:
 
 - reject missing or malformed represented Recovery Contracts before executor invocation,
 - bind consequential approvals to represented requests and prevent duplicate use in controllers sharing one in-memory ledger,
-- reconstruct represented active containment from the retained ledger after runtime recreation,
+- enforce represented active containment across controllers sharing the retained ledger,
+- preserve independent incident holds on the same represented authority scope,
 - reconstruct represented blast radius from recorded causal edges,
 - prevent the audited same-resource recovery clobber/resurrection sequences,
 - expose unsuccessful compensation, uncertain effects and irreversible effects as residual risk,
 - compare recovered state against a target fixed from preserved pre-action evidence,
 - reject stale, restamped, superseded, wrong-action, release-scope-mismatched and represented contract-environment-mismatched replay evidence,
-- require complete represented local recovery before scoped restoration authorization,
+- reject positive replay admission that would restore the replayed source agent in the competition path,
+- require complete represented local recovery before scoped downstream restoration authorization,
+- apply authorized downstream restoration only while the decision is fresh and to one exact active hold,
 - keep the compromised root contained while selectively releasing downstream scopes in the bounded B06 fixture,
 - reproduce the bounded judge incident without cloud credentials,
 - validate canonical evidence/manifest bytes and reject contradictory judge-artifact semantics.
@@ -78,24 +92,28 @@ Do not claim:
 - globally complete causal capture when instrumentation edges are missing,
 - complete production replay equivalence for topology, provider state, delayed side effects or time-dependent behavior,
 - production recovery success rate or time-to-containment,
+- a global unsafe-recovery execution rate synthesized from scenario fields with different semantics,
 - live Bedrock or AgentCore security effectiveness,
 - that Strands/model output authorizes execution,
-- that the compromised root agent has been demonstrated safe to restore.
+- that the compromised root/source agent has been demonstrated safe to restore.
 
 ## Integrity interpretation
 
 SHA-256 chaining in the prototype proves internal consistency of the retained local history. It is useful for detecting chain-breaking mutation, internal deletion/reordering and payload tampering. It is not an external authenticity/completeness proof. Production claims would require authenticated durable append provenance and independently committed head/sequence information.
 
+Security-sensitive local admission rules now also apply to both normal `record()` and direct `append()` ledger paths for the represented source-agent positive replay and exact containment-release cases. This still does not create an authenticated remote writer/issuer boundary.
+
 ## Replay interpretation
 
-The Replay Lab currently proves a narrower statement than full environment reconstruction:
+The Replay Lab proves a narrower statement than full environment reconstruction:
 
 - the selected replay action must correspond to exactly one represented source action on the source trigger path,
 - agent/tool/parameters/contract version must match,
-- the source ledger head and recovery generation are captured at run time,
+- source ledger head and recovery generation are captured at run time,
 - represented contract versions used by executed incident actions must exist in the replay runtime,
-- one release scope is bound to the proof and that scope may not remain contained during replay,
-- later applicable replay evidence supersedes earlier evidence for that scope.
+- one release scope is bound to the proof and the ordinary replay specification cannot explicitly keep that same scope contained,
+- later applicable replay evidence supersedes earlier evidence for that scope,
+- the competition path rejects a positive replay claim that would authorize restoration of that replay's source agent.
 
 This is sufficient for the bounded competition fixture and regression claims. It is not a claim that all production environment state/topology has been reconstructed.
 
@@ -113,15 +131,16 @@ The deterministic package is allowed to advance without AWS credentials. The fol
 
 Before public submission, accept the package only when the exact submitted head proves all of the following:
 
-- deterministic CI is green on supported Python versions,
-- GPT-6 targeted re-audit of the hardened diff reports no unresolved submission-blocking Critical/High finding,
-- original confirmed adversarial counterexamples are covered by regressions or an explicit narrowed claim boundary,
+- deterministic CI is green on supported Python versions with the complete 152-test suite,
+- the final narrow GPT-6 verification of the remediated diff reports no unresolved submission-blocking Critical/High finding,
+- original and targeted re-audit counterexamples are covered by regressions or an explicit narrowed claim boundary,
 - one-command judge reproduction succeeds from a clean environment without paid model calls,
 - canonical incident evidence survives round-trip and semantic validation,
 - packaged SHA-256 hashes validate,
 - the console contains no authority claim not backed by represented deterministic evidence,
 - residual external effects remain visible,
-- replay can invalidate a false restoration assertion and cannot justify releasing the same scope by keeping it contained,
+- replay can invalidate a false restoration assertion,
+- compromised source/root self-restoration is not claimed or demonstrated,
 - no secret, credential, customer data or production incident data is included,
 - README/current-state/integrity model/submission draft and this index agree on the bounded evidence boundary.
 
