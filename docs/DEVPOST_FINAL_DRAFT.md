@@ -12,7 +12,7 @@ Verified recovery for compromised autonomous AI agents.
 
 ## Elevator pitch
 
-Agent Recovery Platform is a recovery-first safety layer for write-capable AI agents. When prevention fails, it reconstructs represented side effects across agents, contains affected authority, recovers what is actually recoverable, preserves residual risk, replays the repaired attack path, and restores only downstream authority supported by current deterministic evidence.
+Agent Recovery Platform is a recovery-first safety layer for write-capable AI agents. When prevention fails, it reconstructs represented side effects across agents, contains affected authority, recovers what is actually recoverable, preserves residual risk, replays the represented attack path against repaired state, and restores only downstream authority supported by current deterministic evidence.
 
 ## The problem
 
@@ -49,19 +49,35 @@ Strands Agents SDK provides an evidence-only reasoning layer:
 
 - **Investigator** reconstructs likely root cause and causal trajectory from read-only incident evidence.
 - **Recovery Planner** proposes ordered candidate recovery or compensation actions and residual risks.
-- **Skeptic / Verifier** challenges unsupported assumptions and unsafe recovery claims.
+- **Skeptic** challenges unsupported assumptions and unsafe recovery claims.
 
 This separation is deliberate. Model output is advisory and cannot authorize writes, execute recovery or restore authority. Deterministic code owns those boundaries.
 
-The credential-free deterministic path remains the reproducible source of truth. A live Strands + Amazon Bedrock / AgentCore path is additive only when separately verified.
+A live three-call Strands path was executed in AWS CloudShell on Amazon Bedrock using the EU Claude Haiku 4.5 inference profile `eu.anthropic.claude-haiku-4-5-20251001-v1:0`. The run completed with `status: PASS` and `authorization_effect: none`.
+
+The live artifact was downloaded and fingerprinted immediately after the run:
+
+`SHA-256 9b9b1fae30faa5d597252d7ea35c9d65bd271a0c5bc2a3c9cdc5ec565a820a8c`
+
+The live model path used no tools and touched no external production system. The credential-free deterministic path remains the reproducible source of truth for security claims.
+
+## Why the trust boundary matters
+
+The live run also demonstrated why the advisory layer cannot own authority. The model produced useful incident reasoning but also introduced one unsupported synthetic contact name that was not present in the ledger evidence.
+
+That detail was treated as untrusted advisory text rather than silently accepted. Judge-facing output therefore uses ledger-backed identifiers and deterministic evidence. The model can help investigate and challenge, but it cannot make a recovery claim true.
 
 ## What makes it different
 
-Most agent-security tools focus on prevention, monitoring or stopping future actions. Agent Recovery Platform focuses on the harder post-incident problem:
+Most agent-security systems focus on prevention, monitoring or stopping future actions. Durable workflow systems focus on retries, checkpoints and resuming execution. Rollback systems focus on undoing known changes.
 
-`cross-agent causality -> recovery integrity -> residual truth -> adversarial replay -> selective restoration`
+Agent Recovery Platform focuses on the incident between those categories: an agent has already changed shared state, downstream agents may already have acted, and the system must determine what can actually be recovered and what authority can safely return.
 
-The project treats the recovery path itself as a security boundary. It does not assume that rollback is always safe or that a successful model explanation is proof of recovery.
+The distinguishing loop is:
+
+`cross-agent causality -> containment -> recovery integrity -> residual truth -> adversarial replay -> selective restoration`
+
+The goal is not merely to undo a change. It is to prove that represented state is recovered strongly enough to justify restoring specific authority.
 
 ## Demonstrated scenario
 
@@ -82,9 +98,11 @@ The platform:
 
 ## Measured evidence
 
-Accepted code anchor before presentation-only packaging: `b997384addd8781e0dac153d92adabcf9cc11757`.
+Accepted security baseline before presentation-only packaging: `b997384addd8781e0dac153d92adabcf9cc11757`.
 
-Post-merge GitHub Actions run `34762391263` passed on that exact code state with:
+The current presentation-support main after PR #72 is `52281e9136ccaf4ed904b9ce1533d5e957635fb1`. PR #72 added only bounded live-proof support scripts and did not change runtime/security modules. Post-merge `recovery-ci` #259 passed on that exact head.
+
+Validated evidence includes:
 
 - Python 3.10: PASS
 - Python 3.12: PASS
@@ -101,8 +119,9 @@ Post-merge GitHub Actions run `34762391263` passed on that exact code state with
 - canonical incident evidence validation and round trip: PASS
 - SHA-256 manifest verification: PASS
 - authority-free judge reproduction manifest: PASS
+- live Strands + Amazon Bedrock advisory path: PASS
 
-These are synthetic deterministic measurements. They do not establish global or production security effectiveness.
+These are bounded synthetic measurements. They do not establish global or production security effectiveness.
 
 ## Adversarial hardening
 
@@ -122,7 +141,7 @@ The architecture has two explicit trust zones.
 
 Incident evidence -> Investigator -> Recovery Planner -> Skeptic
 
-Built with Strands Agents SDK. This zone has no execution authority.
+Built with Strands Agents SDK. A live Amazon Bedrock path is verified. This zone has no execution authority.
 
 ### Deterministic recovery control plane
 
@@ -132,9 +151,9 @@ The Judge Console is presentation-only. It renders represented evidence and gran
 
 ## AWS path
 
-The deterministic credential-free path is the reproducible competition baseline.
+The live advisory proof used Amazon Bedrock with the EU Claude Haiku 4.5 inference profile through Strands Agents SDK.
 
-Amazon Bedrock can be used as a Strands model provider, and AgentCore can strengthen the live cloud integration when separately verified. No live AWS security-effectiveness claim is made unless that path is actually executed and captured as evidence.
+The competition does not claim AgentCore deployment or live cloud rollback. The deterministic credential-free path remains intentionally available so judges can reproduce the strongest bounded security evidence without AWS credentials or paid model calls.
 
 ## Technical challenges
 
@@ -150,7 +169,7 @@ The target users are teams operating write-capable autonomous agents in AI-nativ
 
 As agent autonomy increases, organizations need operational recovery controls analogous to incident response and disaster recovery for conventional infrastructure, but adapted to causal multi-agent workflows, shared mutable state and model-driven behavior.
 
-The commercial path starts with an Agent Recoverability Assessment for one write-capable workflow, then expands only after real customer validation.
+The commercial path starts with an Agent Recoverability Assessment for one write-capable workflow, then expands through paid pilots and recurring product integrations after real customer validation.
 
 ## Reproducibility
 
@@ -166,6 +185,7 @@ The public repository contains:
 - SHA-256 manifests,
 - judge evidence index and claim boundaries,
 - exact-head CI reproduction artifacts,
+- bounded live Strands proof scripts,
 - an interactive presentation-only Judge Console.
 
 Judges can reproduce the strongest bounded evidence without AWS credentials or paid model calls.
@@ -198,6 +218,7 @@ This competition build does not claim:
 - globally complete causal capture with missing instrumentation,
 - full production replay topology, provider or time equivalence,
 - safe restoration of the compromised source/root agent,
-- live cloud rollback or security effectiveness unless separately measured.
+- AgentCore deployment unless separately completed and verified,
+- live cloud rollback or production security effectiveness.
 
-Its claims are deliberately bounded to represented, reproducible evidence in the included deterministic fixtures and any separately captured live path.
+Its claims are deliberately bounded to represented, reproducible deterministic evidence and the separately captured live advisory path.
