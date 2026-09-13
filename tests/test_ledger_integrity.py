@@ -57,7 +57,7 @@ def test_restoration_fails_closed_when_ledger_integrity_is_broken() -> None:
     replay = ledger.record(
         EventType.VERIFICATION,
         "incident-4",
-        {"verification_kind": "adversarial_replay", "verified": True},
+        {"verification_kind": "adversarial_replay", "verified": False},
         parent_event_ids=(trigger.event_id,),
     )
     ledger._events[0] = replace(trigger, payload={"digest": "forged"})  # type: ignore[attr-defined]
