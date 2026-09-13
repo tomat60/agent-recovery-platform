@@ -154,6 +154,70 @@ class ActionLedger:
                 parent_event_ids=parent_event_ids,
             )
 
+    def _active_containment_holds_unlocked(self) -> dict[str, LedgerEvent]:
+        active: dict[str, LedgerEvent] = {}
+        for event in self._events:
+            if event.event_type is not EventType.CONTAINMENT:
+                continue
+            scope = event.payload.get("scope")
+            if not isinstance(scope, str) or not scope:
+                continue
+            if event.payload.get("active") is True:
+                active[event.event_id] = event
+                continue
+            if event.payload.get("active") is not False:
+                continue
+
+            released_hold_id = event.payload.get("released_hold_event_id")
+            if isinstance(released_hold_id, str) and released_hold_id:
+                active.pop(released_hold_id, None)
+                continue
+
+            # Backward-compatible interpretation for old release events that did not bind
+            # the release to an exact hold: release only the latest same-incident hold.
+            matching = [
+                hold_id
+                for hold_id, hold in active.items()
+                if hold.incident_id == event.incident_id
+                and hold.payload.get("scope") == scope
+            ]
+            if matching:
+                active.pop(matching[-1], None)
+        return active
+
+    def active_containment_holds(
+        self,
+        *,
+        incident_id: str | None = None,
+        scope: str | None = None,
+    ) -> tuple[LedgerEvent, ...]:
+        """Return authoritative outstanding containment holds from retained ledger state."""
+
+        self.verify_integrity()
+        with self._lock:
+            selected = []
+            for hold in self._active_containment_holds_unlocked().values():
+                if incident_id is not None and hold.incident_id != incident_id:
+                    continue
+                if scope is not None and hold.payload.get("scope") != scope:
+                    continue
+                selected.append(_detached_event(hold))
+            return tuple(selected)
+
+    def latest_active_containment_hold(
+        self,
+        *,
+        incident_id: str,
+        scope: str,
+    ) -> LedgerEvent | None:
+        holds = self.active_containment_holds(incident_id=incident_id, scope=scope)
+        return holds[-1] if holds else None
+
+    def is_scope_contained(self, scope: str) -> bool:
+        """Containment is effective while any incident has an outstanding hold on scope."""
+
+        return bool(self.active_containment_holds(scope=scope))
+
     def events(self, *, incident_id: str | None = None) -> tuple[LedgerEvent, ...]:
         with self._lock:
             if incident_id is None:
