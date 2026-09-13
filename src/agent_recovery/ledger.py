@@ -109,6 +109,33 @@ class ActionLedger:
             self._ids.add(chained.event_id)
             return _detached_event(chained)
 
+    def _validate_record_policy(
+        self,
+        event_type: EventType,
+        payload: Mapping[str, Any],
+    ) -> None:
+        """Fail closed on event claims that violate deterministic restoration policy."""
+
+        if event_type is not EventType.VERIFICATION:
+            return
+        if payload.get("verification_kind") != "adversarial_replay":
+            return
+        if payload.get("verified") is not True:
+            return
+        source_action_event_id = payload.get("source_action_event_id")
+        authority_scope = payload.get("authority_scope")
+        if not isinstance(source_action_event_id, str) or not isinstance(authority_scope, str):
+            return
+        source_action = next(
+            (event for event in self._events if event.event_id == source_action_event_id),
+            None,
+        )
+        if source_action is None or source_action.event_type is not EventType.ACTION_EXECUTED:
+            return
+        source_agent = source_action.payload.get("agent_id")
+        if isinstance(source_agent, str) and authority_scope == f"agent:{source_agent}":
+            raise ValueError("positive replay cannot authorize restoration of its source agent")
+
     def record(
         self,
         event_type: EventType,
@@ -117,14 +144,16 @@ class ActionLedger:
         *,
         parent_event_ids: Iterable[str] = (),
     ) -> LedgerEvent:
-        return self.append(
-            LedgerEvent(
-                event_type=event_type,
-                incident_id=incident_id,
-                payload=deepcopy(dict(payload)),
-                parent_event_ids=tuple(parent_event_ids),
+        with self._lock:
+            self._validate_record_policy(event_type, payload)
+            return self.append(
+                LedgerEvent(
+                    event_type=event_type,
+                    incident_id=incident_id,
+                    payload=deepcopy(dict(payload)),
+                    parent_event_ids=tuple(parent_event_ids),
+                )
             )
-        )
 
     def authority_consumed(self, approval_id: str) -> bool:
         with self._lock:
@@ -173,8 +202,6 @@ class ActionLedger:
                 active.pop(released_hold_id, None)
                 continue
 
-            # Backward-compatible interpretation for old release events that did not bind
-            # the release to an exact hold: release only the latest same-incident hold.
             matching = [
                 hold_id
                 for hold_id, hold in active.items()
