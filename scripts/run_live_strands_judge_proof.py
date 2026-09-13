@@ -16,7 +16,7 @@ from agent_recovery.strands_recovery_planner import run_strands_recovery_planner
 from agent_recovery.strands_skeptic import run_strands_skeptic
 
 
-DEFAULT_MODEL_ID = "global.anthropic.claude-haiku-4-5-20251001-v1:0"
+DEFAULT_MODEL_ID = "eu.anthropic.claude-haiku-4-5-20251001-v1:0"
 INCIDENT_ID = "judge-live-strands-proof"
 
 
