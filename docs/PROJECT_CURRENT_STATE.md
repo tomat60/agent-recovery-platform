@@ -1,6 +1,6 @@
 # Project Current State
 
-Date: 2026-09-13
+Date: 2026-09-14
 
 ## Status
 
@@ -10,11 +10,13 @@ Security acceptance is complete for the accepted security code anchor:
 
 Post-merge GitHub Actions run `34762391263` passed on that exact code state with Python 3.10, Python 3.12, Ruff, **153 deterministic tests**, B01-B10 benchmark smoke, credential-free judge reproduction, canonical semantic validation, authority-free packaging and SHA-256 manifest verification.
 
-The final presentation-only competition package has also been merged to `main` at:
+The latest accepted presentation/documentation package is merged to `main` at:
 
-`3c3f47b489559d4557aaab08bf6e179171f4c9f0`
+`d4dd2ecfb9ac0589aa3f0339daa2573d4145d340`
 
-Exact-main GitHub Actions run `34764352757` (`recovery-ci` #250) passed on that package head. The merged package includes the interactive Judge Console, architecture diagram, final video production plan, Devpost copy and submission checklist while preserving the accepted 153-test security baseline.
+Exact-main GitHub Actions run `34839433248` (`recovery-ci` #263) passed on that merge head. PR #73 remained presentation/documentation-only: it records the verified live Strands + Amazon Bedrock advisory proof, synchronizes the final video plan and Devpost language, and integrates the dedicated Live Strands proof view into the Judge Console without changing security/runtime behavior.
+
+Verified live proof remains advisory-only: three Strands calls used the EU Claude Haiku 4.5 inference profile, no tools were exposed to model agents, and `authorization_effect` remained `none`. The accepted deterministic control plane remains the sole authority boundary.
 
 Security/runtime code is frozen unless a concrete new blocker appears. Remaining competition steps are owner-gated production/publication actions, primarily final video recording/assembly, public video upload, Builder/Devpost account actions, competition terms and final Submit.
 
@@ -99,12 +101,14 @@ For `b997384addd8781e0dac153d92adabcf9cc11757`:
 
 Scenario-specific unsafe-recovery fields remain visible, but the project does not present them as one globally comparable production metric.
 
-For the merged presentation package at `3c3f47b489559d4557aaab08bf6e179171f4c9f0`:
+For the latest merged presentation/live-proof package at `d4dd2ecfb9ac0589aa3f0339daa2573d4145d340`:
 
-- exact-main GitHub Actions run: `34764352757`
-- `recovery-ci` run number: 250
+- exact-main GitHub Actions run: `34839433248`
+- `recovery-ci` run number: 263
 - conclusion: PASS
-- package remains presentation-only and does not add model authority or security/runtime behavior
+- package remains presentation/documentation-only and does not add model authority or security/runtime behavior
+- live Strands + Amazon Bedrock path is evidenced as advisory reasoning only
+- model agents had no tools exposed and no execution authorization effect
 
 ## Integrity and replay limits
 
@@ -124,20 +128,21 @@ The ledger is a locally tamper-evident retained history, not a signed/WORM trans
 
 ## Current submission lane
 
-The presentation-only submission lane has been merged and exact-main CI has passed.
+The presentation/live-proof submission lane is merged and exact-main CI has passed.
 
 Merged competition assets on `main` include:
 
-- `demo/index.html` interactive Judge Incident Recovery Console,
+- `demo/index.html` interactive Judge Incident Recovery Console with the dedicated Live Strands proof view,
 - `docs/assets/architecture-competition.svg`,
 - `docs/VIDEO_PRODUCTION_PLAN.md`,
 - `docs/DEVPOST_FINAL_DRAFT.md`,
 - `docs/SUBMISSION_FINAL_CHECKLIST.md`,
-- synchronized README and final package claim language.
+- synchronized README and final package claim language,
+- verified live Strands + Amazon Bedrock advisory proof documentation.
 
 Remaining steps:
 
-1. capture Judge Console + architecture + CI evidence for the demo video,
+1. capture Judge Console + architecture + CI + live-proof evidence for the demo video,
 2. record Paweł's voiceover in short sections,
 3. assemble and review the final video,
 4. publish the approved video,
