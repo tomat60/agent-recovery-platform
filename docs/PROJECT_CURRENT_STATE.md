@@ -1,163 +1,196 @@
 # Project Current State
 
-Date: 2026-09-14
+Date: 2026-09-15
 
 ## Status
 
-Security acceptance is complete for the accepted security code anchor:
+The Agents for Humans submission window is closed for this project. The competition package remains useful historical evidence and demo material, but it is no longer the execution target.
+
+Agent Recovery Platform is now a **commercial-product-first** project. Competitions, grants, accelerators and demo days are secondary leverage channels only when they materially improve funding, credibility, distribution or customer access without creating throwaway architecture.
+
+Current accepted `main`:
+
+`4689b07b320a490708b0afca0e02714584df2e63`
+
+Accepted security code anchor:
 
 `b997384addd8781e0dac153d92adabcf9cc11757`
 
-Post-merge GitHub Actions run `34762391263` passed on that exact code state with Python 3.10, Python 3.12, Ruff, **153 deterministic tests**, B01-B10 benchmark smoke, credential-free judge reproduction, canonical semantic validation, authority-free packaging and SHA-256 manifest verification.
+GitHub Actions run `34762391263` passed on that security code state with Python 3.10, Python 3.12, Ruff, **153 deterministic tests**, B01-B10 benchmark smoke, credential-free judge reproduction, canonical semantic validation, authority-free packaging and SHA-256 manifest verification.
 
-The latest accepted presentation/documentation package is merged to `main` at:
-
-`d4dd2ecfb9ac0589aa3f0339daa2573d4145d340`
-
-Exact-main GitHub Actions run `34839433248` (`recovery-ci` #263) passed on that merge head. PR #73 remained presentation/documentation-only: it records the verified live Strands + Amazon Bedrock advisory proof, synchronizes the final video plan and Devpost language, and integrates the dedicated Live Strands proof view into the Judge Console without changing security/runtime behavior.
-
-Verified live proof remains advisory-only: three Strands calls used the EU Claude Haiku 4.5 inference profile, no tools were exposed to model agents, and `authorization_effect` remained `none`. The accepted deterministic control plane remains the sole authority boundary.
-
-Security/runtime code is frozen unless a concrete new blocker appears. Remaining competition steps are owner-gated production/publication actions, primarily final video recording/assembly, public video upload, Builder/Devpost account actions, competition terms and final Submit.
+Presentation/documentation work merged through PRs #71-#74 did not expand runtime authority. The verified live Strands + Amazon Bedrock proof remains advisory-only: model agents had no tools exposed and `authorization_effect` remained `none`.
 
 ## Product thesis
 
-Agent Recovery Platform is a recovery-first control layer for autonomous AI agents.
+Agent Recovery Platform is a recovery-first control layer for autonomous and write-capable AI agents.
 
 Lifecycle:
 
-**incident -> containment -> evidence -> recovery -> replay -> verified restoration**
+**incident -> containment -> evidence -> recovery / compensation -> replay / regression -> verified restoration**
 
 Core rules:
 
 **No autonomous write without a validated Recovery Contract.**
 
-**No represented downstream authority release without complete represented recovery evidence and a current scope-bound replay.**
+**Model output is never authorization.**
 
-The competition path intentionally keeps the compromised source/root agent contained rather than claiming that its own replay proves it safe to restore.
+**No downstream authority release without complete current recovery evidence and scope-bound replay or equivalent verification.**
 
-## Adversarial hardening history
+Irreversible external effects remain explicit residual risk. The product never claims that an irreversible side effect was undone.
 
-The build was intentionally attacked after green CI rather than treating passing tests as proof.
+## Why continue
 
-1. The original GPT-6 architecture audit attacked a green 120-test baseline and found lifecycle counterexamples ordinary tests had missed.
-2. After remediation, a targeted GPT-6 re-audit attacked the 139-test hardened build and found four further blockers:
-   - source-agent restoration could be justified by replay made safe by another/hidden containment boundary,
-   - restoration authority could become stale or reusable at application time,
-   - already-created shared-ledger controllers could miss new containment,
-   - one incident's release could erase another incident's hold on the same scope.
-3. Those findings were fixed and converted into permanent regressions, reaching 152 tests.
-4. A final Codex acceptance audit found one additional High finding: recovery-side code could influence the expected state used to declare recovery successful.
-5. PR #70 fixed recovery-target provenance so the verification target derives from preserved pre-action evidence, not builder or executor claims, and added the exact malicious-builder + no-op-executor counterexample as the 153rd permanent regression.
+The project should continue aggressively, but not by broadening into a generic AI-security platform.
 
-Confirmed blockers were fixed rather than hidden or reclassified.
+The market is validating the underlying problem: major security vendors and startups are moving into agent runtime security, governance, identity, kill-switch and rollback products, while standards bodies are formalizing agent-specific risks. Direct recovery products now exist, so a generic "undo button for agents" is not a defensible category.
 
-## Accepted deterministic trust boundary
+The strongest wedge remains:
 
-The accepted competition implementation includes:
+**verified incident recovery for multi-agent and cross-system side effects, with recovery-path security, incident-to-regression replay and exact selective restoration.**
 
-1. Strict Recovery Contract validation before represented side effects.
-2. Advisory-only Strands/model output with no execution authority.
-3. Parameter-bound action approvals and context-bound recovery approvals.
-4. Single-use approval consumption at the shared in-memory ledger boundary.
-5. Shared-ledger authoritative active containment, observed by already-created and recreated controllers.
-6. Independent containment holds per incident and scope.
-7. Fresh, single-use restoration application bound to one exact active hold.
-8. Fail-closed positive replay admission for source-agent self restoration.
-9. Direct ledger append paths subject to the same trusted restoration/replay admission rules.
-10. Deep-detached event payloads so exported evidence cannot alias stored nested state.
-11. Integrity verification before privileged recovery/restoration decisions and cached recovery reuse.
-12. Incident binding before recovery-result cache reuse.
-13. Cross-incident/later-writer protection for represented mutable resources.
-14. Recovery verification targets derived from preserved pre-action evidence before recovery-side code executes.
-15. Explicit failure/residual evidence for direct recovery executor/verifier exceptions and verification mismatches.
-16. Exact source-action replay binding for agent, tool, parameter digest and contract version.
-17. Replay bound to source ledger head, recovery generation and represented source contract versions.
-18. Supersession/freshness checks for replay evidence.
-19. Restoration requiring active containment, complete represented local recovery obligations, no uncovered residual and current positive exact-scope replay.
-20. Judge incident evidence semantic validation and bounded cross-field relationships.
-21. Permanent regressions for original audit, re-audit, mutation-survivor and final acceptance counterexamples.
+The current prototype already contains unusually deep primitives for that wedge: Recovery Contracts, explicit reversible/compensatable/irreversible semantics, shared containment, cross-incident hold isolation, blast-radius evidence, dependency-aware recovery, independent verification, replay binding, stale-evidence rejection and scope-bound restoration.
 
-## Accepted validation evidence
+## Three-moves-ahead strategy
 
-For `b997384addd8781e0dac153d92adabcf9cc11757`:
+Assume that within 6-18 months observability vendors, runtime-security vendors and large resilience vendors can all add more tracing, policy gates, kill switches and basic rollback.
 
-- GitHub Actions run: `34762391263`
-- Python 3.10: PASS
-- Python 3.12: PASS
-- Ruff: PASS
-- deterministic tests: 153 passed
-- B01-B10 contract coverage: 10/10
-- B06 blast-radius recall: 1.0 in the bounded fixture
-- B06 blast-radius precision: 1.0 in the bounded fixture
-- B06 verified recoveries: 3
-- B06 restored downstream authorities: 2
-- B06 compromised root remains contained: true
-- measured authority-resurrection successes: 0
-- credential-free judge reproduction: PASS
-- canonical incident evidence round trip and semantic validation: PASS
-- SHA-256 judge manifest verification: PASS
-- authority-free judge reproduction manifest: PASS
+Do not compete on those features alone.
 
-Scenario-specific unsafe-recovery fields remain visible, but the project does not present them as one globally comparable production metric.
+Build durable value around:
 
-For the latest merged presentation/live-proof package at `d4dd2ecfb9ac0589aa3f0339daa2573d4145d340`:
+1. **Cross-agent causal provenance** across shared state, identities and external side effects.
+2. **Recovery-path security** so compromised or stale actors cannot forge recovery or restoration.
+3. **Framework-neutral Recovery Contracts** and a recoverability-readiness gate for write-capable actions.
+4. **Incident-to-regression conversion** so a real incident becomes a portable replay / regression artifact after remediation.
+5. **Verified selective restoration** that proves exactly which authority may return and which remains contained.
+6. **Recovery Intelligence** accumulated from action types, failure patterns, recovery strategies, verification results and residual effects.
 
-- exact-main GitHub Actions run: `34839433248`
-- `recovery-ci` run number: 263
-- conclusion: PASS
-- package remains presentation/documentation-only and does not add model authority or security/runtime behavior
-- live Strands + Amazon Bedrock path is evidenced as advisory reasoning only
-- model agents had no tools exposed and no execution authorization effect
+These capabilities form a more durable moat than another dashboard or single-system undo provider.
 
-## Integrity and replay limits
+## Current commercial execution order
 
-The project explicitly does not claim:
+### P0 - Commercial authority and roadmap
 
-- authenticated ledger completeness or valid-prefix rollback resistance,
-- distributed-controller consensus,
-- remote proof/approval forgery resistance without an authenticated issuer boundary,
-- globally complete causal capture when instrumentation is missing,
-- complete production replay topology/provider/time equivalence,
-- arbitrary production rollback,
-- universal attack prevention,
-- live Bedrock/AgentCore security effectiveness,
-- demonstrated safe restoration of the compromised source/root agent.
+Reconcile project authority away from competition-specific execution. Preserve accepted evidence, but treat the competition video, Devpost draft and judge-only assets as historical/reusable material rather than active blockers.
 
-The ledger is a locally tamper-evident retained history, not a signed/WORM transparency log. Single-use approval and containment behavior is demonstrated for controllers sharing one in-memory `ActionLedger`. Replay is bounded to represented synthetic evidence.
+### P1 - Productization foundation
 
-## Current submission lane
+Build the smallest framework-neutral path from a real agent/tool trace into the recovery engine:
 
-The presentation/live-proof submission lane is merged and exact-main CI has passed.
+- OpenTelemetry-compatible ingestion where practical
+- small MCP / tool / HTTP adapters rather than a new observability stack
+- persistent incident/action/evidence identifiers
+- durable Recovery Contract representation
+- durable containment/recovery state suitable for one pilot
+- operator-grade APIs around evidence, plan, verification and restoration
 
-Merged competition assets on `main` include:
+### P2 - Recovery Readiness / CI gate
 
-- `demo/index.html` interactive Judge Incident Recovery Console with the dedicated Live Strands proof view,
-- `docs/assets/architecture-competition.svg`,
-- `docs/VIDEO_PRODUCTION_PLAN.md`,
-- `docs/DEVPOST_FINAL_DRAFT.md`,
-- `docs/SUBMISSION_FINAL_CHECKLIST.md`,
-- synchronized README and final package claim language,
-- verified live Strands + Amazon Bedrock advisory proof documentation.
+Productize a developer-facing check that identifies write-capable actions and requires a valid recovery path before production. It should output a measurable recoverability report rather than a generic security score.
 
-Remaining steps:
+This is deliberately recovery-specific and can support the first commercial assessment without turning the company into a broad pre-deployment scanner.
 
-1. capture Judge Console + architecture + CI + live-proof evidence for the demo video,
-2. record Paweł's voiceover in short sections,
-3. assemble and review the final video,
-4. publish the approved video,
-5. add the public video URL to Devpost,
-6. owner enters AWS Builder ID, accepts competition terms and performs final Submit.
+### P3 - Operator Console
 
-Do not expand security/runtime scope during this deadline window unless fresh evidence identifies a concrete blocker.
+Evolve the Judge Console into an incident-response workflow showing:
+
+- incident and affected authority
+- causal graph and side effects
+- recovery class and recovery obligations
+- proposed recovery vs deterministic admission
+- independent state verification
+- residual irreversible effects
+- replay / regression evidence
+- exact restoration decision and remaining containment
+
+Evidence and advisory reasoning must remain visually and semantically separate.
+
+### P4 - One realistic integration
+
+Prove one end-to-end sandbox workflow with real integration semantics and more than one side-effect surface. Prefer a high-signal developer / SaaS workflow over dozens of shallow connectors.
+
+### P5 - Agent Recoverability Assessment
+
+Turn the engine into a repeatable service deliverable for one customer workflow:
+
+- tool and authority map
+- Recovery Contract coverage
+- controlled incident suite
+- containment and blast-radius evidence
+- recovery / compensation verification
+- replay / regression result
+- residual-risk register
+- prioritized remediation plan
+
+### P6 - Commercial validation
+
+Before broad SaaS work, seek evidence of willingness to pay.
+
+Target over roughly 30 days:
+
+- 10 qualified buyer / partner conversations
+- at least 2 concrete pilot or assessment interests
+- at least 1 MSSP / AppSec / cloud-security / AI consultancy partner signal
+- one realistic pilot-ready integration
+
+External outreach remains owner-gated. Research, prospect lists, tailored briefs, demo packages, pricing hypotheses and drafts can be prepared autonomously.
+
+## Accepted security foundation
+
+The accepted implementation includes, among other controls:
+
+- strict Recovery Contract validation before represented side effects
+- advisory-only model output with no execution authority
+- parameter-bound action approvals and context-bound recovery approvals
+- shared authoritative containment with independent holds per incident and scope
+- fresh single-use restoration application bound to one exact active hold
+- deep-detached evidence payloads
+- integrity verification before privileged recovery / restoration decisions
+- incident binding before recovery-result cache reuse
+- cross-incident / later-writer protection for represented mutable resources
+- verification targets derived from preserved pre-action evidence, not recovery-side claims
+- explicit failure / residual evidence for recovery executor and verifier failures
+- replay bound to source action, source ledger head, recovery generation, contract versions and one release scope
+- replay freshness / supersession checks
+- restoration requiring complete represented recovery, no uncovered residual and current positive exact-scope replay
+- permanent regressions for audit, re-audit, mutation and final acceptance counterexamples
+
+## Explicit limits
+
+The project does **not** yet claim:
+
+- authenticated ledger completeness or valid-prefix rollback resistance
+- distributed-controller consensus
+- remote proof / approval forgery resistance without an authenticated issuer boundary
+- globally complete causal capture when instrumentation is missing
+- complete production replay topology / provider / time equivalence
+- arbitrary production rollback
+- universal attack prevention
+- production security effectiveness
+- safe restoration of every compromised source agent
+
+These are engineering or evidence gaps, not marketing footnotes. Do not widen public claims ahead of proof.
+
+## Competition assets
+
+The following remain reusable but are no longer active execution priorities:
+
+- `demo/index.html` Judge Incident Recovery Console
+- `docs/assets/architecture-competition.svg`
+- `docs/VIDEO_PRODUCTION_PLAN.md`
+- `docs/DEVPOST_FINAL_DRAFT.md`
+- `docs/SUBMISSION_FINAL_CHECKLIST.md`
+- verified live Strands + Bedrock advisory proof
+
+Do not finish the abandoned competition video unless it becomes useful for a customer, investor, partner or a new high-fit opportunity.
 
 ## Owner-only gates
 
-- AWS login/MFA, Builder ID, credentials or model access
-- promotional credits or new spend/payment
-- public YouTube/Vimeo upload
-- public Builder/Devpost publication
-- competition terms acceptance
-- final competition submission
+- new spend or paid model/provider calls
+- credentials, secrets, login/MFA and cloud account changes
+- customer/private production data
+- destructive real-world actions
+- legal terms and contracts
+- final external outreach, publication or customer commitments
 
-Agents for Humans deadline: 2026-09-14.
+Repo-only product work, zero-cost research, branch/PR/CI/review/merge, sandbox implementation, demo preparation, assessment templates and prospect research remain autonomous.
