@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Mapping
+from typing import Any
 
 
 SUPPORTED_RECOVERY_CONTRACT_VERSION = "1"
@@ -57,7 +58,11 @@ def parse_recovery_contract(raw: Mapping[str, Any]) -> RecoveryContract:
             raise RecoveryContractError("invalid recovery_operation")
         recovery_operation = recovery_operation_raw.strip()
 
-    if recovery_class in {RecoveryClass.REVERSIBLE, RecoveryClass.COMPENSATABLE} and recovery_operation is None:
+    requires_recovery = recovery_class in {
+        RecoveryClass.REVERSIBLE,
+        RecoveryClass.COMPENSATABLE,
+    }
+    if requires_recovery and recovery_operation is None:
         raise RecoveryContractError(f"{recovery_class.value} action requires recovery_operation")
     if recovery_class is RecoveryClass.IRREVERSIBLE and recovery_operation is not None:
         raise RecoveryContractError("irreversible action must not claim a recovery_operation")
