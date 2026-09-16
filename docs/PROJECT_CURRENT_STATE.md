@@ -4,19 +4,19 @@ Date: 2026-09-16
 
 ## Status
 
-The Agents for Humans submission window is closed for this project. Competition material remains historical/reusable evidence, not the execution target.
+The Agents for Humans submission window is closed. Competition material is historical/reusable evidence, not the execution target.
 
-Agent Recovery Platform is a **commercial-product-first** project. Competitions, grants, accelerators and demo days are secondary leverage channels only when they materially improve funding, credibility, distribution or customer access without creating throwaway architecture.
+Agent Recovery Platform is a **commercial-product-first** project. Competitions, grants, accelerators and demo days are secondary leverage only when they materially improve funding, credibility, distribution or customer access without throwaway architecture.
 
 Current accepted `main`:
 
-`c0bb57a2566a78b3bb4bc65522ca0033f65debdb`
+`331db0157884125874b64d82e4dc913689d6e42a`
 
 Latest accepted product slice:
 
-PR #78 `Persist framework-neutral evidence across restart`
+PR #79 `Add framework-neutral Recovery Contract schema boundary`
 
-Exact-head `recovery-ci #271` and post-merge `recovery-ci #272` passed. The accepted product now has a framework-neutral observation boundary plus a local append-oriented durable evidence/provenance store that preserves stable observation/event identity and causal bindings across process restart, rejects tampered or truncated persisted evidence during reconstruction, and keeps telemetry explicitly non-authoritative (`authorization_effect: none`).
+Exact-head `recovery-ci #278` and post-merge `recovery-ci #279` passed. The accepted product now has framework-neutral action evidence ingestion, durable evidence/provenance across restart, and a versioned Recovery Contract boundary for write-capable tools. Contracts bind stable tool/action identity and parameters/context, classify effects as reversible, compensatable or irreversible, require recovery/compensation and independent verification obligations where applicable, fail closed on malformed/unsupported/semantically incomplete contracts, and do not grant model output any authority. Irreversible effects remain explicit residual risk rather than simulated undo.
 
 ## Product thesis
 
@@ -54,22 +54,22 @@ Assume observability, runtime-security and resilience vendors will add tracing, 
 
 ### P1 - Productization foundation
 
-PR #77 established framework-neutral action evidence ingestion. PR #78 made that evidence durable across restart with deterministic integrity reconstruction.
+PR #77 established framework-neutral action evidence ingestion. PR #78 made evidence durable across restart with deterministic integrity reconstruction. PR #79 established the versioned framework-neutral Recovery Contract boundary.
 
-The next bounded slice is the **Recovery Contract SDK/schema boundary**. It should answer a pilot-critical integration question: can a write-capable tool declare its recovery obligations in a framework-neutral, versioned contract that the deterministic gate can validate without trusting agent/model narration?
+The next bounded slice is **persistent containment/recovery state**. It should answer the next pilot-critical question: can incident holds, recovery progress, verification state and restoration eligibility survive controller restart without weakening freshness, scope binding, stale-authority rejection or residual-risk truth?
 
-Requirements for the next slice:
+Requirements:
 
-- versioned framework-neutral Recovery Contract schema/SDK surface;
-- explicit action classification as reversible, compensatable or irreversible;
-- declared recovery/compensation operation and verification obligations where applicable;
-- stable tool/action identity and parameter/context binding compatible with the existing deterministic gate;
-- fail closed for missing, malformed, unsupported-version or semantically incomplete contracts;
-- deterministic fixtures covering reversible, compensatable and irreversible actions;
-- no new model authority, paid infrastructure, cloud dependency or customer data;
-- leave room for MCP/tool/HTTP/framework adapters rather than coupling the contract to one agent framework.
+- persist incident containment/hold state independently from agent/model narration;
+- persist recovery attempts/results and independent verification evidence with stable incident/action identity;
+- reconstruct state fail closed after restart, rejecting tampering, truncation, stale or incident-mismatched recovery evidence;
+- preserve exact scope binding and later-writer protections;
+- never convert persisted telemetry/model output into authorization;
+- keep irreversible residual effects explicit after restart;
+- deterministic restart fixtures covering partial recovery, failed verification, successful compensation and irreversible residuals;
+- no paid infrastructure, cloud dependency, customer data or new model authority.
 
-After the SDK/schema boundary, continue P1 with persistent containment/recovery state and operator-grade APIs.
+After persistent containment/recovery state, continue P1 with operator-grade APIs. Prefer OTel-compatible ingestion/adapters rather than rebuilding observability.
 
 ### P2 - Recovery Readiness / CI gate
 
@@ -95,7 +95,7 @@ Before broad SaaS work, seek willingness-to-pay evidence. Target roughly 10 qual
 
 The accepted implementation includes strict Recovery Contract validation, advisory-only model output, parameter/context-bound approvals, independent containment holds, fresh scope-bound restoration, deep-detached evidence payloads, integrity checks before privileged recovery/restoration, incident-bound recovery-result reuse, later-writer protection, verification targets derived from preserved pre-action evidence, explicit residual evidence, replay freshness/supersession checks and restoration requiring complete represented recovery plus current positive exact-scope replay.
 
-PR #77 adds a framework-neutral observation boundary without expanding runtime authority. PR #78 adds durable local evidence persistence and fail-closed reconstruction across restart without turning evidence metadata into authorization.
+PR #77 adds a framework-neutral observation boundary without expanding runtime authority. PR #78 adds durable local evidence persistence and fail-closed reconstruction across restart. PR #79 adds the versioned Recovery Contract boundary and deterministic validation semantics without turning contract metadata into authorization.
 
 ## Explicit limits
 
