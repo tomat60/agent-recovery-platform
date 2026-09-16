@@ -1,6 +1,6 @@
 # Project Current State
 
-Date: 2026-09-15
+Date: 2026-09-16
 
 ## Status
 
@@ -10,13 +10,13 @@ Agent Recovery Platform is a **commercial-product-first** project. Competitions,
 
 Current accepted `main`:
 
-`d6f91752ad863acad990b4459a898e3309d91bc5`
+`c0bb57a2566a78b3bb4bc65522ca0033f65debdb`
 
 Latest accepted product slice:
 
-PR #77 `Productize framework-neutral action evidence ingestion`
+PR #78 `Persist framework-neutral evidence across restart`
 
-Exact-head `recovery-ci #268` and post-merge `recovery-ci #269` passed. The accepted ingestion boundary records framework-neutral action observations with source, trace/span, authority scope and resource identity while keeping telemetry explicitly non-authoritative (`authorization_effect: none`).
+Exact-head `recovery-ci #271` and post-merge `recovery-ci #272` passed. The accepted product now has a framework-neutral observation boundary plus a local append-oriented durable evidence/provenance store that preserves stable observation/event identity and causal bindings across process restart, rejects tampered or truncated persisted evidence during reconstruction, and keeps telemetry explicitly non-authoritative (`authorization_effect: none`).
 
 ## Product thesis
 
@@ -54,21 +54,22 @@ Assume observability, runtime-security and resilience vendors will add tracing, 
 
 ### P1 - Productization foundation
 
-PR #77 completed the first framework-neutral ingestion boundary. The next bounded slice is the **durable evidence/provenance store** behind that boundary.
+PR #77 established framework-neutral action evidence ingestion. PR #78 made that evidence durable across restart with deterministic integrity reconstruction.
 
-It should answer one pilot-critical feasibility question: can evidence from independent agent/tool sources be persisted with stable incident/action identifiers and causal/provenance bindings without allowing ingestion metadata to become authorization?
+The next bounded slice is the **Recovery Contract SDK/schema boundary**. It should answer a pilot-critical integration question: can a write-capable tool declare its recovery obligations in a framework-neutral, versioned contract that the deterministic gate can validate without trusting agent/model narration?
 
 Requirements for the next slice:
 
-- durable incident/action/evidence identifiers;
-- append-oriented evidence persistence suitable for one sandbox/pilot;
-- preserved source, trace/span, authority scope and resource identity;
-- explicit separation between observed evidence and trusted authorization state;
-- deterministic integrity and restart/persistence tests;
-- no new observability stack, paid infrastructure, cloud dependency or customer data;
-- leave room for OTel/MCP/tool/HTTP adapters rather than coupling storage to one framework.
+- versioned framework-neutral Recovery Contract schema/SDK surface;
+- explicit action classification as reversible, compensatable or irreversible;
+- declared recovery/compensation operation and verification obligations where applicable;
+- stable tool/action identity and parameter/context binding compatible with the existing deterministic gate;
+- fail closed for missing, malformed, unsupported-version or semantically incomplete contracts;
+- deterministic fixtures covering reversible, compensatable and irreversible actions;
+- no new model authority, paid infrastructure, cloud dependency or customer data;
+- leave room for MCP/tool/HTTP/framework adapters rather than coupling the contract to one agent framework.
 
-After durable evidence persistence, continue P1 with Recovery Contract SDK/schema, persistent containment/recovery state and operator-grade APIs.
+After the SDK/schema boundary, continue P1 with persistent containment/recovery state and operator-grade APIs.
 
 ### P2 - Recovery Readiness / CI gate
 
@@ -94,7 +95,7 @@ Before broad SaaS work, seek willingness-to-pay evidence. Target roughly 10 qual
 
 The accepted implementation includes strict Recovery Contract validation, advisory-only model output, parameter/context-bound approvals, independent containment holds, fresh scope-bound restoration, deep-detached evidence payloads, integrity checks before privileged recovery/restoration, incident-bound recovery-result reuse, later-writer protection, verification targets derived from preserved pre-action evidence, explicit residual evidence, replay freshness/supersession checks and restoration requiring complete represented recovery plus current positive exact-scope replay.
 
-PR #77 adds a framework-neutral observation boundary without expanding runtime authority.
+PR #77 adds a framework-neutral observation boundary without expanding runtime authority. PR #78 adds durable local evidence persistence and fail-closed reconstruction across restart without turning evidence metadata into authorization.
 
 ## Explicit limits
 
