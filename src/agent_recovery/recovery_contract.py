@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-
 SUPPORTED_RECOVERY_CONTRACT_VERSION = "1"
 
 
