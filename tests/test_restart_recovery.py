@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 
 from agent_recovery.contracts import RecoveryClass, RecoveryContract, RiskLevel
+from agent_recovery.engine import digest_params
 from agent_recovery.ledger import ActionLedger, EventType
 from agent_recovery.restart import RestartRecoveryError, reconstruct_recovery_context
 
@@ -22,6 +23,7 @@ def _contract(version: str = "1") -> RecoveryContract:
 
 
 def _executed(ledger: ActionLedger, *, version: str = "1"):
+    params = {"key": "record:1", "value": "bad"}
     return ledger.record(
         EventType.ACTION_EXECUTED,
         "incident-1",
@@ -31,8 +33,8 @@ def _executed(ledger: ActionLedger, *, version: str = "1"):
             "contract_version": version,
             "recovery_class": "reversible",
             "resource_keys": ("record:1",),
-            "params": {"key": "record:1", "value": "bad"},
-            "params_digest": "persisted-digest",
+            "params": params,
+            "params_digest": digest_params(params),
             "execution_result": {"previous": "good"},
             "observed_state": "bad",
             "outcome_uncertain": False,
@@ -66,6 +68,19 @@ def test_restart_fails_closed_on_contract_version_mismatch():
             ledger,
             action_event_id=action.event_id,
             runtime_contracts={"store.write": _contract("2")},
+        )
+
+
+def test_restart_fails_closed_on_mismatched_parameter_evidence():
+    ledger = ActionLedger()
+    action = _executed(ledger)
+    action.payload["params_digest"] = "stale-digest"
+
+    with pytest.raises(RestartRecoveryError, match="stale or mismatched"):
+        reconstruct_recovery_context(
+            ledger,
+            action_event_id=action.event_id,
+            runtime_contracts={"store.write": _contract()},
         )
 
 
@@ -111,8 +126,38 @@ def test_restart_fails_closed_when_recovery_execution_has_no_terminal_verificati
         )
 
 
+def test_restart_fails_closed_on_later_writer_to_same_resource():
+    ledger = ActionLedger()
+    action = _executed(ledger)
+    later_params = {"key": "record:1", "value": "newer"}
+    ledger.record(
+        EventType.ACTION_EXECUTED,
+        "incident-1",
+        {
+            "agent_id": "agent-2",
+            "tool_id": "store.write",
+            "contract_version": "1",
+            "recovery_class": "reversible",
+            "resource_keys": ("record:1",),
+            "params": later_params,
+            "params_digest": digest_params(later_params),
+            "execution_result": {"previous": "bad"},
+            "observed_state": "newer",
+            "outcome_uncertain": False,
+        },
+    )
+
+    with pytest.raises(RestartRecoveryError, match="later resource writer"):
+        reconstruct_recovery_context(
+            ledger,
+            action_event_id=action.event_id,
+            runtime_contracts={"store.write": _contract()},
+        )
+
+
 def test_restart_never_turns_irreversible_evidence_into_undo_path():
     ledger = ActionLedger()
+    params = {"key": "record:1"}
     action = ledger.record(
         EventType.ACTION_EXECUTED,
         "incident-1",
@@ -120,7 +165,9 @@ def test_restart_never_turns_irreversible_evidence_into_undo_path():
             "tool_id": "store.write",
             "contract_version": "1",
             "recovery_class": "irreversible",
-            "params": {"key": "record:1"},
+            "resource_keys": ("record:1",),
+            "params": params,
+            "params_digest": digest_params(params),
             "execution_result": None,
             "observed_state": None,
             "outcome_uncertain": False,
