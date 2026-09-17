@@ -44,7 +44,7 @@ def reconstruct_recovery_context(
     try:
         ledger.verify_integrity()
     except LedgerIntegrityError as exc:
-        raise RestartRecoveryError("persisted evidence is stale, mismatched, or tampered") from exc
+        raise RestartRecoveryError("persisted evidence is stale or mismatched or tampered") from exc
     try:
         event = ledger.get(action_event_id)
     except KeyError as exc:
