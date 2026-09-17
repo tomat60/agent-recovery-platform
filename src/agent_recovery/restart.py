@@ -6,7 +6,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 
 from .contracts import RecoveryClass, RecoveryContract
-from .ledger import ActionLedger, EventType
+from .ledger import ActionLedger, EventType, LedgerIntegrityError
 
 
 class RestartRecoveryError(ValueError):
@@ -41,7 +41,10 @@ def reconstruct_recovery_context(
     exact tool/version binding must match the executed event. Any ambiguity fails closed.
     """
 
-    ledger.verify_integrity()
+    try:
+        ledger.verify_integrity()
+    except LedgerIntegrityError as exc:
+        raise RestartRecoveryError("persisted evidence is stale, mismatched, or tampered") from exc
     try:
         event = ledger.get(action_event_id)
     except KeyError as exc:
