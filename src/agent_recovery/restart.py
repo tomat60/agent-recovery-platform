@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from collections.abc import Mapping
 from dataclasses import dataclass
 
@@ -19,6 +21,11 @@ class RestartRecoveryContext:
     params: Mapping[str, object]
     execution_result: object
     observed_state: object
+
+
+def _params_digest(params: Mapping[str, object]) -> str:
+    normalized = json.dumps(params, sort_keys=True, separators=(",", ":"), default=str)
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
 def reconstruct_recovery_context(
@@ -55,6 +62,8 @@ def reconstruct_recovery_context(
         raise RestartRecoveryError("executed action is missing contract version")
     if not isinstance(params, Mapping):
         raise RestartRecoveryError("executed action parameters are unusable")
+    if event.payload.get("params_digest") != _params_digest(params):
+        raise RestartRecoveryError("executed action parameter evidence is stale or mismatched")
 
     contract = runtime_contracts.get(tool_id)
     if contract is None:
@@ -67,8 +76,10 @@ def reconstruct_recovery_context(
     if contract.recovery_class is RecoveryClass.IRREVERSIBLE:
         raise RestartRecoveryError("irreversible action has no restart undo path")
 
+    incident_events = ledger.events(incident_id=event.incident_id)
+
     # A verified recovery is terminal. Reconstructing it would permit compensation twice.
-    for candidate in ledger.events(incident_id=event.incident_id):
+    for candidate in incident_events:
         if candidate.event_type is not EventType.VERIFICATION:
             continue
         if candidate.payload.get("action_event_id") != action_event_id:
@@ -80,7 +91,7 @@ def reconstruct_recovery_context(
     # Retrying compensation after restart could execute it twice, so fail closed.
     executed_recovery = None
     terminal_verification = None
-    for candidate in ledger.events(incident_id=event.incident_id):
+    for candidate in incident_events:
         if candidate.payload.get("action_event_id") != action_event_id:
             continue
         if candidate.event_type is EventType.RECOVERY_EXECUTED:
@@ -90,6 +101,20 @@ def reconstruct_recovery_context(
             terminal_verification = candidate
     if executed_recovery is not None and terminal_verification is None:
         raise RestartRecoveryError("recovery outcome is ambiguous after restart")
+
+    # Persisted recovery context is stale if a later successful write touched any of the
+    # same resources. Never reconstruct an undo path that could overwrite newer state.
+    resource_keys = set(event.payload.get("resource_keys") or ())
+    seen_source = False
+    for candidate in incident_events:
+        if candidate.event_id == action_event_id:
+            seen_source = True
+            continue
+        if not seen_source or candidate.event_type is not EventType.ACTION_EXECUTED:
+            continue
+        later_keys = set(candidate.payload.get("resource_keys") or ())
+        if resource_keys & later_keys:
+            raise RestartRecoveryError("later resource writer makes recovery evidence stale")
 
     return RestartRecoveryContext(
         incident_id=event.incident_id,
