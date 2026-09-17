@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Mapping
 
 from .contracts import RecoveryClass, RecoveryContract
-from .ledger import ActionLedger, EventType, LedgerEvent
+from .ledger import ActionLedger, EventType
 
 
 class RestartRecoveryError(ValueError):
@@ -78,8 +78,8 @@ def reconstruct_recovery_context(
 
     # A recovery execution without a terminal verification is an ambiguous side effect.
     # Retrying compensation after restart could execute it twice, so fail closed.
-    executed_recovery: LedgerEvent | None = None
-    terminal_verification: LedgerEvent | None = None
+    executed_recovery = None
+    terminal_verification = None
     for candidate in ledger.events(incident_id=event.incident_id):
         if candidate.payload.get("action_event_id") != action_event_id:
             continue
