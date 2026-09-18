@@ -54,7 +54,15 @@ def test_operator_readiness_response_is_deterministic_and_non_authorizing():
         "ready": True,
         "authority": "none",
     }
-    assert all("executor" not in key and "binding" not in key for key in payload)
+    forbidden_runtime_keys = {
+        "executor",
+        "verifier",
+        "recovery_executor",
+        "recovery_params_builder",
+        "runtime_bindings",
+    }
+    assert forbidden_runtime_keys.isdisjoint(payload)
+    assert all(not callable(value) for value in payload.values())
 
 
 def test_operator_readiness_response_exposes_blocker_without_runtime_authority():
