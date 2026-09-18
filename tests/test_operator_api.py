@@ -43,6 +43,8 @@ def _binding():
     return TrustedRuntimeBinding(
         runtime_contract=_runtime(),
         verification_operation="verify_contact",
+        parameter_binding="sha256:parameters",
+        context_binding="sha256:authority-scope",
         recovery_operation="restore_contact",
     )
 
