@@ -61,6 +61,8 @@ def _binding(runtime=None, **overrides):
     values = {
         "runtime_contract": runtime or _runtime(),
         "verification_operation": "verify_contact",
+        "parameter_binding": "sha256:parameters",
+        "context_binding": "sha256:authority-scope",
         "recovery_operation": "restore_contact",
         "reconciliation_operation": "reconcile_contact",
         "resource_key_operation": "contact_resource_key",
@@ -89,6 +91,20 @@ def test_binding_fails_closed_on_operation_identifier_mismatch():
         bind_recovery_contract(
             _declaration(),
             _binding(recovery_operation="other_restore"),
+        )
+
+
+def test_binding_fails_closed_on_parameter_or_context_binding_mismatch():
+    with pytest.raises(RuntimeBindingError, match="parameter binding mismatch"):
+        bind_recovery_contract(
+            _declaration(),
+            _binding(parameter_binding="sha256:other-parameters"),
+        )
+
+    with pytest.raises(RuntimeBindingError, match="context binding mismatch"):
+        bind_recovery_contract(
+            _declaration(),
+            _binding(context_binding="sha256:other-authority-scope"),
         )
 
 
