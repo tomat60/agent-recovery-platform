@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from .contracts import RecoveryClass as RuntimeRecoveryClass
 from .contracts import RecoveryContract as RuntimeRecoveryContract
 from .contracts import RiskLevel as RuntimeRiskLevel
-from .recovery_contract import RecoveryContract
+from .recovery_contract import RecoveryClass, RecoveryContract
 
 
 class RuntimeBindingError(ValueError):
@@ -16,19 +16,21 @@ class RuntimeBindingError(ValueError):
 class TrustedRuntimeBinding:
     """Trusted executable implementation metadata for one declarative contract.
 
-    Operation identifiers are registry labels supplied by trusted application code.
-    They are compared with the declarative document but never imported or executed
-    from declaration text.
+    Identifiers are registry labels supplied by trusted application code. They are
+    compared with the declarative document but never imported or executed from
+    declaration text.
     """
 
     runtime_contract: RuntimeRecoveryContract
     verification_operation: str
+    parameter_binding: str
+    context_binding: str
     recovery_operation: str | None = None
     reconciliation_operation: str | None = None
     resource_key_operation: str | None = None
 
 
-def _require_operation(value: str | None, name: str) -> str | None:
+def _require_text(value: str | None, name: str) -> str | None:
     if value is None:
         return None
     if not isinstance(value, str) or not value.strip():
@@ -69,22 +71,28 @@ def bind_recovery_contract(
     if tuple(sorted(runtime.containment_scopes)) != tuple(sorted(declaration.containment_scopes)):
         raise RuntimeBindingError("trusted containment scope mismatch")
 
-    verification_operation = _require_operation(
+    verification_operation = _require_text(
         binding.verification_operation,
         "verification_operation",
     )
-    recovery_operation = _require_operation(binding.recovery_operation, "recovery_operation")
-    reconciliation_operation = _require_operation(
+    parameter_binding = _require_text(binding.parameter_binding, "parameter_binding")
+    context_binding = _require_text(binding.context_binding, "context_binding")
+    recovery_operation = _require_text(binding.recovery_operation, "recovery_operation")
+    reconciliation_operation = _require_text(
         binding.reconciliation_operation,
         "reconciliation_operation",
     )
-    resource_key_operation = _require_operation(
+    resource_key_operation = _require_text(
         binding.resource_key_operation,
         "resource_key_operation",
     )
 
     if verification_operation != declaration.verification_operation:
         raise RuntimeBindingError("trusted verification operation mismatch")
+    if parameter_binding != declaration.parameter_binding:
+        raise RuntimeBindingError("trusted parameter binding mismatch")
+    if context_binding != declaration.context_binding:
+        raise RuntimeBindingError("trusted context binding mismatch")
     if recovery_operation != declaration.recovery_operation:
         raise RuntimeBindingError("trusted recovery operation mismatch")
     if reconciliation_operation != declaration.reconciliation_operation:
@@ -92,6 +100,10 @@ def bind_recovery_contract(
     if resource_key_operation != declaration.resource_key_operation:
         raise RuntimeBindingError("trusted resource-key operation mismatch")
 
+    if declaration.recovery_class is RecoveryClass.IRREVERSIBLE and (
+        runtime.recovery_executor is not None or runtime.recovery_params_builder is not None
+    ):
+        raise RuntimeBindingError("irreversible runtime must not expose an undo binding")
     if reconciliation_operation is not None and (
         runtime.reconciliation_executor is None or runtime.reconciliation_params_builder is None
     ):
