@@ -49,6 +49,10 @@ def _runtime(
     )
 
 
+def _key(tool_id: str, action_id: str = "write", version: str = "1"):
+    return (tool_id, action_id, version)
+
+
 def test_readiness_reports_declarative_coverage_and_missing_runtime_binding():
     reversible = _declaration("store.write", "reversible")
     compensatable = _declaration("mail.send", "compensatable")
@@ -57,8 +61,8 @@ def test_readiness_reports_declarative_coverage_and_missing_runtime_binding():
     report = evaluate_recovery_readiness(
         (reversible, compensatable, irreversible),
         runtime_bindings={
-            "store.write": _runtime("store.write", RuntimeRecoveryClass.REVERSIBLE),
-            "external.publish": _runtime(
+            _key("store.write"): _runtime("store.write", RuntimeRecoveryClass.REVERSIBLE),
+            _key("external.publish"): _runtime(
                 "external.publish", RuntimeRecoveryClass.IRREVERSIBLE
             ),
         },
@@ -85,11 +89,32 @@ def test_readiness_fails_closed_on_runtime_identity_mismatch():
 
     report = evaluate_recovery_readiness(
         (declared,),
-        runtime_bindings={"store.write": stale_runtime},
+        runtime_bindings={_key("store.write", "contact.update"): stale_runtime},
     )
 
     assert report.missing_runtime_bindings == ("store.write:contact.update@1",)
     assert report.blockers == ("runtime_binding_mismatch:store.write:contact.update@1",)
+
+
+def test_readiness_supports_multiple_actions_for_one_tool_without_binding_collision():
+    update = _declaration("contacts", "reversible", action_id="contact.update")
+    delete = _declaration("contacts", "compensatable", action_id="contact.delete")
+
+    report = evaluate_recovery_readiness(
+        (update, delete),
+        runtime_bindings={
+            _key("contacts", "contact.update"): _runtime(
+                "contacts", RuntimeRecoveryClass.REVERSIBLE, action_type="contact.update"
+            ),
+            _key("contacts", "contact.delete"): _runtime(
+                "contacts", RuntimeRecoveryClass.COMPENSATABLE, action_type="contact.delete"
+            ),
+        },
+    )
+
+    assert report.structurally_recoverable == 2
+    assert report.missing_runtime_bindings == ()
+    assert report.blockers == ()
 
 
 def test_declarative_report_never_supplies_executable_authority():
