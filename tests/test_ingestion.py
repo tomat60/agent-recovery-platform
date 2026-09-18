@@ -11,6 +11,7 @@ def observation(**overrides: object) -> ActionObservation:
         "incident_id": "inc-1",
         "tool_id": "crm.contacts",
         "action_type": "update_contact",
+        "contract_version": "1",
         "agent_id": "sales-agent",
         "params": {"contact_id": "c-7", "status": "qualified"},
         "source_system": "otel",
@@ -35,6 +36,7 @@ def test_ingestion_records_detached_non_authorizing_action_intent() -> None:
     assert event.incident_id == "inc-1"
     assert event.payload["authorization_effect"] == "none"
     assert event.payload["source_system"] == "otel"
+    assert event.payload["contract_version"] == "1"
     assert event.payload["trace_id"] == "trace-1"
     assert event.payload["resource_keys"] == ("crm:contact:c-7",)
 
@@ -60,6 +62,7 @@ def test_ingestion_can_bind_existing_causal_evidence() -> None:
         ("incident_id", ""),
         ("tool_id", " "),
         ("action_type", ""),
+        ("contract_version", ""),
         ("agent_id", ""),
         ("source_system", ""),
         ("source_event_id", ""),
@@ -74,3 +77,6 @@ def test_ingestion_fails_closed_on_missing_identity(field: str, value: object) -
 def test_ingestion_rejects_ambiguous_resource_identity() -> None:
     with pytest.raises(IngestionError, match="unique"):
         observation(resource_keys=("crm:contact:c-7", "crm:contact:c-7")).validate()
+
+    with pytest.raises(IngestionError, match="strings"):
+        observation(resource_keys=("crm:contact:c-7", 7)).validate()
