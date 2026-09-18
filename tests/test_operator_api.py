@@ -5,6 +5,7 @@ from agent_recovery.contracts import RecoveryContract as RuntimeRecoveryContract
 from agent_recovery.contracts import RiskLevel
 from agent_recovery.operator_api import recovery_readiness_response
 from agent_recovery.recovery_contract import parse_recovery_contract
+from agent_recovery.runtime_binding import TrustedRuntimeBinding
 
 
 def _declaration():
@@ -18,6 +19,7 @@ def _declaration():
             "verification_operation": "verify_contact",
             "parameter_binding": "sha256:parameters",
             "context_binding": "sha256:authority-scope",
+            "containment_scopes": ["tool", "session"],
         }
     )
 
@@ -32,14 +34,25 @@ def _runtime():
         verifier=lambda state, params: None,
         recovery_executor=lambda state, params: None,
         recovery_params_builder=lambda result, observed, params: params,
+        containment_scopes=("tool", "session"),
         contract_version="1",
+    )
+
+
+def _binding():
+    return TrustedRuntimeBinding(
+        runtime_contract=_runtime(),
+        verification_operation="verify_contact",
+        parameter_binding="sha256:parameters",
+        context_binding="sha256:authority-scope",
+        recovery_operation="restore_contact",
     )
 
 
 def test_operator_readiness_response_is_deterministic_and_non_authorizing():
     payload = recovery_readiness_response(
         (_declaration(),),
-        runtime_bindings={("contacts", "contact.update", "1"): _runtime()},
+        runtime_bindings={("contacts", "contact.update", "1"): _binding()},
     )
 
     assert payload == {
@@ -48,6 +61,7 @@ def test_operator_readiness_response_is_deterministic_and_non_authorizing():
         "reversible": 1,
         "compensatable": 0,
         "irreversible": 0,
+        "human_approval_required": 0,
         "missing_runtime_bindings": (),
         "blockers": (),
         "recoverability_fraction": 1.0,

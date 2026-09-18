@@ -40,7 +40,7 @@ class RecoveryContract:
     action_approval_required: bool = False
     recovery_approval_required: bool = False
     parameter_bound_approval_required: bool = True
-    containment_scopes: tuple[str, ...] = ()
+    containment_scopes: tuple[str, ...] = ("tool", "session")
     recovery_window_seconds: int | None = None
     reconciliation_operation: str | None = None
     resource_key_operation: str | None = None
@@ -79,8 +79,13 @@ def _boolean(raw: Mapping[str, Any], key: str, default: bool) -> bool:
     return value
 
 
-def _text_tuple(raw: Mapping[str, Any], key: str) -> tuple[str, ...]:
-    value = raw.get(key, ())
+def _text_tuple(
+    raw: Mapping[str, Any],
+    key: str,
+    *,
+    default: tuple[str, ...] = (),
+) -> tuple[str, ...]:
+    value = raw.get(key, default)
     if not isinstance(value, (list, tuple)) or any(
         not isinstance(item, str) or not item.strip() for item in value
     ):
@@ -123,15 +128,30 @@ def parse_recovery_contract(raw: Mapping[str, Any]) -> RecoveryContract:
     parameter_bound_approval_required = _boolean(
         raw, "parameter_bound_approval_required", True
     )
-    if risk_level in {RiskLevel.HIGH, RiskLevel.CRITICAL} and recovery_class is RecoveryClass.IRREVERSIBLE:
-        if not action_approval_required:
-            raise RecoveryContractError("high-impact irreversible action requires pre-action approval")
-        if not parameter_bound_approval_required:
-            raise RecoveryContractError("high-impact irreversible approval must be parameter-bound")
+    if (
+        action_approval_required or recovery_approval_required
+    ) and not parameter_bound_approval_required:
+        raise RecoveryContractError("declared approvals must be parameter-bound")
+    if (
+        risk_level in {RiskLevel.HIGH, RiskLevel.CRITICAL}
+        and recovery_class is RecoveryClass.IRREVERSIBLE
+        and not action_approval_required
+    ):
+        raise RecoveryContractError("high-impact irreversible action requires pre-action approval")
+
+    containment_scopes = _text_tuple(
+        raw,
+        "containment_scopes",
+        default=("tool", "session"),
+    )
+    if not containment_scopes:
+        raise RecoveryContractError("at least one containment scope is required")
 
     recovery_window = raw.get("recovery_window_seconds")
     if recovery_window is not None and (
-        not isinstance(recovery_window, int) or isinstance(recovery_window, bool) or recovery_window <= 0
+        not isinstance(recovery_window, int)
+        or isinstance(recovery_window, bool)
+        or recovery_window <= 0
     ):
         raise RecoveryContractError("invalid recovery_window_seconds")
 
@@ -148,7 +168,7 @@ def parse_recovery_contract(raw: Mapping[str, Any]) -> RecoveryContract:
         action_approval_required=action_approval_required,
         recovery_approval_required=recovery_approval_required,
         parameter_bound_approval_required=parameter_bound_approval_required,
-        containment_scopes=_text_tuple(raw, "containment_scopes"),
+        containment_scopes=containment_scopes,
         recovery_window_seconds=recovery_window,
         reconciliation_operation=_optional_text(raw, "reconciliation_operation"),
         resource_key_operation=_optional_text(raw, "resource_key_operation"),

@@ -4,15 +4,15 @@ from collections.abc import Iterable, Mapping
 from dataclasses import asdict
 from typing import Any
 
-from .contracts import RecoveryContract as RuntimeRecoveryContract
 from .readiness import RuntimeBindingKey, evaluate_recovery_readiness
 from .recovery_contract import RecoveryContract
+from .runtime_binding import TrustedRuntimeBinding
 
 
 def recovery_readiness_response(
     declarations: Iterable[RecoveryContract],
     *,
-    runtime_bindings: Mapping[RuntimeBindingKey, RuntimeRecoveryContract],
+    runtime_bindings: Mapping[RuntimeBindingKey, TrustedRuntimeBinding],
 ) -> dict[str, Any]:
     """Return a deterministic, read-only operator view of recovery readiness.
 

@@ -9,6 +9,7 @@ def _readiness(**overrides: object) -> RecoveryReadiness:
         "reversible": 1,
         "compensatable": 1,
         "irreversible": 0,
+        "human_approval_required": 0,
         "missing_runtime_bindings": (),
         "blockers": (),
     }
