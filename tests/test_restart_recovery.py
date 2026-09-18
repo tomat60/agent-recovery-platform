@@ -141,6 +141,37 @@ def test_restart_fails_closed_when_recovery_execution_has_no_terminal_verificati
         )
 
 
+def test_restart_preserves_verified_failure_as_retryable_through_existing_gates():
+    ledger = ActionLedger()
+    action = _executed(ledger)
+    recovered = ledger.record(
+        EventType.RECOVERY_EXECUTED,
+        "incident-1",
+        {"action_event_id": action.event_id, "tool_id": "store.write"},
+        parent_event_ids=(action.event_id,),
+    )
+    verification = ledger.record(
+        EventType.VERIFICATION,
+        "incident-1",
+        {"action_event_id": action.event_id, "verified": False},
+        parent_event_ids=(recovered.event_id,),
+    )
+    ledger.record(
+        EventType.RECOVERY_FAILED,
+        "incident-1",
+        {"action_event_id": action.event_id, "reason": "recovery_verification_mismatch"},
+        parent_event_ids=(verification.event_id,),
+    )
+
+    context = reconstruct_recovery_context(
+        ledger,
+        action_event_id=action.event_id,
+        runtime_contracts={"store.write": _contract()},
+    )
+
+    assert context.action_event_id == action.event_id
+
+
 def test_restart_fails_closed_on_later_writer_to_same_resource():
     ledger = ActionLedger()
     action = _executed(ledger)
