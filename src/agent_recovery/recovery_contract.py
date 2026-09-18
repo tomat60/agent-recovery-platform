@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import json
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from enum import Enum
 from typing import Any
 
@@ -18,6 +19,13 @@ class RecoveryClass(str, Enum):
     IRREVERSIBLE = "irreversible"
 
 
+class RiskLevel(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
 @dataclass(frozen=True)
 class RecoveryContract:
     version: str
@@ -28,6 +36,24 @@ class RecoveryContract:
     verification_operation: str
     parameter_binding: str
     context_binding: str
+    risk_level: RiskLevel = RiskLevel.MEDIUM
+    action_approval_required: bool = False
+    recovery_approval_required: bool = False
+    parameter_bound_approval_required: bool = True
+    containment_scopes: tuple[str, ...] = ()
+    recovery_window_seconds: int | None = None
+    reconciliation_operation: str | None = None
+    resource_key_operation: str | None = None
+    side_effects: tuple[str, ...] = ()
+
+    def canonical_json(self) -> str:
+        """Return deterministic, non-authorizing contract evidence."""
+        value = asdict(self)
+        value["recovery_class"] = self.recovery_class.value
+        value["risk_level"] = self.risk_level.value
+        value["containment_scopes"] = list(self.containment_scopes)
+        value["side_effects"] = list(self.side_effects)
+        return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
 def _required_text(raw: Mapping[str, Any], key: str) -> str:
@@ -35,6 +61,34 @@ def _required_text(raw: Mapping[str, Any], key: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise RecoveryContractError(f"missing or invalid {key}")
     return value.strip()
+
+
+def _optional_text(raw: Mapping[str, Any], key: str) -> str | None:
+    value = raw.get(key)
+    if value is None:
+        return None
+    if not isinstance(value, str) or not value.strip():
+        raise RecoveryContractError(f"invalid {key}")
+    return value.strip()
+
+
+def _boolean(raw: Mapping[str, Any], key: str, default: bool) -> bool:
+    value = raw.get(key, default)
+    if not isinstance(value, bool):
+        raise RecoveryContractError(f"invalid {key}")
+    return value
+
+
+def _text_tuple(raw: Mapping[str, Any], key: str) -> tuple[str, ...]:
+    value = raw.get(key, ())
+    if not isinstance(value, (list, tuple)) or any(
+        not isinstance(item, str) or not item.strip() for item in value
+    ):
+        raise RecoveryContractError(f"invalid {key}")
+    normalized = tuple(item.strip() for item in value)
+    if len(normalized) != len(set(normalized)):
+        raise RecoveryContractError(f"duplicate {key}")
+    return normalized
 
 
 def parse_recovery_contract(raw: Mapping[str, Any]) -> RecoveryContract:
@@ -49,14 +103,12 @@ def parse_recovery_contract(raw: Mapping[str, Any]) -> RecoveryContract:
         recovery_class = RecoveryClass(_required_text(raw, "recovery_class"))
     except ValueError as exc:
         raise RecoveryContractError("unsupported recovery_class") from exc
+    try:
+        risk_level = RiskLevel(str(raw.get("risk_level", "medium")))
+    except ValueError as exc:
+        raise RecoveryContractError("unsupported risk_level") from exc
 
-    recovery_operation_raw = raw.get("recovery_operation")
-    recovery_operation = None
-    if recovery_operation_raw is not None:
-        if not isinstance(recovery_operation_raw, str) or not recovery_operation_raw.strip():
-            raise RecoveryContractError("invalid recovery_operation")
-        recovery_operation = recovery_operation_raw.strip()
-
+    recovery_operation = _optional_text(raw, "recovery_operation")
     requires_recovery = recovery_class in {
         RecoveryClass.REVERSIBLE,
         RecoveryClass.COMPENSATABLE,
@@ -65,6 +117,23 @@ def parse_recovery_contract(raw: Mapping[str, Any]) -> RecoveryContract:
         raise RecoveryContractError(f"{recovery_class.value} action requires recovery_operation")
     if recovery_class is RecoveryClass.IRREVERSIBLE and recovery_operation is not None:
         raise RecoveryContractError("irreversible action must not claim a recovery_operation")
+
+    action_approval_required = _boolean(raw, "action_approval_required", False)
+    recovery_approval_required = _boolean(raw, "recovery_approval_required", False)
+    parameter_bound_approval_required = _boolean(
+        raw, "parameter_bound_approval_required", True
+    )
+    if risk_level in {RiskLevel.HIGH, RiskLevel.CRITICAL} and recovery_class is RecoveryClass.IRREVERSIBLE:
+        if not action_approval_required:
+            raise RecoveryContractError("high-impact irreversible action requires pre-action approval")
+        if not parameter_bound_approval_required:
+            raise RecoveryContractError("high-impact irreversible approval must be parameter-bound")
+
+    recovery_window = raw.get("recovery_window_seconds")
+    if recovery_window is not None and (
+        not isinstance(recovery_window, int) or isinstance(recovery_window, bool) or recovery_window <= 0
+    ):
+        raise RecoveryContractError("invalid recovery_window_seconds")
 
     return RecoveryContract(
         version=version,
@@ -75,4 +144,24 @@ def parse_recovery_contract(raw: Mapping[str, Any]) -> RecoveryContract:
         verification_operation=_required_text(raw, "verification_operation"),
         parameter_binding=_required_text(raw, "parameter_binding"),
         context_binding=_required_text(raw, "context_binding"),
+        risk_level=risk_level,
+        action_approval_required=action_approval_required,
+        recovery_approval_required=recovery_approval_required,
+        parameter_bound_approval_required=parameter_bound_approval_required,
+        containment_scopes=_text_tuple(raw, "containment_scopes"),
+        recovery_window_seconds=recovery_window,
+        reconciliation_operation=_optional_text(raw, "reconciliation_operation"),
+        resource_key_operation=_optional_text(raw, "resource_key_operation"),
+        side_effects=_text_tuple(raw, "side_effects"),
     )
+
+
+def parse_recovery_contract_json(payload: str) -> RecoveryContract:
+    """Parse canonical/external JSON without dynamic imports or executable bindings."""
+    try:
+        raw = json.loads(payload)
+    except (TypeError, json.JSONDecodeError) as exc:
+        raise RecoveryContractError("contract must be valid JSON") from exc
+    if not isinstance(raw, Mapping):
+        raise RecoveryContractError("contract JSON must contain an object")
+    return parse_recovery_contract(raw)
