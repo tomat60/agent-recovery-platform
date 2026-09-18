@@ -3,19 +3,20 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 
-from .contracts import RecoveryClass, RecoveryContract
+from .contracts import RecoveryClass as RuntimeRecoveryClass
+from .contracts import RecoveryContract as RuntimeRecoveryContract
+from .recovery_contract import RecoveryClass, RecoveryContract
 
 
 @dataclass(frozen=True)
 class RecoveryReadiness:
-    """Contract coverage evidence, not a production security score."""
+    """Declarative contract coverage evidence, not a production security score."""
 
     total_actions: int
     structurally_recoverable: int
     reversible: int
     compensatable: int
     irreversible: int
-    human_approval_required: int
     missing_runtime_bindings: tuple[str, ...]
     blockers: tuple[str, ...]
 
@@ -27,51 +28,50 @@ class RecoveryReadiness:
 
 
 def evaluate_recovery_readiness(
-    contracts: Iterable[RecoveryContract],
+    declarations: Iterable[RecoveryContract],
     *,
-    runtime_bindings: Mapping[str, RecoveryContract],
+    runtime_bindings: Mapping[str, RuntimeRecoveryContract],
 ) -> RecoveryReadiness:
-    """Evaluate deterministic recoverability coverage against trusted runtime bindings.
+    """Evaluate non-authorizing declarations against a separately trusted runtime registry.
 
-    A declaration is counted as runtime-ready only when the supplied registry contains the
-    exact validated tool/version/recovery-class binding. The registry, not this report,
-    remains the executable authority boundary.
+    The declarative document contributes coverage evidence only. Executable authority remains
+    exclusively in ``runtime_bindings`` and every identity field available in the declaration
+    must match the validated runtime contract. Any missing or mismatched binding fails closed.
     """
 
-    items = tuple(contracts)
+    items = tuple(declarations)
     counts = {recovery_class: 0 for recovery_class in RecoveryClass}
     structurally_recoverable = 0
-    human_approval_required = 0
     missing: list[str] = []
     blockers: list[str] = []
 
-    seen: set[tuple[str, str]] = set()
-    for contract in items:
-        contract.validate()
-        identity = (contract.tool_id, contract.contract_version)
+    seen: set[tuple[str, str, str]] = set()
+    for declaration in items:
+        identity = (declaration.tool_id, declaration.action_id, declaration.version)
+        label = f"{declaration.tool_id}:{declaration.action_id}@{declaration.version}"
         if identity in seen:
-            blockers.append(f"duplicate_contract:{contract.tool_id}@{contract.contract_version}")
+            blockers.append(f"duplicate_declaration:{label}")
             continue
         seen.add(identity)
-        counts[contract.recovery_class] += 1
+        counts[declaration.recovery_class] += 1
 
-        if contract.recovery_class in {RecoveryClass.REVERSIBLE, RecoveryClass.COMPENSATABLE}:
+        if declaration.recovery_class in {RecoveryClass.REVERSIBLE, RecoveryClass.COMPENSATABLE}:
             structurally_recoverable += 1
-        if contract.approval_before_action or contract.approval_before_recovery:
-            human_approval_required += 1
 
-        binding = runtime_bindings.get(contract.tool_id)
+        binding = runtime_bindings.get(declaration.tool_id)
         if binding is None:
-            missing.append(f"{contract.tool_id}@{contract.contract_version}")
-            blockers.append(f"missing_runtime_binding:{contract.tool_id}@{contract.contract_version}")
+            missing.append(label)
+            blockers.append(f"missing_runtime_binding:{label}")
             continue
         binding.validate()
+        runtime_class = RuntimeRecoveryClass(declaration.recovery_class.value)
         if (
-            binding.contract_version != contract.contract_version
-            or binding.recovery_class is not contract.recovery_class
+            binding.action_type != declaration.action_id
+            or binding.contract_version != declaration.version
+            or binding.recovery_class is not runtime_class
         ):
-            missing.append(f"{contract.tool_id}@{contract.contract_version}")
-            blockers.append(f"runtime_binding_mismatch:{contract.tool_id}@{contract.contract_version}")
+            missing.append(label)
+            blockers.append(f"runtime_binding_mismatch:{label}")
 
     return RecoveryReadiness(
         total_actions=len(items),
@@ -79,7 +79,6 @@ def evaluate_recovery_readiness(
         reversible=counts[RecoveryClass.REVERSIBLE],
         compensatable=counts[RecoveryClass.COMPENSATABLE],
         irreversible=counts[RecoveryClass.IRREVERSIBLE],
-        human_approval_required=human_approval_required,
         missing_runtime_bindings=tuple(sorted(set(missing))),
         blockers=tuple(sorted(set(blockers))),
     )
