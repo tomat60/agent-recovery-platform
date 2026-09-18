@@ -66,9 +66,9 @@ class ActionObservation:
                 raise IngestionError(f"{name} must be a non-empty string when provided")
         if isinstance(self.resource_keys, str):
             raise IngestionError("resource_keys must be a sequence, not a string")
-        normalized = tuple(str(key).strip() for key in self.resource_keys)
-        if any(not key for key in normalized):
-            raise IngestionError("resource_keys must be non-empty")
+        if any(not isinstance(key, str) or not key.strip() for key in self.resource_keys):
+            raise IngestionError("resource_keys must be non-empty strings")
+        normalized = tuple(key.strip() for key in self.resource_keys)
         if len(set(normalized)) != len(normalized):
             raise IngestionError("resource_keys must be unique")
 
@@ -84,7 +84,7 @@ class ActionObservation:
             "source_system": self.source_system,
             "source_event_id": self.source_event_id,
             "observed_at": self.observed_at,
-            "resource_keys": tuple(sorted(str(key).strip() for key in self.resource_keys)),
+            "resource_keys": tuple(sorted(key.strip() for key in self.resource_keys)),
             "authorization_effect": "none",
         }
         if self.trace_id is not None:
