@@ -29,6 +29,7 @@ def test_reversible_contract_declares_recovery_and_verification():
     assert parsed.recovery_class is RecoveryClass.REVERSIBLE
     assert parsed.recovery_operation == "contact.restore"
     assert parsed.verification_operation == "contact.read"
+    assert parsed.containment_scopes == ("tool", "session")
 
 
 def test_compensatable_contract_requires_compensation_operation():
@@ -94,6 +95,24 @@ def test_high_impact_irreversible_contract_requires_parameter_bound_preapproval(
         )
 
 
+def test_any_declared_approval_must_remain_parameter_bound():
+    with pytest.raises(RecoveryContractError, match="parameter-bound"):
+        parse_recovery_contract(
+            contract(
+                action_approval_required=True,
+                parameter_bound_approval_required=False,
+            )
+        )
+
+    with pytest.raises(RecoveryContractError, match="parameter-bound"):
+        parse_recovery_contract(
+            contract(
+                recovery_approval_required=True,
+                parameter_bound_approval_required=False,
+            )
+        )
+
+
 def test_external_json_is_data_only_and_rejects_non_object_payload():
     with pytest.raises(RecoveryContractError, match="object"):
         parse_recovery_contract_json('["not", "a", "contract"]')
@@ -116,6 +135,7 @@ def test_external_json_is_data_only_and_rejects_non_object_payload():
         {"action_approval_required": "yes"},
         {"recovery_approval_required": 1},
         {"parameter_bound_approval_required": None},
+        {"containment_scopes": []},
         {"containment_scopes": ["scope", "scope"]},
         {"containment_scopes": "scope"},
         {"side_effects": [""]},
