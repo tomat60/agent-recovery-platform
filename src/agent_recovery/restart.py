@@ -4,9 +4,13 @@ import hashlib
 import json
 from collections.abc import Mapping
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from .contracts import RecoveryClass, RecoveryContract
 from .ledger import ActionLedger, EventType, LedgerIntegrityError
+
+if TYPE_CHECKING:
+    from .engine import RecoveryEngine
 
 
 class RestartRecoveryError(ValueError):
@@ -127,3 +131,33 @@ def reconstruct_recovery_context(
         execution_result=event.payload.get("execution_result"),
         observed_state=event.payload.get("observed_state"),
     )
+
+
+def hydrate_recovery_action(
+    engine: RecoveryEngine,
+    *,
+    action_event_id: str,
+    runtime_contracts: Mapping[str, RecoveryContract],
+) -> RestartRecoveryContext:
+    """Hydrate one pre-restart action into the engine only from trusted evidence.
+
+    Registration and reconstruction are deliberately explicit: persisted payloads cannot
+    supply executable authority. The supplied runtime contracts are validated and the exact
+    executed binding must pass ``reconstruct_recovery_context`` before the engine can recover
+    the action.
+    """
+
+    context = reconstruct_recovery_context(
+        engine.ledger,
+        action_event_id=action_event_id,
+        runtime_contracts=runtime_contracts,
+    )
+    engine.register(context.contract)
+    engine._executed[action_event_id] = (
+        context.incident_id,
+        context.contract,
+        dict(context.params),
+        context.execution_result,
+        context.observed_state,
+    )
+    return context
