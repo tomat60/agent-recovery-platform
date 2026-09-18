@@ -7,6 +7,8 @@ from .contracts import RecoveryClass as RuntimeRecoveryClass
 from .contracts import RecoveryContract as RuntimeRecoveryContract
 from .recovery_contract import RecoveryClass, RecoveryContract
 
+RuntimeBindingKey = tuple[str, str, str]
+
 
 @dataclass(frozen=True)
 class RecoveryReadiness:
@@ -30,13 +32,15 @@ class RecoveryReadiness:
 def evaluate_recovery_readiness(
     declarations: Iterable[RecoveryContract],
     *,
-    runtime_bindings: Mapping[str, RuntimeRecoveryContract],
+    runtime_bindings: Mapping[RuntimeBindingKey, RuntimeRecoveryContract],
 ) -> RecoveryReadiness:
     """Evaluate non-authorizing declarations against a separately trusted runtime registry.
 
     The declarative document contributes coverage evidence only. Executable authority remains
     exclusively in ``runtime_bindings`` and every identity field available in the declaration
-    must match the validated runtime contract. Any missing or mismatched binding fails closed.
+    must match the validated runtime contract. Bindings are keyed by the complete
+    ``(tool_id, action_id, version)`` identity so one tool can safely expose multiple actions
+    or versions. Any missing or mismatched binding fails closed.
     """
 
     items = tuple(declarations)
@@ -45,7 +49,7 @@ def evaluate_recovery_readiness(
     missing: list[str] = []
     blockers: list[str] = []
 
-    seen: set[tuple[str, str, str]] = set()
+    seen: set[RuntimeBindingKey] = set()
     for declaration in items:
         identity = (declaration.tool_id, declaration.action_id, declaration.version)
         label = f"{declaration.tool_id}:{declaration.action_id}@{declaration.version}"
@@ -58,7 +62,7 @@ def evaluate_recovery_readiness(
         if declaration.recovery_class in {RecoveryClass.REVERSIBLE, RecoveryClass.COMPENSATABLE}:
             structurally_recoverable += 1
 
-        binding = runtime_bindings.get(declaration.tool_id)
+        binding = runtime_bindings.get(identity)
         if binding is None:
             missing.append(label)
             blockers.append(f"missing_runtime_binding:{label}")
@@ -66,7 +70,8 @@ def evaluate_recovery_readiness(
         binding.validate()
         runtime_class = RuntimeRecoveryClass(declaration.recovery_class.value)
         if (
-            binding.action_type != declaration.action_id
+            binding.tool_id != declaration.tool_id
+            or binding.action_type != declaration.action_id
             or binding.contract_version != declaration.version
             or binding.recovery_class is not runtime_class
         ):
