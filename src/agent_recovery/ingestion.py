@@ -26,6 +26,7 @@ class ActionObservation:
     incident_id: str
     tool_id: str
     action_type: str
+    contract_version: str
     agent_id: str
     params: Mapping[str, Any]
     source_system: str
@@ -44,6 +45,7 @@ class ActionObservation:
             "incident_id": self.incident_id,
             "tool_id": self.tool_id,
             "action_type": self.action_type,
+            "contract_version": self.contract_version,
             "agent_id": self.agent_id,
             "source_system": self.source_system,
             "source_event_id": self.source_event_id,
@@ -55,14 +57,18 @@ class ActionObservation:
                 raise IngestionError(f"{name} is required")
         if not isinstance(self.params, Mapping):
             raise IngestionError("params must be a mapping")
-        for name, value in (("trace_id", self.trace_id), ("span_id", self.span_id), ("authority_scope", self.authority_scope)):
+        for name, value in (
+            ("trace_id", self.trace_id),
+            ("span_id", self.span_id),
+            ("authority_scope", self.authority_scope),
+        ):
             if value is not None and (not isinstance(value, str) or not value.strip()):
                 raise IngestionError(f"{name} must be a non-empty string when provided")
         if isinstance(self.resource_keys, str):
             raise IngestionError("resource_keys must be a sequence, not a string")
-        normalized = tuple(str(key).strip() for key in self.resource_keys)
-        if any(not key for key in normalized):
-            raise IngestionError("resource_keys must be non-empty")
+        if any(not isinstance(key, str) or not key.strip() for key in self.resource_keys):
+            raise IngestionError("resource_keys must be non-empty strings")
+        normalized = tuple(key.strip() for key in self.resource_keys)
         if len(set(normalized)) != len(normalized):
             raise IngestionError("resource_keys must be unique")
 
@@ -72,12 +78,13 @@ class ActionObservation:
             "observation_id": self.observation_id,
             "tool_id": self.tool_id,
             "action_type": self.action_type,
+            "contract_version": self.contract_version,
             "agent_id": self.agent_id,
             "params": deepcopy(dict(self.params)),
             "source_system": self.source_system,
             "source_event_id": self.source_event_id,
             "observed_at": self.observed_at,
-            "resource_keys": tuple(sorted(str(key).strip() for key in self.resource_keys)),
+            "resource_keys": tuple(sorted(key.strip() for key in self.resource_keys)),
             "authorization_effect": "none",
         }
         if self.trace_id is not None:
