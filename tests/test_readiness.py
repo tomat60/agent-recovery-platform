@@ -60,6 +60,8 @@ def _binding(runtime: RuntimeRecoveryContract) -> TrustedRuntimeBinding:
     return TrustedRuntimeBinding(
         runtime_contract=runtime,
         verification_operation="verify",
+        parameter_binding="sha256:parameters",
+        context_binding="sha256:authority-scope",
         recovery_operation=(
             None if runtime.recovery_class is RuntimeRecoveryClass.IRREVERSIBLE else "recover"
         ),
