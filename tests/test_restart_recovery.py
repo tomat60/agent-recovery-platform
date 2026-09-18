@@ -73,8 +73,23 @@ def test_restart_fails_closed_on_contract_version_mismatch():
 
 def test_restart_fails_closed_on_mismatched_parameter_evidence():
     ledger = ActionLedger()
-    action = _executed(ledger)
-    action.payload["params_digest"] = "stale-digest"
+    params = {"key": "record:1", "value": "bad"}
+    action = ledger.record(
+        EventType.ACTION_EXECUTED,
+        "incident-1",
+        {
+            "agent_id": "agent-1",
+            "tool_id": "store.write",
+            "contract_version": "1",
+            "recovery_class": "reversible",
+            "resource_keys": ("record:1",),
+            "params": params,
+            "params_digest": "stale-digest",
+            "execution_result": {"previous": "good"},
+            "observed_state": "bad",
+            "outcome_uncertain": False,
+        },
+    )
 
     with pytest.raises(RestartRecoveryError, match="stale or mismatched"):
         reconstruct_recovery_context(
