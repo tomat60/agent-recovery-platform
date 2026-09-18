@@ -47,6 +47,9 @@ def incident_evidence_response(ledger: ActionLedger, *, incident_id: str) -> dic
 
     executed_actions = []
     residual_effects = []
+    recovery_events = []
+    verification_events = []
+    restoration_events = []
     for event in events:
         if event.event_type is EventType.ACTION_EXECUTED:
             executed_actions.append(
@@ -69,6 +72,41 @@ def incident_evidence_response(ledger: ActionLedger, *, incident_id: str) -> dic
                     "irreversible": event.payload.get("irreversible"),
                 }
             )
+        elif event.event_type in {
+            EventType.RECOVERY_PLANNED,
+            EventType.RECOVERY_EXECUTED,
+            EventType.RECOVERY_FAILED,
+            EventType.RECOVERY_FORKED,
+            EventType.RECONCILIATION_PLANNED,
+            EventType.RECONCILIATION_EXECUTED,
+            EventType.RECONCILIATION_FAILED,
+        }:
+            recovery_events.append(
+                {
+                    "event_id": event.event_id,
+                    "event_type": event.event_type.value,
+                    "source_action_event_id": event.payload.get("source_action_event_id"),
+                    "resource_keys": event.payload.get("resource_keys", ()),
+                }
+            )
+        elif event.event_type is EventType.VERIFICATION:
+            verification_events.append(
+                {
+                    "event_id": event.event_id,
+                    "verified": event.payload.get("verified"),
+                    "verification_kind": event.payload.get("verification_kind"),
+                    "source_action_event_id": event.payload.get("source_action_event_id"),
+                    "authority_scope": event.payload.get("authority_scope"),
+                }
+            )
+        elif event.event_type is EventType.RESTORATION:
+            restoration_events.append(
+                {
+                    "event_id": event.event_id,
+                    "authorized": event.payload.get("authorized"),
+                    "authority_scope": event.payload.get("authority_scope"),
+                }
+            )
 
     active_containment = tuple(
         {
@@ -84,6 +122,9 @@ def incident_evidence_response(ledger: ActionLedger, *, incident_id: str) -> dic
         "event_count": len(events),
         "active_containment": active_containment,
         "executed_actions": tuple(executed_actions),
+        "recovery_events": tuple(recovery_events),
+        "verification_events": tuple(verification_events),
+        "restoration_events": tuple(restoration_events),
         "residual_effects": tuple(residual_effects),
         "authority": "none",
     }
