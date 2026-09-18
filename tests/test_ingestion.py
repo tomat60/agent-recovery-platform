@@ -30,7 +30,8 @@ def observation(**overrides: object) -> ActionObservation:
 def test_ingestion_records_detached_non_authorizing_action_intent() -> None:
     ledger = ActionLedger()
     params = {"contact_id": "c-7", "status": "qualified"}
-    event = ingest_action_observation(ledger, observation(params=params))
+    source = observation(params=params)
+    event = ingest_action_observation(ledger, source)
 
     assert event.event_type is EventType.ACTION_INTENT
     assert event.incident_id == "inc-1"
@@ -39,9 +40,31 @@ def test_ingestion_records_detached_non_authorizing_action_intent() -> None:
     assert event.payload["contract_version"] == "1"
     assert event.payload["trace_id"] == "trace-1"
     assert event.payload["resource_keys"] == ("crm:contact:c-7",)
+    assert event.payload["provenance_digest"] == source.provenance_digest()
 
     params["status"] = "mutated-after-ingest"
     assert ledger.get(event.event_id).payload["params"]["status"] == "qualified"
+
+
+def test_provenance_digest_is_deterministic_and_contract_bound() -> None:
+    first = observation(resource_keys=("crm:contact:c-7", "crm:account:a-2"))
+    reordered = observation(resource_keys=("crm:account:a-2", "crm:contact:c-7"))
+    assert first.provenance_digest() == reordered.provenance_digest()
+
+    changed_contract = observation(
+        contract_version="2", resource_keys=("crm:contact:c-7", "crm:account:a-2")
+    )
+    changed_source = observation(
+        source_event_id="span-event-99",
+        resource_keys=("crm:contact:c-7", "crm:account:a-2"),
+    )
+    changed_params = observation(
+        params={"contact_id": "c-7", "status": "won"},
+        resource_keys=("crm:contact:c-7", "crm:account:a-2"),
+    )
+    assert changed_contract.provenance_digest() != first.provenance_digest()
+    assert changed_source.provenance_digest() != first.provenance_digest()
+    assert changed_params.provenance_digest() != first.provenance_digest()
 
 
 def test_ingestion_can_bind_existing_causal_evidence() -> None:

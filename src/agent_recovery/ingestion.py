@@ -4,6 +4,8 @@ from collections.abc import Mapping, Sequence
 from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from hashlib import sha256
+from json import dumps
 from typing import Any
 from uuid import uuid4
 
@@ -72,7 +74,9 @@ class ActionObservation:
         if len(set(normalized)) != len(normalized):
             raise IngestionError("resource_keys must be unique")
 
-    def payload(self) -> dict[str, Any]:
+    def evidence_payload(self) -> dict[str, Any]:
+        """Return canonical source evidence before ledger-specific metadata is added."""
+
         self.validate()
         payload: dict[str, Any] = {
             "observation_id": self.observation_id,
@@ -85,7 +89,6 @@ class ActionObservation:
             "source_event_id": self.source_event_id,
             "observed_at": self.observed_at,
             "resource_keys": tuple(sorted(key.strip() for key in self.resource_keys)),
-            "authorization_effect": "none",
         }
         if self.trace_id is not None:
             payload["trace_id"] = self.trace_id
@@ -93,6 +96,20 @@ class ActionObservation:
             payload["span_id"] = self.span_id
         if self.authority_scope is not None:
             payload["authority_scope"] = self.authority_scope
+        return payload
+
+    def provenance_digest(self) -> str:
+        """Bind normalized source evidence to a deterministic, framework-neutral digest."""
+
+        canonical = dumps(
+            self.evidence_payload(), sort_keys=True, separators=(",", ":"), default=str
+        )
+        return sha256(canonical.encode("utf-8")).hexdigest()
+
+    def payload(self) -> dict[str, Any]:
+        payload = self.evidence_payload()
+        payload["provenance_digest"] = self.provenance_digest()
+        payload["authorization_effect"] = "none"
         return payload
 
 
