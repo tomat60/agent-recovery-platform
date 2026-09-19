@@ -199,11 +199,56 @@ def test_incident_operator_detail_composes_workflow_without_authority_or_advisor
     assert detail["status"]["containment_active"] is True
     assert detail["status"]["restoration_status"] == "recorded_authorized"
     assert detail["side_effects"][0]["event_id"] == action.event_id
+    assert detail["recovery_candidates"] == (
+        {
+            "source_action_event_id": action.event_id,
+            "action_type": "contact.update",
+            "resource_keys": ("contact:42",),
+            "recovery_class": "compensatable",
+            "status": "recovery_recorded",
+            "authority": "none",
+        },
+    )
     assert detail["authority"] == "none"
     assert detail["status"]["authority"] == "none"
     assert "model_reasoning" not in repr(detail)
     assert "approval" not in repr(detail)
     assert all(not callable(value) for value in detail.values())
+
+
+def test_incident_operator_detail_projects_unrecovered_candidate_but_not_irreversible_undo():
+    ledger = ActionLedger()
+    reversible = ledger.record(
+        EventType.ACTION_EXECUTED,
+        "inc-1",
+        {
+            "action_type": "contact.update",
+            "resource_keys": ("contact:42",),
+            "recovery_class": "reversible",
+        },
+    )
+    ledger.record(
+        EventType.ACTION_EXECUTED,
+        "inc-1",
+        {
+            "action_type": "email.send",
+            "resource_keys": ("message:7",),
+            "recovery_class": "irreversible",
+        },
+    )
+    detail = incident_operator_detail(ledger, incident_id="inc-1")
+    assert detail["recovery_candidates"] == (
+        {
+            "source_action_event_id": reversible.event_id,
+            "action_type": "contact.update",
+            "resource_keys": ("contact:42",),
+            "recovery_class": "reversible",
+            "status": "requires_recovery_review",
+            "authority": "none",
+        },
+    )
+    assert "email.send" not in repr(detail["recovery_candidates"])
+    assert all(candidate["authority"] == "none" for candidate in detail["recovery_candidates"])
 
 
 def test_incident_operator_detail_prioritizes_residual_review_without_granting_authority():
