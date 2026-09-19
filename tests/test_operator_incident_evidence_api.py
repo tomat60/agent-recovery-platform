@@ -178,13 +178,13 @@ def test_incident_operator_detail_composes_workflow_without_authority_or_advisor
         {"active": True, "scope": "resource:contact:42"},
         parent_event_ids=(action.event_id,),
     )
-    ledger.record(
+    recovery = ledger.record(
         EventType.RECOVERY_EXECUTED,
         "inc-1",
         {"action_event_id": action.event_id},
         parent_event_ids=(action.event_id,),
     )
-    ledger.record(
+    verification = ledger.record(
         EventType.VERIFICATION,
         "inc-1",
         {"verified": True, "action_event_id": action.event_id},
@@ -206,6 +206,8 @@ def test_incident_operator_detail_composes_workflow_without_authority_or_advisor
             "resource_keys": ("contact:42",),
             "recovery_class": "compensatable",
             "status": "recovery_verified",
+            "recovery_evidence_event_id": recovery.event_id,
+            "verification_evidence_event_id": verification.event_id,
             "authority": "none",
         },
     )
@@ -244,6 +246,8 @@ def test_incident_operator_detail_projects_unrecovered_candidate_but_not_irrever
             "resource_keys": ("contact:42",),
             "recovery_class": "reversible",
             "status": "requires_recovery_review",
+            "recovery_evidence_event_id": None,
+            "verification_evidence_event_id": None,
             "authority": "none",
         },
     )
@@ -258,18 +262,21 @@ def test_incident_operator_detail_marks_failed_action_bound_verification():
         "inc-1",
         {"action_type": "contact.update", "recovery_class": "reversible"},
     )
-    ledger.record(
+    recovery = ledger.record(
         EventType.RECOVERY_EXECUTED,
         "inc-1",
         {"action_event_id": action.event_id},
     )
-    ledger.record(
+    verification = ledger.record(
         EventType.VERIFICATION,
         "inc-1",
         {"verified": False, "action_event_id": action.event_id, "approval": "forged"},
     )
     detail = incident_operator_detail(ledger, incident_id="inc-1")
-    assert detail["recovery_candidates"][0]["status"] == "recovery_verification_failed"
+    candidate = detail["recovery_candidates"][0]
+    assert candidate["status"] == "recovery_verification_failed"
+    assert candidate["recovery_evidence_event_id"] == recovery.event_id
+    assert candidate["verification_evidence_event_id"] == verification.event_id
     assert detail["recovery_candidates"][0]["authority"] == "none"
     assert "approval" not in repr(detail)
 
