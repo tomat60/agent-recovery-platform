@@ -33,12 +33,7 @@ def recovery_readiness_response(
 
 
 def incident_evidence_response(ledger: ActionLedger, *, incident_id: str) -> dict[str, Any]:
-    """Return integrity-checked incident evidence without exposing runtime authority.
-
-    The response is deliberately evidence-only: it projects selected deterministic ledger
-    facts for an operator and never returns approvals, executors, callables, model narration,
-    or an object that can release containment or restore authority.
-    """
+    """Return integrity-checked incident evidence without exposing runtime authority."""
 
     ledger.verify_integrity()
     events = ledger.events(incident_id=incident_id)
@@ -51,18 +46,13 @@ def incident_evidence_response(ledger: ActionLedger, *, incident_id: str) -> dic
             "event_id": event.event_id,
             "event_type": event.event_type.value,
             "parent_event_ids": tuple(
-                parent_id
-                for parent_id in event.parent_event_ids
-                if parent_id in incident_event_ids
+                parent_id for parent_id in event.parent_event_ids if parent_id in incident_event_ids
             ),
         }
         for event in events
     )
     causal_edges = tuple(
-        {
-            "parent_event_id": parent_id,
-            "event_id": event.event_id,
-        }
+        {"parent_event_id": parent_id, "event_id": event.event_id}
         for event in events
         for parent_id in event.parent_event_ids
         if parent_id in incident_event_ids
@@ -82,9 +72,7 @@ def incident_evidence_response(ledger: ActionLedger, *, incident_id: str) -> dic
                     "agent_id": event.payload.get("agent_id"),
                     "resource_keys": event.payload.get("resource_keys", ()),
                     "recovery_class": event.payload.get("recovery_class"),
-                    "observation_provenance_digest": event.payload.get(
-                        "observation_provenance_digest"
-                    ),
+                    "observation_provenance_digest": event.payload.get("observation_provenance_digest"),
                 }
             )
         elif event.event_type is EventType.RESIDUAL_EFFECT:
@@ -132,10 +120,7 @@ def incident_evidence_response(ledger: ActionLedger, *, incident_id: str) -> dic
             )
 
     active_containment = tuple(
-        {
-            "event_id": hold.event_id,
-            "scope": hold.payload.get("scope"),
-        }
+        {"event_id": hold.event_id, "scope": hold.payload.get("scope")}
         for hold in ledger.active_containment_holds(incident_id=incident_id)
     )
 
@@ -143,10 +128,7 @@ def incident_evidence_response(ledger: ActionLedger, *, incident_id: str) -> dic
         "incident_id": incident_id,
         "integrity_verified": True,
         "event_count": len(events),
-        "causal_graph": {
-            "nodes": causal_nodes,
-            "edges": causal_edges,
-        },
+        "causal_graph": {"nodes": causal_nodes, "edges": causal_edges},
         "active_containment": active_containment,
         "executed_actions": tuple(executed_actions),
         "recovery_events": tuple(recovery_events),
@@ -158,11 +140,7 @@ def incident_evidence_response(ledger: ActionLedger, *, incident_id: str) -> dic
 
 
 def incident_status_summary(ledger: ActionLedger, *, incident_id: str) -> dict[str, Any]:
-    """Project compact operator workflow status from verified incident evidence only.
-
-    Status labels summarize recorded facts; they are not authorization decisions. In particular,
-    a recorded restoration event never grants authority through this read-only boundary.
-    """
+    """Project compact operator workflow status from verified incident evidence only."""
 
     evidence = incident_evidence_response(ledger, incident_id=incident_id)
     recovery_events = evidence["recovery_events"]
@@ -181,13 +159,11 @@ def incident_status_summary(ledger: ActionLedger, *, incident_id: str) -> dict[s
 
     verification_status = "not_recorded"
     if verification_events:
-        verified = verification_events[-1]["verified"]
-        verification_status = "verified" if verified is True else "failed_or_unverified"
+        verification_status = "verified" if verification_events[-1]["verified"] is True else "failed_or_unverified"
 
     restoration_status = "not_recorded"
     if restoration_events:
-        authorized = restoration_events[-1]["authorized"]
-        restoration_status = "recorded_authorized" if authorized is True else "recorded_denied"
+        restoration_status = "recorded_authorized" if restoration_events[-1]["authorized"] is True else "recorded_denied"
 
     return {
         "incident_id": incident_id,
@@ -200,5 +176,28 @@ def incident_status_summary(ledger: ActionLedger, *, incident_id: str) -> dict[s
         "irreversible_residual_count": sum(
             residual["irreversible"] is True for residual in evidence["residual_effects"]
         ),
+        "authority": "none",
+    }
+
+
+def incident_operator_detail(ledger: ActionLedger, *, incident_id: str) -> dict[str, Any]:
+    """Compose the incident-response detail surface from verified evidence only.
+
+    The detail is intentionally a read model. Recorded restoration decisions remain evidence and
+    never become executable authority through this boundary.
+    """
+
+    evidence = incident_evidence_response(ledger, incident_id=incident_id)
+    summary = incident_status_summary(ledger, incident_id=incident_id)
+    return {
+        "incident_id": incident_id,
+        "status": summary,
+        "causal_graph": evidence["causal_graph"],
+        "active_containment": evidence["active_containment"],
+        "side_effects": evidence["executed_actions"],
+        "recovery": evidence["recovery_events"],
+        "verification": evidence["verification_events"],
+        "residuals": evidence["residual_effects"],
+        "restoration": evidence["restoration_events"],
         "authority": "none",
     }
