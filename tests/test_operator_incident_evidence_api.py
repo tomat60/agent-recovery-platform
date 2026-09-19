@@ -205,7 +205,7 @@ def test_incident_operator_detail_composes_workflow_without_authority_or_advisor
             "action_type": "contact.update",
             "resource_keys": ("contact:42",),
             "recovery_class": "compensatable",
-            "status": "recovery_recorded",
+            "status": "recovery_verified",
             "authority": "none",
         },
     )
@@ -249,6 +249,29 @@ def test_incident_operator_detail_projects_unrecovered_candidate_but_not_irrever
     )
     assert "email.send" not in repr(detail["recovery_candidates"])
     assert all(candidate["authority"] == "none" for candidate in detail["recovery_candidates"])
+
+
+def test_incident_operator_detail_marks_failed_action_bound_verification():
+    ledger = ActionLedger()
+    action = ledger.record(
+        EventType.ACTION_EXECUTED,
+        "inc-1",
+        {"action_type": "contact.update", "recovery_class": "reversible"},
+    )
+    ledger.record(
+        EventType.RECOVERY_EXECUTED,
+        "inc-1",
+        {"source_action_event_id": action.event_id},
+    )
+    ledger.record(
+        EventType.VERIFICATION,
+        "inc-1",
+        {"verified": False, "source_action_event_id": action.event_id, "approval": "forged"},
+    )
+    detail = incident_operator_detail(ledger, incident_id="inc-1")
+    assert detail["recovery_candidates"][0]["status"] == "recovery_verification_failed"
+    assert detail["recovery_candidates"][0]["authority"] == "none"
+    assert "approval" not in repr(detail)
 
 
 def test_incident_operator_detail_prioritizes_residual_review_without_granting_authority():
