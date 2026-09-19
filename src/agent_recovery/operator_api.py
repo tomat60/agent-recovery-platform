@@ -92,21 +92,36 @@ def incident_evidence_response(ledger: ActionLedger, *, incident_id: str) -> dic
             EventType.RECONCILIATION_EXECUTED,
             EventType.RECONCILIATION_FAILED,
         }:
+            if event.event_type in {
+                EventType.RECONCILIATION_PLANNED,
+                EventType.RECONCILIATION_EXECUTED,
+                EventType.RECONCILIATION_FAILED,
+            }:
+                source_action_event_id = event.payload.get("compromised_action_event_id")
+            else:
+                source_action_event_id = event.payload.get("action_event_id")
             recovery_events.append(
                 {
                     "event_id": event.event_id,
                     "event_type": event.event_type.value,
-                    "source_action_event_id": event.payload.get("source_action_event_id"),
+                    "source_action_event_id": source_action_event_id,
                     "resource_keys": event.payload.get("resource_keys", ()),
                 }
             )
         elif event.event_type is EventType.VERIFICATION:
+            verification_kind = event.payload.get("verification_kind")
+            if verification_kind == "shared_state_reconciliation":
+                source_action_event_id = event.payload.get("compromised_action_event_id")
+            elif verification_kind == "adversarial_replay":
+                source_action_event_id = event.payload.get("source_action_event_id")
+            else:
+                source_action_event_id = event.payload.get("action_event_id")
             verification_events.append(
                 {
                     "event_id": event.event_id,
                     "verified": event.payload.get("verified"),
-                    "verification_kind": event.payload.get("verification_kind"),
-                    "source_action_event_id": event.payload.get("source_action_event_id"),
+                    "verification_kind": verification_kind,
+                    "source_action_event_id": source_action_event_id,
                     "authority_scope": event.payload.get("authority_scope"),
                 }
             )
@@ -215,6 +230,8 @@ def _recovery_candidates(evidence: Mapping[str, Any]) -> tuple[dict[str, Any], .
     }
     latest_verification_by_action: dict[str, bool] = {}
     for event in evidence["verification_events"]:
+        if event["verification_kind"] == "adversarial_replay":
+            continue
         source_action_event_id = event["source_action_event_id"]
         if source_action_event_id is not None:
             latest_verification_by_action[source_action_event_id] = event["verified"] is True
