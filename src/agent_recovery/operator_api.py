@@ -213,22 +213,33 @@ def _recovery_candidates(evidence: Mapping[str, Any]) -> tuple[dict[str, Any], .
         if event["event_type"] in {"recovery_executed", "reconciliation_executed"}
         and event["source_action_event_id"] is not None
     }
+    latest_verification_by_action: dict[str, bool] = {}
+    for event in evidence["verification_events"]:
+        source_action_event_id = event["source_action_event_id"]
+        if source_action_event_id is not None:
+            latest_verification_by_action[source_action_event_id] = event["verified"] is True
+
     candidates = []
     for action in evidence["executed_actions"]:
         recovery_class = action["recovery_class"]
         if recovery_class not in {"reversible", "compensatable"}:
             continue
+        action_event_id = action["event_id"]
+        if action_event_id not in recovered_action_ids:
+            status = "requires_recovery_review"
+        elif latest_verification_by_action.get(action_event_id) is False:
+            status = "recovery_verification_failed"
+        elif latest_verification_by_action.get(action_event_id) is True:
+            status = "recovery_verified"
+        else:
+            status = "recovery_recorded"
         candidates.append(
             {
-                "source_action_event_id": action["event_id"],
+                "source_action_event_id": action_event_id,
                 "action_type": action["action_type"],
                 "resource_keys": action["resource_keys"],
                 "recovery_class": recovery_class,
-                "status": (
-                    "recovery_recorded"
-                    if action["event_id"] in recovered_action_ids
-                    else "requires_recovery_review"
-                ),
+                "status": status,
                 "authority": "none",
             }
         )
