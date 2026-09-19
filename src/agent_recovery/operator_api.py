@@ -204,6 +204,37 @@ def _operator_next_action(summary: Mapping[str, Any]) -> dict[str, str]:
     return {"action": action, "authority": "none"}
 
 
+def _recovery_candidates(evidence: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
+    """Project review candidates from executed-action evidence without executable authority."""
+
+    recovered_action_ids = {
+        event["source_action_event_id"]
+        for event in evidence["recovery_events"]
+        if event["event_type"] in {"recovery_executed", "reconciliation_executed"}
+        and event["source_action_event_id"] is not None
+    }
+    candidates = []
+    for action in evidence["executed_actions"]:
+        recovery_class = action["recovery_class"]
+        if recovery_class not in {"reversible", "compensatable"}:
+            continue
+        candidates.append(
+            {
+                "source_action_event_id": action["event_id"],
+                "action_type": action["action_type"],
+                "resource_keys": action["resource_keys"],
+                "recovery_class": recovery_class,
+                "status": (
+                    "recovery_recorded"
+                    if action["event_id"] in recovered_action_ids
+                    else "requires_recovery_review"
+                ),
+                "authority": "none",
+            }
+        )
+    return tuple(candidates)
+
+
 def incident_operator_detail(ledger: ActionLedger, *, incident_id: str) -> dict[str, Any]:
     """Compose the incident-response detail surface from verified evidence only.
 
@@ -220,6 +251,7 @@ def incident_operator_detail(ledger: ActionLedger, *, incident_id: str) -> dict[
         "causal_graph": evidence["causal_graph"],
         "active_containment": evidence["active_containment"],
         "side_effects": evidence["executed_actions"],
+        "recovery_candidates": _recovery_candidates(evidence),
         "recovery": evidence["recovery_events"],
         "verification": evidence["verification_events"],
         "residuals": evidence["residual_effects"],
