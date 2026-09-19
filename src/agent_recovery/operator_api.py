@@ -99,7 +99,9 @@ def incident_evidence_response(ledger: ActionLedger, *, incident_id: str) -> dic
             }:
                 source_action_event_id = event.payload.get("compromised_action_event_id")
             else:
-                source_action_event_id = event.payload.get("action_event_id")
+                source_action_event_id = event.payload.get("action_event_id") or event.payload.get(
+                    "source_action_event_id"
+                )
             recovery_events.append(
                 {
                     "event_id": event.event_id,
@@ -115,7 +117,9 @@ def incident_evidence_response(ledger: ActionLedger, *, incident_id: str) -> dic
             elif verification_kind == "adversarial_replay":
                 source_action_event_id = event.payload.get("source_action_event_id")
             else:
-                source_action_event_id = event.payload.get("action_event_id")
+                source_action_event_id = event.payload.get("action_event_id") or event.payload.get(
+                    "source_action_event_id"
+                )
             verification_events.append(
                 {
                     "event_id": event.event_id,
