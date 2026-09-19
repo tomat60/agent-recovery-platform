@@ -112,7 +112,7 @@ def test_incident_status_summary_is_evidence_only_and_keeps_residual_truth():
     ledger.record(
         EventType.RECOVERY_EXECUTED,
         "inc-1",
-        {"source_action_event_id": action.event_id},
+        {"action_event_id": action.event_id},
         parent_event_ids=(action.event_id,),
     )
     ledger.record(
@@ -181,13 +181,13 @@ def test_incident_operator_detail_composes_workflow_without_authority_or_advisor
     ledger.record(
         EventType.RECOVERY_EXECUTED,
         "inc-1",
-        {"source_action_event_id": action.event_id},
+        {"action_event_id": action.event_id},
         parent_event_ids=(action.event_id,),
     )
     ledger.record(
         EventType.VERIFICATION,
         "inc-1",
-        {"verified": True, "source_action_event_id": action.event_id},
+        {"verified": True, "action_event_id": action.event_id},
     )
     ledger.record(
         EventType.RESTORATION,
@@ -205,7 +205,7 @@ def test_incident_operator_detail_composes_workflow_without_authority_or_advisor
             "action_type": "contact.update",
             "resource_keys": ("contact:42",),
             "recovery_class": "compensatable",
-            "status": "recovery_recorded",
+            "status": "recovery_verified",
             "authority": "none",
         },
     )
@@ -251,6 +251,29 @@ def test_incident_operator_detail_projects_unrecovered_candidate_but_not_irrever
     assert all(candidate["authority"] == "none" for candidate in detail["recovery_candidates"])
 
 
+def test_incident_operator_detail_marks_failed_action_bound_verification():
+    ledger = ActionLedger()
+    action = ledger.record(
+        EventType.ACTION_EXECUTED,
+        "inc-1",
+        {"action_type": "contact.update", "recovery_class": "reversible"},
+    )
+    ledger.record(
+        EventType.RECOVERY_EXECUTED,
+        "inc-1",
+        {"action_event_id": action.event_id},
+    )
+    ledger.record(
+        EventType.VERIFICATION,
+        "inc-1",
+        {"verified": False, "action_event_id": action.event_id, "approval": "forged"},
+    )
+    detail = incident_operator_detail(ledger, incident_id="inc-1")
+    assert detail["recovery_candidates"][0]["status"] == "recovery_verification_failed"
+    assert detail["recovery_candidates"][0]["authority"] == "none"
+    assert "approval" not in repr(detail)
+
+
 def test_incident_operator_detail_prioritizes_residual_review_without_granting_authority():
     ledger = ActionLedger()
     action = ledger.record(
@@ -266,7 +289,7 @@ def test_incident_operator_detail_prioritizes_residual_review_without_granting_a
     ledger.record(
         EventType.RECOVERY_EXECUTED,
         "inc-1",
-        {"source_action_event_id": action.event_id},
+        {"action_event_id": action.event_id},
     )
     ledger.record(
         EventType.VERIFICATION,
@@ -301,3 +324,34 @@ def test_incident_operator_detail_keeps_failed_recovery_contained():
         "authority": "none",
     }
     assert detail["authority"] == "none"
+
+
+def test_recovery_candidate_ignores_adversarial_replay_as_local_recovery_verification():
+    ledger = ActionLedger()
+    action = ledger.record(
+        EventType.ACTION_EXECUTED,
+        "inc-1",
+        {"action_type": "contact.update", "recovery_class": "reversible"},
+    )
+    ledger.record(
+        EventType.RECOVERY_EXECUTED,
+        "inc-1",
+        {"action_event_id": action.event_id},
+    )
+    ledger.record(
+        EventType.VERIFICATION,
+        "inc-1",
+        {
+            "verification_kind": "adversarial_replay",
+            "verified": True,
+            "source_action_event_id": action.event_id,
+            "source_incident_id": "inc-1",
+            "authority_scope": "resource:contact:42",
+        },
+        parent_event_ids=(action.event_id,),
+    )
+
+    detail = incident_operator_detail(ledger, incident_id="inc-1")
+
+    assert detail["recovery_candidates"][0]["status"] == "recovery_recorded"
+    assert detail["recovery_candidates"][0]["authority"] == "none"
