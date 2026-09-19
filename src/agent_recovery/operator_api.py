@@ -159,11 +159,15 @@ def incident_status_summary(ledger: ActionLedger, *, incident_id: str) -> dict[s
 
     verification_status = "not_recorded"
     if verification_events:
-        verification_status = "verified" if verification_events[-1]["verified"] is True else "failed_or_unverified"
+        verification_status = (
+            "verified" if verification_events[-1]["verified"] is True else "failed_or_unverified"
+        )
 
     restoration_status = "not_recorded"
     if restoration_events:
-        restoration_status = "recorded_authorized" if restoration_events[-1]["authorized"] is True else "recorded_denied"
+        restoration_status = (
+            "recorded_authorized" if restoration_events[-1]["authorized"] is True else "recorded_denied"
+        )
 
     return {
         "incident_id": incident_id,
@@ -180,6 +184,26 @@ def incident_status_summary(ledger: ActionLedger, *, incident_id: str) -> dict[s
     }
 
 
+def _operator_next_action(summary: Mapping[str, Any]) -> dict[str, str]:
+    """Return deterministic workflow guidance, never executable authority."""
+
+    if summary["recovery_status"] == "failed":
+        action = "investigate_recovery_failure"
+    elif summary["recovery_status"] in {"not_started", "planned"}:
+        action = "complete_recovery"
+    elif summary["verification_status"] != "verified":
+        action = "verify_recovered_state"
+    elif summary["irreversible_residual_count"]:
+        action = "review_irreversible_residuals"
+    elif summary["restoration_status"] == "not_recorded":
+        action = "evaluate_restoration"
+    elif summary["restoration_status"] == "recorded_denied":
+        action = "keep_contained"
+    else:
+        action = "monitor_restored_scope"
+    return {"action": action, "authority": "none"}
+
+
 def incident_operator_detail(ledger: ActionLedger, *, incident_id: str) -> dict[str, Any]:
     """Compose the incident-response detail surface from verified evidence only.
 
@@ -192,6 +216,7 @@ def incident_operator_detail(ledger: ActionLedger, *, incident_id: str) -> dict[
     return {
         "incident_id": incident_id,
         "status": summary,
+        "next_action": _operator_next_action(summary),
         "causal_graph": evidence["causal_graph"],
         "active_containment": evidence["active_containment"],
         "side_effects": evidence["executed_actions"],
