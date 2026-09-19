@@ -29,7 +29,7 @@ def test_incident_evidence_response_is_deterministic_and_non_authorizing():
         {"active": True, "scope": "resource:contact:42"},
         parent_event_ids=(action.event_id,),
     )
-    ledger.record(
+    residual = ledger.record(
         EventType.RESIDUAL_EFFECT,
         "inc-1",
         {"effect": "notification_already_sent", "irreversible": True},
@@ -43,6 +43,35 @@ def test_incident_evidence_response_is_deterministic_and_non_authorizing():
     assert payload["authority"] == "none"
     assert payload["integrity_verified"] is True
     assert payload["event_count"] == 4
+    assert payload["causal_graph"] == {
+        "nodes": (
+            {
+                "event_id": source.event_id,
+                "event_type": "external_input",
+                "parent_event_ids": (),
+            },
+            {
+                "event_id": action.event_id,
+                "event_type": "action_executed",
+                "parent_event_ids": (source.event_id,),
+            },
+            {
+                "event_id": hold.event_id,
+                "event_type": "containment",
+                "parent_event_ids": (action.event_id,),
+            },
+            {
+                "event_id": residual.event_id,
+                "event_type": "residual_effect",
+                "parent_event_ids": (action.event_id,),
+            },
+        ),
+        "edges": (
+            {"parent_event_id": source.event_id, "event_id": action.event_id},
+            {"parent_event_id": action.event_id, "event_id": hold.event_id},
+            {"parent_event_id": action.event_id, "event_id": residual.event_id},
+        ),
+    }
     assert payload["active_containment"] == (
         {"event_id": hold.event_id, "scope": "resource:contact:42"},
     )
@@ -58,13 +87,39 @@ def test_incident_evidence_response_is_deterministic_and_non_authorizing():
     )
     assert payload["residual_effects"] == (
         {
-            "event_id": payload["residual_effects"][0]["event_id"],
+            "event_id": residual.event_id,
             "effect": "notification_already_sent",
             "irreversible": True,
         },
     )
     assert "model_advice" not in repr(payload)
     assert all(not callable(value) for value in payload.values())
+
+
+def test_incident_evidence_causal_graph_does_not_leak_cross_incident_parent_identity():
+    ledger = ActionLedger()
+    other = ledger.record(EventType.EXTERNAL_INPUT, "inc-other", {"secret": "other-incident"})
+    event = ledger.record(
+        EventType.EXTERNAL_INPUT,
+        "inc-1",
+        {"source": "sandbox"},
+        parent_event_ids=(other.event_id,),
+    )
+
+    payload = incident_evidence_response(ledger, incident_id="inc-1")
+
+    assert payload["causal_graph"] == {
+        "nodes": (
+            {
+                "event_id": event.event_id,
+                "event_type": "external_input",
+                "parent_event_ids": (),
+            },
+        ),
+        "edges": (),
+    }
+    assert other.event_id not in repr(payload)
+    assert "other-incident" not in repr(payload)
 
 
 def test_incident_evidence_response_fails_closed_for_unknown_incident():
