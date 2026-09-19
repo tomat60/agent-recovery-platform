@@ -15,16 +15,8 @@ def recovery_readiness_response(
     *,
     runtime_bindings: Mapping[RuntimeBindingKey, TrustedRuntimeBinding],
 ) -> dict[str, Any]:
-    """Return a deterministic, read-only operator view of recovery readiness.
-
-    This boundary exposes coverage evidence and blockers only. It does not return executable
-    runtime bindings, approvals, callables, or any other object that can grant action authority.
-    """
-
-    readiness = evaluate_recovery_readiness(
-        declarations,
-        runtime_bindings=runtime_bindings,
-    )
+    """Return a deterministic, read-only operator view of recovery readiness."""
+    readiness = evaluate_recovery_readiness(declarations, runtime_bindings=runtime_bindings)
     payload = asdict(readiness)
     payload["recoverability_fraction"] = readiness.recoverability_fraction
     payload["ready"] = not readiness.blockers
@@ -34,12 +26,10 @@ def recovery_readiness_response(
 
 def incident_evidence_response(ledger: ActionLedger, *, incident_id: str) -> dict[str, Any]:
     """Return integrity-checked incident evidence without exposing runtime authority."""
-
     ledger.verify_integrity()
     events = ledger.events(incident_id=incident_id)
     if not events:
         raise KeyError(incident_id)
-
     incident_event_ids = {event.event_id for event in events}
     causal_nodes = tuple(
         {
@@ -57,7 +47,6 @@ def incident_evidence_response(ledger: ActionLedger, *, incident_id: str) -> dic
         for parent_id in event.parent_event_ids
         if parent_id in incident_event_ids
     )
-
     executed_actions = []
     residual_effects = []
     recovery_events = []
@@ -118,12 +107,10 @@ def incident_evidence_response(ledger: ActionLedger, *, incident_id: str) -> dic
                     "authority_scope": event.payload.get("authority_scope"),
                 }
             )
-
     active_containment = tuple(
         {"event_id": hold.event_id, "scope": hold.payload.get("scope")}
         for hold in ledger.active_containment_holds(incident_id=incident_id)
     )
-
     return {
         "incident_id": incident_id,
         "integrity_verified": True,
@@ -141,12 +128,10 @@ def incident_evidence_response(ledger: ActionLedger, *, incident_id: str) -> dic
 
 def incident_status_summary(ledger: ActionLedger, *, incident_id: str) -> dict[str, Any]:
     """Project compact operator workflow status from verified incident evidence only."""
-
     evidence = incident_evidence_response(ledger, incident_id=incident_id)
     recovery_events = evidence["recovery_events"]
     verification_events = evidence["verification_events"]
     restoration_events = evidence["restoration_events"]
-
     recovery_status = "not_started"
     if recovery_events:
         latest_recovery_type = recovery_events[-1]["event_type"]
@@ -156,19 +141,16 @@ def incident_status_summary(ledger: ActionLedger, *, incident_id: str) -> dict[s
             recovery_status = "executed"
         else:
             recovery_status = "planned"
-
     verification_status = "not_recorded"
     if verification_events:
         verification_status = (
             "verified" if verification_events[-1]["verified"] is True else "failed_or_unverified"
         )
-
     restoration_status = "not_recorded"
     if restoration_events:
         restoration_status = (
             "recorded_authorized" if restoration_events[-1]["authorized"] is True else "recorded_denied"
         )
-
     return {
         "incident_id": incident_id,
         "integrity_verified": evidence["integrity_verified"],
@@ -186,7 +168,6 @@ def incident_status_summary(ledger: ActionLedger, *, incident_id: str) -> dict[s
 
 def _operator_next_action(summary: Mapping[str, Any]) -> dict[str, str]:
     """Return deterministic workflow guidance, never executable authority."""
-
     if summary["recovery_status"] == "failed":
         action = "investigate_recovery_failure"
     elif summary["recovery_status"] in {"not_started", "planned"}:
@@ -205,30 +186,37 @@ def _operator_next_action(summary: Mapping[str, Any]) -> dict[str, str]:
 
 
 def _recovery_candidates(evidence: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
-    """Project review candidates from executed-action evidence without executable authority."""
-
+    """Project recovery and verification state without granting executable authority."""
     recovered_action_ids = {
         event["source_action_event_id"]
         for event in evidence["recovery_events"]
         if event["event_type"] in {"recovery_executed", "reconciliation_executed"}
         and event["source_action_event_id"] is not None
     }
+    latest_verification_by_action = {}
+    for event in evidence["verification_events"]:
+        source_action_event_id = event["source_action_event_id"]
+        if source_action_event_id is not None:
+            latest_verification_by_action[source_action_event_id] = event["verified"]
     candidates = []
     for action in evidence["executed_actions"]:
         recovery_class = action["recovery_class"]
         if recovery_class not in {"reversible", "compensatable"}:
             continue
+        action_id = action["event_id"]
+        if action_id not in recovered_action_ids:
+            status = "requires_recovery_review"
+        elif latest_verification_by_action.get(action_id) is True:
+            status = "recovery_verified"
+        else:
+            status = "requires_verification"
         candidates.append(
             {
-                "source_action_event_id": action["event_id"],
+                "source_action_event_id": action_id,
                 "action_type": action["action_type"],
                 "resource_keys": action["resource_keys"],
                 "recovery_class": recovery_class,
-                "status": (
-                    "recovery_recorded"
-                    if action["event_id"] in recovered_action_ids
-                    else "requires_recovery_review"
-                ),
+                "status": status,
                 "authority": "none",
             }
         )
@@ -236,12 +224,7 @@ def _recovery_candidates(evidence: Mapping[str, Any]) -> tuple[dict[str, Any], .
 
 
 def incident_operator_detail(ledger: ActionLedger, *, incident_id: str) -> dict[str, Any]:
-    """Compose the incident-response detail surface from verified evidence only.
-
-    The detail is intentionally a read model. Recorded restoration decisions remain evidence and
-    never become executable authority through this boundary.
-    """
-
+    """Compose the incident-response detail surface from verified evidence only."""
     evidence = incident_evidence_response(ledger, incident_id=incident_id)
     summary = incident_status_summary(ledger, incident_id=incident_id)
     return {
