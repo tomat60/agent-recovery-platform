@@ -45,6 +45,29 @@ def incident_evidence_response(ledger: ActionLedger, *, incident_id: str) -> dic
     if not events:
         raise KeyError(incident_id)
 
+    incident_event_ids = {event.event_id for event in events}
+    causal_nodes = tuple(
+        {
+            "event_id": event.event_id,
+            "event_type": event.event_type.value,
+            "parent_event_ids": tuple(
+                parent_id
+                for parent_id in event.parent_event_ids
+                if parent_id in incident_event_ids
+            ),
+        }
+        for event in events
+    )
+    causal_edges = tuple(
+        {
+            "parent_event_id": parent_id,
+            "event_id": event.event_id,
+        }
+        for event in events
+        for parent_id in event.parent_event_ids
+        if parent_id in incident_event_ids
+    )
+
     executed_actions = []
     residual_effects = []
     recovery_events = []
@@ -120,6 +143,10 @@ def incident_evidence_response(ledger: ActionLedger, *, incident_id: str) -> dic
         "incident_id": incident_id,
         "integrity_verified": True,
         "event_count": len(events),
+        "causal_graph": {
+            "nodes": causal_nodes,
+            "edges": causal_edges,
+        },
         "active_containment": active_containment,
         "executed_actions": tuple(executed_actions),
         "recovery_events": tuple(recovery_events),
