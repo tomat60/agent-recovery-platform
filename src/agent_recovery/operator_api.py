@@ -176,8 +176,26 @@ def incident_status_summary(ledger: ActionLedger, *, incident_id: str) -> dict[s
         else:
             recovery_status = "planned"
 
+    recovery_action_ids = {
+        event["source_action_event_id"]
+        for event in recovery_events
+        if event["event_type"] in {"recovery_executed", "reconciliation_executed"}
+        and event["source_action_event_id"] is not None
+    }
+    local_verification_events = [
+        event
+        for event in verification_events
+        if event["verification_kind"] != "adversarial_replay"
+        and event["source_action_event_id"] in recovery_action_ids
+    ]
     verification_status = "not_recorded"
-    if verification_events:
+    if local_verification_events:
+        verification_status = (
+            "verified"
+            if local_verification_events[-1]["verified"] is True
+            else "failed_or_unverified"
+        )
+    elif recovery_status == "failed" and verification_events:
         verification_status = (
             "verified" if verification_events[-1]["verified"] is True else "failed_or_unverified"
         )

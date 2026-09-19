@@ -132,7 +132,7 @@ def test_incident_status_summary_is_evidence_only_and_keeps_residual_truth():
     )
     summary = incident_status_summary(ledger, incident_id="inc-1")
     assert summary["recovery_status"] == "executed"
-    assert summary["verification_status"] == "verified"
+    assert summary["verification_status"] == "not_recorded"
     assert summary["restoration_status"] == "recorded_authorized"
     assert summary["irreversible_residual_count"] == 1
     assert summary["authority"] == "none"
@@ -310,7 +310,7 @@ def test_incident_operator_detail_prioritizes_residual_review_without_granting_a
     )
     detail = incident_operator_detail(ledger, incident_id="inc-1")
     assert detail["next_action"] == {
-        "action": "review_irreversible_residuals",
+        "action": "verify_recovered_state",
         "authority": "none",
     }
     assert detail["authority"] == "none"
