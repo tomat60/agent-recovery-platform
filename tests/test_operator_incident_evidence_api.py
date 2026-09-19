@@ -345,8 +345,10 @@ def test_recovery_candidate_ignores_adversarial_replay_as_local_recovery_verific
             "verification_kind": "adversarial_replay",
             "verified": True,
             "source_action_event_id": action.event_id,
+            "source_incident_id": "inc-1",
             "authority_scope": "resource:contact:42",
         },
+        parent_event_ids=(action.event_id,),
     )
 
     detail = incident_operator_detail(ledger, incident_id="inc-1")
