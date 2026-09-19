@@ -155,3 +155,50 @@ def incident_evidence_response(ledger: ActionLedger, *, incident_id: str) -> dic
         "residual_effects": tuple(residual_effects),
         "authority": "none",
     }
+
+
+def incident_status_summary(ledger: ActionLedger, *, incident_id: str) -> dict[str, Any]:
+    """Project compact operator workflow status from verified incident evidence only.
+
+    Status labels summarize recorded facts; they are not authorization decisions. In particular,
+    a recorded restoration event never grants authority through this read-only boundary.
+    """
+
+    evidence = incident_evidence_response(ledger, incident_id=incident_id)
+    recovery_events = evidence["recovery_events"]
+    verification_events = evidence["verification_events"]
+    restoration_events = evidence["restoration_events"]
+
+    recovery_status = "not_started"
+    if recovery_events:
+        latest_recovery_type = recovery_events[-1]["event_type"]
+        if latest_recovery_type in {"recovery_failed", "reconciliation_failed"}:
+            recovery_status = "failed"
+        elif latest_recovery_type in {"recovery_executed", "reconciliation_executed"}:
+            recovery_status = "executed"
+        else:
+            recovery_status = "planned"
+
+    verification_status = "not_recorded"
+    if verification_events:
+        verified = verification_events[-1]["verified"]
+        verification_status = "verified" if verified is True else "failed_or_unverified"
+
+    restoration_status = "not_recorded"
+    if restoration_events:
+        authorized = restoration_events[-1]["authorized"]
+        restoration_status = "recorded_authorized" if authorized is True else "recorded_denied"
+
+    return {
+        "incident_id": incident_id,
+        "integrity_verified": evidence["integrity_verified"],
+        "containment_active": bool(evidence["active_containment"]),
+        "executed_action_count": len(evidence["executed_actions"]),
+        "recovery_status": recovery_status,
+        "verification_status": verification_status,
+        "restoration_status": restoration_status,
+        "irreversible_residual_count": sum(
+            residual["irreversible"] is True for residual in evidence["residual_effects"]
+        ),
+        "authority": "none",
+    }
