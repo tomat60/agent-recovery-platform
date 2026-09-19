@@ -226,19 +226,22 @@ def _operator_next_action(summary: Mapping[str, Any]) -> dict[str, str]:
 def _recovery_candidates(evidence: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
     """Project review candidates from executed-action evidence without executable authority."""
 
-    recovered_action_ids = {
-        event["source_action_event_id"]
+    recovery_evidence_by_action = {
+        event["source_action_event_id"]: event["event_id"]
         for event in evidence["recovery_events"]
         if event["event_type"] in {"recovery_executed", "reconciliation_executed"}
         and event["source_action_event_id"] is not None
     }
-    latest_verification_by_action: dict[str, bool] = {}
+    latest_verification_by_action: dict[str, tuple[bool, str]] = {}
     for event in evidence["verification_events"]:
         if event["verification_kind"] == "adversarial_replay":
             continue
         source_action_event_id = event["source_action_event_id"]
         if source_action_event_id is not None:
-            latest_verification_by_action[source_action_event_id] = event["verified"] is True
+            latest_verification_by_action[source_action_event_id] = (
+                event["verified"] is True,
+                event["event_id"],
+            )
 
     candidates = []
     for action in evidence["executed_actions"]:
@@ -246,11 +249,13 @@ def _recovery_candidates(evidence: Mapping[str, Any]) -> tuple[dict[str, Any], .
         if recovery_class not in {"reversible", "compensatable"}:
             continue
         action_event_id = action["event_id"]
-        if action_event_id not in recovered_action_ids:
+        recovery_evidence_event_id = recovery_evidence_by_action.get(action_event_id)
+        verification_evidence = latest_verification_by_action.get(action_event_id)
+        if recovery_evidence_event_id is None:
             status = "requires_recovery_review"
-        elif latest_verification_by_action.get(action_event_id) is False:
+        elif verification_evidence is not None and verification_evidence[0] is False:
             status = "recovery_verification_failed"
-        elif latest_verification_by_action.get(action_event_id) is True:
+        elif verification_evidence is not None and verification_evidence[0] is True:
             status = "recovery_verified"
         else:
             status = "recovery_recorded"
@@ -261,6 +266,10 @@ def _recovery_candidates(evidence: Mapping[str, Any]) -> tuple[dict[str, Any], .
                 "resource_keys": action["resource_keys"],
                 "recovery_class": recovery_class,
                 "status": status,
+                "recovery_evidence_event_id": recovery_evidence_event_id,
+                "verification_evidence_event_id": (
+                    verification_evidence[1] if verification_evidence is not None else None
+                ),
                 "authority": "none",
             }
         )
