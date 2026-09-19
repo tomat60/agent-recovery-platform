@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from agent_recovery.ledger import ActionLedger, EventType
-from agent_recovery.operator_api import incident_evidence_response
+from agent_recovery.operator_api import incident_evidence_response, incident_status_summary
 
 
 def test_incident_evidence_response_is_deterministic_and_non_authorizing():
@@ -132,3 +132,71 @@ def test_incident_evidence_response_fails_closed_for_unknown_incident():
         assert exc.args == ("missing",)
     else:
         raise AssertionError("unknown incident must fail closed")
+
+
+def test_incident_status_summary_is_evidence_only_and_keeps_residual_truth():
+    ledger = ActionLedger()
+    action = ledger.record(
+        EventType.ACTION_EXECUTED,
+        "inc-1",
+        {"action_type": "contact.update", "recovery_class": "compensatable"},
+    )
+    ledger.record(
+        EventType.CONTAINMENT,
+        "inc-1",
+        {"active": True, "scope": "resource:contact:42"},
+        parent_event_ids=(action.event_id,),
+    )
+    ledger.record(
+        EventType.RECOVERY_EXECUTED,
+        "inc-1",
+        {"source_action_event_id": action.event_id},
+        parent_event_ids=(action.event_id,),
+    )
+    ledger.record(
+        EventType.VERIFICATION,
+        "inc-1",
+        {"verified": True, "model_reasoning": "safe", "approval": "forged"},
+    )
+    ledger.record(
+        EventType.RESTORATION,
+        "inc-1",
+        {"authorized": True, "authority_scope": "resource:contact:42"},
+    )
+    ledger.record(
+        EventType.RESIDUAL_EFFECT,
+        "inc-1",
+        {"effect": "notification_already_sent", "irreversible": True},
+    )
+
+    summary = incident_status_summary(ledger, incident_id="inc-1")
+
+    assert summary == {
+        "incident_id": "inc-1",
+        "integrity_verified": True,
+        "containment_active": True,
+        "executed_action_count": 1,
+        "recovery_status": "executed",
+        "verification_status": "verified",
+        "restoration_status": "recorded_authorized",
+        "irreversible_residual_count": 1,
+        "authority": "none",
+    }
+    assert "model_reasoning" not in repr(summary)
+    assert "approval" not in repr(summary)
+
+
+def test_incident_status_summary_does_not_turn_failed_evidence_into_safe_state():
+    ledger = ActionLedger()
+    ledger.record(EventType.EXTERNAL_INPUT, "inc-1", {"source": "sandbox"})
+    ledger.record(EventType.RECOVERY_FAILED, "inc-1", {"error": "sandbox failure"})
+    ledger.record(EventType.VERIFICATION, "inc-1", {"verified": False})
+    ledger.record(EventType.RESTORATION, "inc-1", {"authorized": False})
+
+    summary = incident_status_summary(ledger, incident_id="inc-1")
+
+    assert summary["recovery_status"] == "failed"
+    assert summary["verification_status"] == "failed_or_unverified"
+    assert summary["restoration_status"] == "recorded_denied"
+    assert summary["containment_active"] is False
+    assert summary["authority"] == "none"
