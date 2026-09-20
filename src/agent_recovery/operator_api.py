@@ -271,12 +271,16 @@ def _recovery_candidates(evidence: Mapping[str, Any]) -> tuple[dict[str, Any], .
         verification_evidence = latest_verification_by_action.get(action_event_id)
         if recovery_evidence_event_id is None:
             status = "requires_recovery_review"
+            verification_evidence_event_id = None
         elif verification_evidence is not None and verification_evidence[0] is False:
             status = "recovery_verification_failed"
+            verification_evidence_event_id = verification_evidence[1]
         elif verification_evidence is not None and verification_evidence[0] is True:
             status = "recovery_verified"
+            verification_evidence_event_id = verification_evidence[1]
         else:
             status = "recovery_recorded"
+            verification_evidence_event_id = None
         candidates.append(
             {
                 "source_action_event_id": action_event_id,
@@ -285,9 +289,7 @@ def _recovery_candidates(evidence: Mapping[str, Any]) -> tuple[dict[str, Any], .
                 "recovery_class": recovery_class,
                 "status": status,
                 "recovery_evidence_event_id": recovery_evidence_event_id,
-                "verification_evidence_event_id": (
-                    verification_evidence[1] if verification_evidence is not None else None
-                ),
+                "verification_evidence_event_id": verification_evidence_event_id,
                 "authority": "none",
             }
         )
