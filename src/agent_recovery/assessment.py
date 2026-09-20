@@ -4,7 +4,6 @@ from typing import Any
 
 from agent_recovery.readiness import RecoveryReadiness
 
-
 CLAIM_LIMITS = (
     "synthetic_owned_environment_only",
     "no_production_security_effectiveness_claim",
@@ -24,7 +23,7 @@ def build_recoverability_assessment(
         sorted(
             item["action_type"]
             for item in sandbox_report["operator_side_effects"]
-            if item.get("irreversible") is True
+            if item.get("recovery_class") == "irreversible"
         )
     )
 
