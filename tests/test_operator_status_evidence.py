@@ -50,6 +50,7 @@ def test_status_evidence_refs_are_local_and_non_authorizing():
     payload = incident_status_evidence_response(ledger, incident_id="inc-1")
 
     assert payload["status"]["verification_status"] == "verified"
+    assert payload["status"]["restoration_status"] == "recorded_authorized"
     assert payload["evidence_refs"] == {
         "recovery_event_id": recovery.event_id,
         "verification_event_id": verification.event_id,
@@ -130,6 +131,7 @@ def test_status_evidence_refs_reject_unbound_restoration():
 
     payload = incident_status_evidence_response(ledger, incident_id="inc-1")
 
+    assert payload["status"]["restoration_status"] == "not_recorded"
     assert payload["evidence_refs"]["verification_event_id"] == verification.event_id
     assert payload["evidence_refs"]["restoration_event_id"] is None
     assert unrelated.event_id not in payload["evidence_refs"].values()
