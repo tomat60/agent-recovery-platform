@@ -36,7 +36,7 @@ def incident_status_evidence_response(
         and event["source_action_event_id"] in recovered_action_ids
     ]
 
-    recovery_event_id = None
+    recovery_event_id = executed_recovery[-1]["event_id"] if executed_recovery else None
     verification_event_id = None
     restoration_event_id = None
     if local_verification:
