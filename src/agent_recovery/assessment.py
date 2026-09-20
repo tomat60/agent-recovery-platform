@@ -29,11 +29,19 @@ def build_recoverability_assessment(
     )
 
     remediation = [
-        {"priority": "P0", "kind": "readiness_blocker", "evidence": blocker}
+        {
+            "priority": "P0",
+            "kind": "readiness_blocker",
+            "evidence": blocker,
+        }
         for blocker in readiness.blockers
     ]
     remediation.extend(
-        {"priority": "P1", "kind": "irreversible_residual", "evidence": effect}
+        {
+            "priority": "P1",
+            "kind": "irreversible_residual",
+            "evidence": effect,
+        }
         for effect in residuals
     )
 
