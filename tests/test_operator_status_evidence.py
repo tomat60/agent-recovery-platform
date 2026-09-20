@@ -24,6 +24,8 @@ def test_status_evidence_refs_are_local_and_non_authorizing():
             "verification_kind": "adversarial_replay",
             "verified": True,
             "source_action_event_id": action.event_id,
+            "authority_scope": "resource:contact:42",
+            "source_incident_id": "inc-1",
         },
         parent_event_ids=(action.event_id,),
     )
@@ -78,6 +80,8 @@ def test_status_evidence_refs_do_not_promote_replay_or_unbound_verification():
             "verification_kind": "adversarial_replay",
             "verified": True,
             "source_action_event_id": action.event_id,
+            "authority_scope": "resource:contact:42",
+            "source_incident_id": "inc-1",
         },
     )
     ledger.record(EventType.VERIFICATION, "inc-1", {"verified": True})
