@@ -35,19 +35,26 @@ def incident_status_evidence_response(
         and event["source_action_event_id"] in recovered_action_ids
     ]
 
+    recovery_event_id = executed_recovery[-1]["event_id"] if executed_recovery else None
+    verification_event_id = local_verification[-1]["event_id"] if local_verification else None
+    restoration_event_id = None
+    if verification_event_id is not None:
+        incident_events = {event.event_id: event for event in ledger.events(incident_id=incident_id)}
+        bound_restoration = [
+            event
+            for event in evidence["restoration_events"]
+            if verification_event_id in incident_events[event["event_id"]].parent_event_ids
+        ]
+        if bound_restoration:
+            restoration_event_id = bound_restoration[-1]["event_id"]
+
     return {
         "incident_id": incident_id,
         "status": summary,
         "evidence_refs": {
-            "recovery_event_id": executed_recovery[-1]["event_id"] if executed_recovery else None,
-            "verification_event_id": (
-                local_verification[-1]["event_id"] if local_verification else None
-            ),
-            "restoration_event_id": (
-                evidence["restoration_events"][-1]["event_id"]
-                if evidence["restoration_events"]
-                else None
-            ),
+            "recovery_event_id": recovery_event_id,
+            "verification_event_id": verification_event_id,
+            "restoration_event_id": restoration_event_id,
         },
         "authority": "none",
     }
