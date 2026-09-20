@@ -96,3 +96,40 @@ def test_status_evidence_refs_do_not_promote_replay_or_unbound_verification():
         "restoration_event_id": None,
     }
     assert payload["authority"] == "none"
+
+
+def test_status_evidence_refs_reject_unbound_restoration():
+    ledger = ActionLedger()
+    action = ledger.record(
+        EventType.ACTION_EXECUTED,
+        "inc-1",
+        {"action_type": "contact.update", "recovery_class": "reversible"},
+    )
+    recovery = ledger.record(
+        EventType.RECOVERY_EXECUTED,
+        "inc-1",
+        {"action_event_id": action.event_id},
+        parent_event_ids=(action.event_id,),
+    )
+    verification = ledger.record(
+        EventType.VERIFICATION,
+        "inc-1",
+        {
+            "verification_kind": "state_check",
+            "verified": True,
+            "source_action_event_id": action.event_id,
+        },
+        parent_event_ids=(recovery.event_id,),
+    )
+    unrelated = ledger.record(
+        EventType.RESTORATION,
+        "inc-1",
+        {"authorized": True, "authority_scope": "resource:other:99"},
+        parent_event_ids=(action.event_id,),
+    )
+
+    payload = incident_status_evidence_response(ledger, incident_id="inc-1")
+
+    assert payload["evidence_refs"]["verification_event_id"] == verification.event_id
+    assert payload["evidence_refs"]["restoration_event_id"] is None
+    assert unrelated.event_id not in payload["evidence_refs"].values()
