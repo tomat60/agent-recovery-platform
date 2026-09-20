@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from .readiness import RecoveryReadiness
+from agent_recovery.readiness import RecoveryReadiness
 
 
 CLAIM_LIMITS = (
