@@ -135,3 +135,47 @@ def test_status_evidence_refs_reject_unbound_restoration():
     assert payload["evidence_refs"]["verification_event_id"] == verification.event_id
     assert payload["evidence_refs"]["restoration_event_id"] is None
     assert unrelated.event_id not in payload["evidence_refs"].values()
+
+
+def test_status_evidence_refs_reject_failed_verification_and_its_restoration():
+    ledger = ActionLedger()
+    action = ledger.record(
+        EventType.ACTION_EXECUTED,
+        "inc-1",
+        {"action_type": "contact.update", "recovery_class": "reversible"},
+    )
+    recovery = ledger.record(
+        EventType.RECOVERY_EXECUTED,
+        "inc-1",
+        {"action_event_id": action.event_id},
+        parent_event_ids=(action.event_id,),
+    )
+    failed_verification = ledger.record(
+        EventType.VERIFICATION,
+        "inc-1",
+        {
+            "verification_kind": "state_check",
+            "verified": False,
+            "source_action_event_id": action.event_id,
+        },
+        parent_event_ids=(recovery.event_id,),
+    )
+    restoration = ledger.record(
+        EventType.RESTORATION,
+        "inc-1",
+        {"authorized": True, "authority_scope": "resource:contact:42"},
+        parent_event_ids=(failed_verification.event_id,),
+    )
+
+    payload = incident_status_evidence_response(ledger, incident_id="inc-1")
+
+    assert payload["status"]["verification_status"] == "not_recorded"
+    assert payload["status"]["restoration_status"] == "not_recorded"
+    assert payload["next_action"] == {"action": "run_independent_verification", "authority": "none"}
+    assert payload["evidence_refs"] == {
+        "recovery_event_id": recovery.event_id,
+        "verification_event_id": None,
+        "restoration_event_id": None,
+    }
+    assert failed_verification.event_id not in payload["evidence_refs"].values()
+    assert restoration.event_id not in payload["evidence_refs"].values()
