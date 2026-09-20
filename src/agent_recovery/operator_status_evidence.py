@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from .ledger import ActionLedger
-from .operator_api import incident_evidence_response, incident_status_summary
+from .operator_api import _operator_next_action, incident_evidence_response, incident_status_summary
 
 
 def incident_status_evidence_response(
@@ -66,6 +66,7 @@ def incident_status_evidence_response(
     return {
         "incident_id": incident_id,
         "status": summary,
+        "next_action": _operator_next_action(summary),
         "evidence_refs": {
             "recovery_event_id": recovery_event_id,
             "verification_event_id": verification_event_id,
