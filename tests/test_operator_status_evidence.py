@@ -83,6 +83,7 @@ def test_status_evidence_refs_do_not_promote_replay_or_unbound_verification():
             "authority_scope": "resource:contact:42",
             "source_incident_id": "inc-1",
         },
+        parent_event_ids=(action.event_id,),
     )
     ledger.record(EventType.VERIFICATION, "inc-1", {"verified": True})
 
