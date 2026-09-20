@@ -32,6 +32,7 @@ def incident_status_evidence_response(
         event
         for event in evidence["verification_events"]
         if event["verification_kind"] != "adversarial_replay"
+        and event["verified"] is True
         and event["source_action_event_id"] in recovered_action_ids
     ]
 
@@ -47,6 +48,9 @@ def incident_status_evidence_response(
         ]
         if bound_restoration:
             restoration_event_id = bound_restoration[-1]["event_id"]
+
+    if verification_event_id is None:
+        summary = {**summary, "verification_status": "not_recorded"}
 
     if restoration_event_id is None:
         summary = {**summary, "restoration_status": "not_recorded"}
