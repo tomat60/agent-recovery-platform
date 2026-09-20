@@ -336,6 +336,7 @@ class RecoveryEngine:
             {
                 "agent_id": agent_id,
                 "tool_id": tool_id,
+                "action_type": contract.action_type,
                 "contract_version": contract.contract_version,
                 "recovery_class": contract.recovery_class.value,
                 "resource_keys": resource_keys,
@@ -455,6 +456,8 @@ class RecoveryEngine:
                     "action_event_id": action_event_id,
                     "tool_id": contract.tool_id,
                     "reason": "action_is_irreversible",
+                    "effect": contract.action_type,
+                    "irreversible": True,
                 },
                 parent_event_ids=(action_event_id,),
             )
