@@ -197,7 +197,7 @@ def test_incident_operator_detail_composes_workflow_without_authority_or_advisor
     detail = incident_operator_detail(ledger, incident_id="inc-1")
     assert detail["incident_id"] == "inc-1"
     assert detail["status"]["containment_active"] is True
-    assert detail["status"]["restoration_status"] == "recorded_authorized"
+    assert detail["status"]["restoration_status"] == "not_recorded"
     assert detail["side_effects"][0]["event_id"] == action.event_id
     assert detail["recovery_candidates"] == (
         {

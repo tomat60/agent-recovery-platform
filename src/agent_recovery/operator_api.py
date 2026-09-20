@@ -301,12 +301,14 @@ def incident_operator_detail(ledger: ActionLedger, *, incident_id: str) -> dict[
     never become executable authority through this boundary.
     """
 
+    from .operator_status_evidence import incident_status_evidence_response
+
     evidence = incident_evidence_response(ledger, incident_id=incident_id)
-    summary = incident_status_summary(ledger, incident_id=incident_id)
+    bound_status = incident_status_evidence_response(ledger, incident_id=incident_id)
     return {
         "incident_id": incident_id,
-        "status": summary,
-        "next_action": _operator_next_action(summary),
+        "status": bound_status["status"],
+        "next_action": bound_status["next_action"],
         "causal_graph": evidence["causal_graph"],
         "active_containment": evidence["active_containment"],
         "side_effects": evidence["executed_actions"],
