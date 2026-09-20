@@ -48,6 +48,21 @@ def incident_status_evidence_response(
         if bound_restoration:
             restoration_event_id = bound_restoration[-1]["event_id"]
 
+    if restoration_event_id is None:
+        summary = {**summary, "restoration_status": "not_recorded"}
+    else:
+        restoration_by_id = {
+            event["event_id"]: event for event in evidence["restoration_events"]
+        }
+        summary = {
+            **summary,
+            "restoration_status": (
+                "recorded_authorized"
+                if restoration_by_id[restoration_event_id]["authorized"] is True
+                else "recorded_denied"
+            ),
+        }
+
     return {
         "incident_id": incident_id,
         "status": summary,
