@@ -171,7 +171,7 @@ def test_status_evidence_refs_reject_failed_verification_and_its_restoration():
 
     assert payload["status"]["verification_status"] == "not_recorded"
     assert payload["status"]["restoration_status"] == "not_recorded"
-    assert payload["next_action"] == {"action": "run_independent_verification", "authority": "none"}
+    assert payload["next_action"] == {"action": "verify_recovered_state", "authority": "none"}
     assert payload["evidence_refs"] == {
         "recovery_event_id": recovery.event_id,
         "verification_event_id": None,
