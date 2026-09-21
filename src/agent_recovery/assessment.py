@@ -28,13 +28,13 @@ def _readiness_evidence(readiness: RecoveryReadiness) -> dict[str, Any]:
     }
 
 
-def _evidence_digest(
+def _evidence_manifest(
     readiness: RecoveryReadiness,
     sandbox_report: dict[str, Any],
-) -> str:
-    """Bind the assessment to the exact deterministic readiness and incident evidence."""
+) -> dict[str, Any]:
+    """Return the exact deterministic evidence covered by the assessment digest."""
 
-    evidence = {
+    return {
         "readiness": _readiness_evidence(readiness),
         "controlled_incident": {
             "scenario": sandbox_report["scenario"],
@@ -45,8 +45,13 @@ def _evidence_digest(
             "authority": sandbox_report["authority"],
         },
     }
+
+
+def _evidence_digest(evidence_manifest: dict[str, Any]) -> str:
+    """Bind the assessment to the exact deterministic readiness and incident evidence."""
+
     encoded = json.dumps(
-        evidence,
+        evidence_manifest,
         sort_keys=True,
         separators=(",", ":"),
         ensure_ascii=True,
@@ -86,13 +91,16 @@ def build_recoverability_assessment(
         for effect in residuals
     )
 
+    evidence_manifest = _evidence_manifest(readiness, sandbox_report)
+
     return {
         "assessment_version": "1",
         "environment": "synthetic_owned_sandbox",
         "evidence_identity": {
             "scenario": sandbox_report["scenario"],
             "incident_id": sandbox_report["incident_id"],
-            "sha256": _evidence_digest(readiness, sandbox_report),
+            "sha256": _evidence_digest(evidence_manifest),
+            "manifest": evidence_manifest,
         },
         "readiness": _readiness_evidence(readiness),
         "controlled_incident": {
