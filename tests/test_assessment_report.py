@@ -1,3 +1,5 @@
+import json
+
 from agent_recovery.assessment import build_recoverability_assessment
 from agent_recovery.assessment_report import render_recoverability_assessment
 from agent_recovery.pilot_sandbox import run_multisurface_recovery_sandbox
@@ -33,6 +35,24 @@ def test_report_keeps_residuals_and_claim_limits_visible():
     assert "Restored authority: `none`" in rendered
     assert "`no_production_security_effectiveness_claim`" in rendered
     assert "does not grant runtime authority" in rendered
+
+
+def test_report_renders_exact_evidence_manifest_covered_by_digest():
+    assessment = build_recoverability_assessment(
+        readiness(), run_multisurface_recovery_sandbox()
+    )
+
+    rendered = render_recoverability_assessment(assessment)
+    expected_manifest = json.dumps(
+        assessment["evidence_identity"]["manifest"],
+        sort_keys=True,
+        indent=2,
+        ensure_ascii=True,
+    )
+
+    assert "## Evidence manifest" in rendered
+    assert "The SHA-256 identity above covers this exact canonical evidence manifest:" in rendered
+    assert f"```json\n{expected_manifest}\n```" in rendered
 
 
 def test_report_promotes_missing_runtime_binding_as_p0_remediation():
