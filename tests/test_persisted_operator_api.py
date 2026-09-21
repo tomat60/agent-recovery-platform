@@ -41,6 +41,9 @@ def test_persisted_incident_api_reconstructs_read_only_state_after_restart(tmp_p
 
     assert listing["authority"] == "none"
     assert [item["incident_id"] for item in listing["incidents"]] == ["incident-1"]
+    assert listing["incidents"][0]["status"]["containment_active"] is True
+    assert listing["incidents"][0]["recovery_candidate_count"] == 1
+    assert "detail" not in listing["incidents"][0]
     assert detail["authority"] == "none"
     assert detail["incident"]["incident_id"] == "incident-1"
     assert detail["incident"]["status"]["containment_active"] is True
