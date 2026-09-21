@@ -110,3 +110,27 @@ def test_assessment_keeps_missing_runtime_binding_as_p0_blocker():
     }
     assert report["controlled_incident"]["authority"] == "none"
     assert report["controlled_incident"]["restoration_eligible"] is False
+
+
+def test_assessment_can_become_restoration_eligible_only_from_bound_status_evidence():
+    sandbox = run_multisurface_recovery_sandbox()
+    eligible = deepcopy(sandbox)
+    eligible["operator_status"] = {
+        **eligible["operator_status"],
+        "containment_active": False,
+        "verification_status": "verified",
+        "restoration_status": "recorded_authorized",
+    }
+
+    report = build_recoverability_assessment(readiness(), eligible)
+
+    assert report["controlled_incident"]["restoration_eligible"] is True
+
+    blocked = build_recoverability_assessment(
+        readiness(
+            blockers=("missing_runtime_binding:mail.send:write@1",),
+            missing=("mail.send:write@1",),
+        ),
+        eligible,
+    )
+    assert blocked["controlled_incident"]["restoration_eligible"] is False
