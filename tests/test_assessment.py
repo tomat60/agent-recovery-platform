@@ -67,6 +67,18 @@ def test_assessment_evidence_digest_is_deterministic_and_changes_with_evidence()
     assert changed_report["evidence_identity"]["sha256"] != first["evidence_identity"]["sha256"]
 
 
+def test_assessment_evidence_digest_changes_with_readiness_evidence():
+    sandbox = run_multisurface_recovery_sandbox()
+    baseline = build_recoverability_assessment(readiness(), sandbox)
+    blocker = "missing_runtime_binding:mail.send:write@1"
+    changed = build_recoverability_assessment(
+        readiness(blockers=(blocker,), missing=("mail.send:write@1",)),
+        sandbox,
+    )
+
+    assert changed["evidence_identity"]["sha256"] != baseline["evidence_identity"]["sha256"]
+
+
 def test_assessment_keeps_missing_runtime_binding_as_p0_blocker():
     blocker = "missing_runtime_binding:mail.send:write@1"
     report = build_recoverability_assessment(
