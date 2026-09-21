@@ -25,14 +25,20 @@ def test_app_fixture_is_backend_derived_and_non_authorizing():
 def test_app_static_assets_keep_security_logic_out_of_frontend():
     html = (ROOT / "app" / "index.html").read_text(encoding="utf-8")
     javascript = (ROOT / "app" / "app.js").read_text(encoding="utf-8")
+    transport = (ROOT / "app" / "operator-transport.js").read_text(encoding="utf-8")
     css = (ROOT / "app" / "styles.css").read_text(encoding="utf-8")
 
     assert 'data-view="overview"' in html
     assert 'data-view="incident"' in html
     assert 'data-view="assessment"' in html
-    assert 'fetch("./data/sample.json"' in javascript
+    assert 'loadOperatorState()' in javascript
+    assert 'DEFAULT_FIXTURE_URL = "./data/sample.json"' in transport
+    assert 'payload?.authority !== "none"' in transport
     assert "RecoveryEngine" not in javascript
+    assert "RecoveryEngine" not in transport
     assert "authorize(" not in javascript
+    assert "authorize(" not in transport
     assert "approval" not in javascript.lower()
+    assert "approval" not in transport.lower()
     assert ".metric-grid" in css
     assert "@media" in css
