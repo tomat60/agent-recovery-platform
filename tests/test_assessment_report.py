@@ -33,6 +33,7 @@ def test_report_keeps_residuals_and_claim_limits_visible():
     assert "`external_communication`: `residual`" in rendered
     assert "### Irreversible residuals\n\n- `external_communication`" in rendered
     assert "Restored authority: `none`" in rendered
+    assert "Restoration eligible: `false`" in rendered
     assert "`no_production_security_effectiveness_claim`" in rendered
     assert "does not grant runtime authority" in rendered
 
@@ -67,3 +68,4 @@ def test_report_promotes_missing_runtime_binding_as_p0_remediation():
     assert "Missing trusted runtime bindings: 1" in rendered
     assert f"P0 `readiness_blocker`: `{blocker}`" in rendered
     assert "P1 `irreversible_residual`: `external_communication`" in rendered
+    assert "Restoration eligible: `false`" in rendered
