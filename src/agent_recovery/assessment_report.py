@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import Any
 
 
@@ -58,6 +59,24 @@ def render_recoverability_assessment(report: dict[str, Any]) -> str:
         )
     else:
         lines.append("- No remediation items derived from current evidence.")
+
+    lines.extend(
+        [
+            "",
+            "## Evidence manifest",
+            "",
+            "The SHA-256 identity above covers this exact canonical evidence manifest:",
+            "",
+            "```json",
+            json.dumps(
+                evidence_identity["manifest"],
+                sort_keys=True,
+                indent=2,
+                ensure_ascii=True,
+            ),
+            "```",
+        ]
+    )
 
     lines.extend(["", "## Claim limits", ""])
     lines.extend(f"- `{limit}`" for limit in report["claim_limits"])
