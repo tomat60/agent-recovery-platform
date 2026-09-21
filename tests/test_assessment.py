@@ -23,6 +23,10 @@ def test_assessment_composes_readiness_and_controlled_incident_evidence():
 
     assert report["assessment_version"] == "1"
     assert report["environment"] == "synthetic_owned_sandbox"
+    assert report["evidence_identity"] == {
+        "scenario": "owned_sales_ops_multisurface_recovery",
+        "incident_id": "sandbox-sales-ops-incident",
+    }
     assert report["readiness"]["recoverability_fraction"] == 0.75
     assert report["readiness"]["blockers"] == ()
 
