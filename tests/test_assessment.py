@@ -40,6 +40,7 @@ def test_assessment_composes_readiness_and_controlled_incident_evidence():
     assert incident["containment_active"] is True
     assert incident["verification_status"] == "verified"
     assert incident["authority"] == "none"
+    assert incident["restoration_eligible"] is False
     assert incident["irreversible_residuals"] == ("external_communication",)
 
     assert report["remediation"] == (
@@ -108,3 +109,4 @@ def test_assessment_keeps_missing_runtime_binding_as_p0_blocker():
         "evidence": blocker,
     }
     assert report["controlled_incident"]["authority"] == "none"
+    assert report["controlled_incident"]["restoration_eligible"] is False
