@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from agent_recovery.assessment import build_recoverability_assessment
 from agent_recovery.pilot_sandbox import run_multisurface_recovery_sandbox
 from agent_recovery.readiness import RecoveryReadiness
@@ -23,10 +25,9 @@ def test_assessment_composes_readiness_and_controlled_incident_evidence():
 
     assert report["assessment_version"] == "1"
     assert report["environment"] == "synthetic_owned_sandbox"
-    assert report["evidence_identity"] == {
-        "scenario": "owned_sales_ops_multisurface_recovery",
-        "incident_id": "sandbox-sales-ops-incident",
-    }
+    assert report["evidence_identity"]["scenario"] == "owned_sales_ops_multisurface_recovery"
+    assert report["evidence_identity"]["incident_id"] == "sandbox-sales-ops-incident"
+    assert len(report["evidence_identity"]["sha256"]) == 64
     assert report["readiness"]["recoverability_fraction"] == 0.75
     assert report["readiness"]["blockers"] == ()
 
@@ -50,6 +51,20 @@ def test_assessment_composes_readiness_and_controlled_incident_evidence():
     )
     assert "no_production_security_effectiveness_claim" in report["claim_limits"]
     assert "irreversible_effects_are_residual_risk_not_undo" in report["claim_limits"]
+
+
+def test_assessment_evidence_digest_is_deterministic_and_changes_with_evidence():
+    sandbox = run_multisurface_recovery_sandbox()
+    first = build_recoverability_assessment(readiness(), sandbox)
+    second = build_recoverability_assessment(readiness(), deepcopy(sandbox))
+
+    assert first["evidence_identity"]["sha256"] == second["evidence_identity"]["sha256"]
+
+    changed = deepcopy(sandbox)
+    changed["recovery_outcomes"]["crm"] = "failed"
+    changed_report = build_recoverability_assessment(readiness(), changed)
+
+    assert changed_report["evidence_identity"]["sha256"] != first["evidence_identity"]["sha256"]
 
 
 def test_assessment_keeps_missing_runtime_binding_as_p0_blocker():
