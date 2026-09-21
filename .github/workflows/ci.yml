@@ -25,6 +25,16 @@ jobs:
         run: ruff check src tests
       - name: Test
         run: pytest
+      - name: Build commercial app preview
+        if: matrix.python-version == '3.12'
+        run: python scripts/build_app_fixture.py
+      - name: Upload commercial app preview
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-recovery-app-preview
+          path: app/
+          if-no-files-found: error
       - name: Benchmark smoke
         if: matrix.python-version == '3.12'
         run: python scripts/run_benchmark.py | tee benchmark-results.json
