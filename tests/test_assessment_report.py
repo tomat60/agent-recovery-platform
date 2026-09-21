@@ -24,6 +24,8 @@ def test_report_keeps_residuals_and_claim_limits_visible():
 
     rendered = render_recoverability_assessment(assessment)
 
+    assert "Evidence scenario: `owned_sales_ops_multisurface_recovery`" in rendered
+    assert "Evidence incident: `sandbox-sales-ops-incident`" in rendered
     assert "Recoverability coverage: 75%" in rendered
     assert "`external_communication`: `residual`" in rendered
     assert "### Irreversible residuals\n\n- `external_communication`" in rendered
