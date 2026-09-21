@@ -96,7 +96,7 @@ def build_recoverability_assessment(
         not readiness.blockers
         and status["verification_status"] == "verified"
         and not status["containment_active"]
-        and sandbox_report["authority"] != "none"
+        and status["restoration_status"] == "recorded_authorized"
     )
 
     return {
