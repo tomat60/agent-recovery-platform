@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from scripts.build_app_fixture import build_app_fixture
+from agent_recovery.app_fixture import build_app_fixture
 
 ROOT = Path(__file__).resolve().parents[1]
 
