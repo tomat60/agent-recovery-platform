@@ -14,16 +14,36 @@ CLAIM_LIMITS = (
 )
 
 
-def _evidence_digest(sandbox_report: dict[str, Any]) -> str:
-    """Bind the assessment to the exact deterministic controlled-incident evidence."""
+def _readiness_evidence(readiness: RecoveryReadiness) -> dict[str, Any]:
+    return {
+        "total_actions": readiness.total_actions,
+        "structurally_recoverable": readiness.structurally_recoverable,
+        "recoverability_fraction": readiness.recoverability_fraction,
+        "reversible": readiness.reversible,
+        "compensatable": readiness.compensatable,
+        "irreversible": readiness.irreversible,
+        "human_approval_required": readiness.human_approval_required,
+        "missing_runtime_bindings": readiness.missing_runtime_bindings,
+        "blockers": readiness.blockers,
+    }
+
+
+def _evidence_digest(
+    readiness: RecoveryReadiness,
+    sandbox_report: dict[str, Any],
+) -> str:
+    """Bind the assessment to the exact deterministic readiness and incident evidence."""
 
     evidence = {
-        "scenario": sandbox_report["scenario"],
-        "incident_id": sandbox_report["incident_id"],
-        "recovery_outcomes": sandbox_report["recovery_outcomes"],
-        "operator_status": sandbox_report["operator_status"],
-        "operator_side_effects": sandbox_report["operator_side_effects"],
-        "authority": sandbox_report["authority"],
+        "readiness": _readiness_evidence(readiness),
+        "controlled_incident": {
+            "scenario": sandbox_report["scenario"],
+            "incident_id": sandbox_report["incident_id"],
+            "recovery_outcomes": sandbox_report["recovery_outcomes"],
+            "operator_status": sandbox_report["operator_status"],
+            "operator_side_effects": sandbox_report["operator_side_effects"],
+            "authority": sandbox_report["authority"],
+        },
     }
     encoded = json.dumps(
         evidence,
@@ -72,19 +92,9 @@ def build_recoverability_assessment(
         "evidence_identity": {
             "scenario": sandbox_report["scenario"],
             "incident_id": sandbox_report["incident_id"],
-            "sha256": _evidence_digest(sandbox_report),
+            "sha256": _evidence_digest(readiness, sandbox_report),
         },
-        "readiness": {
-            "total_actions": readiness.total_actions,
-            "structurally_recoverable": readiness.structurally_recoverable,
-            "recoverability_fraction": readiness.recoverability_fraction,
-            "reversible": readiness.reversible,
-            "compensatable": readiness.compensatable,
-            "irreversible": readiness.irreversible,
-            "human_approval_required": readiness.human_approval_required,
-            "missing_runtime_bindings": readiness.missing_runtime_bindings,
-            "blockers": readiness.blockers,
-        },
+        "readiness": _readiness_evidence(readiness),
         "controlled_incident": {
             "scenario": sandbox_report["scenario"],
             "incident_id": sandbox_report["incident_id"],
