@@ -1,188 +1,47 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="color-scheme" content="dark">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Agent Recovery Platform</title>
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <div class="app-shell">
     <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark">AR</div>
-        <div>
-          <strong>Agent Recovery</strong>
-          <span>Control plane</span>
-        </div>
-      </div>
-      <nav class="nav">
+      <div class="brand"><span class="brand-mark">AR</span><div><strong>Agent Recovery</strong><span>Operator Console</span></div></div>
+      <nav>
         <button class="nav-item active" data-view="overview">Overview</button>
         <button class="nav-item" data-view="incident">Incident</button>
         <button class="nav-item" data-view="assessment">Assessment</button>
       </nav>
-      <div class="sidebar-foot">
-        <span class="status-dot"></span>
-        <div>
-          <strong>Read-only console</strong>
-          <span>Authority: none</span>
-        </div>
-      </div>
+      <div class="sidebar-note"><span>Authority</span><strong>Evidence only</strong><p>This console never grants recovery or restoration authority.</p></div>
     </aside>
-
-    <main class="main">
-      <header class="topbar">
-        <div>
-          <div class="eyebrow">Commercial MVP</div>
-          <h1 id="page-title">Recovery overview</h1>
-          <p id="page-subtitle">Evidence-backed recovery state for autonomous agent incidents.</p>
-        </div>
-        <div class="top-actions">
-          <div class="badge safe">Owned sandbox</div>
-          <div class="badge neutral" id="evidence-short">Evidence loading</div>
-        </div>
-      </header>
-
+    <main class="content">
+      <header class="topbar"><div><h1 id="page-title">Recovery overview</h1><p id="page-subtitle">Evidence-backed recovery state for autonomous agent incidents.</p></div><span id="evidence-short" class="pill neutral">SHA -</span></header>
       <section class="view active" id="view-overview">
         <div class="metric-grid">
-          <article class="metric-card">
-            <span>Recoverability</span>
-            <strong id="metric-recoverability">-</strong>
-            <small>structural coverage</small>
-          </article>
-          <article class="metric-card">
-            <span>Verification</span>
-            <strong id="metric-verification">-</strong>
-            <small>latest controlled incident</small>
-          </article>
-          <article class="metric-card">
-            <span>Containment</span>
-            <strong id="metric-containment">-</strong>
-            <small>current incident hold</small>
-          </article>
-          <article class="metric-card warning-card">
-            <span>Irreversible residuals</span>
-            <strong id="metric-residuals">-</strong>
-            <small>effects that cannot be undone</small>
-          </article>
+          <article class="metric"><span>Recoverability</span><strong id="metric-recoverability">-</strong></article>
+          <article class="metric"><span>Verification</span><strong id="metric-verification">-</strong></article>
+          <article class="metric"><span>Containment</span><strong id="metric-containment">-</strong></article>
+          <article class="metric"><span>Irreversible residuals</span><strong id="metric-residuals">-</strong></article>
         </div>
-
         <div class="two-col">
-          <article class="panel hero-panel">
-            <div class="panel-head">
-              <div>
-                <span class="section-kicker">Current incident</span>
-                <h2 id="incident-name">Loading</h2>
-              </div>
-              <span class="pill danger" id="incident-state">Contained</span>
-            </div>
-            <div class="lifecycle" id="lifecycle"></div>
-            <div class="next-action">
-              <span>Operator next action</span>
-              <strong id="next-action">-</strong>
-              <small>Guidance only. No execution authority.</small>
-            </div>
-          </article>
-
-          <article class="panel">
-            <div class="panel-head">
-              <div>
-                <span class="section-kicker">Recovery readiness</span>
-                <h2>Before production</h2>
-              </div>
-            </div>
-            <div class="readiness-bar"><div id="readiness-fill"></div></div>
-            <div class="readiness-row"><span>Consequential actions</span><strong id="readiness-total">-</strong></div>
-            <div class="readiness-row"><span>Recoverable path</span><strong id="readiness-recoverable">-</strong></div>
-            <div class="readiness-row"><span>Missing runtime bindings</span><strong id="readiness-missing">-</strong></div>
-            <div class="readiness-row"><span>Restoration eligible</span><strong id="readiness-restoration">-</strong></div>
-          </article>
+          <article class="panel"><div class="panel-head"><div><span class="section-kicker">Active incident</span><h2 id="incident-name">-</h2></div><span id="incident-state" class="pill warning">-</span></div><div id="lifecycle" class="lifecycle"></div><div class="next-action"><span>Next deterministic action</span><strong id="next-action">-</strong></div></article>
+          <article class="panel"><div class="panel-head"><div><span class="section-kicker">Recovery readiness</span><h2>Contract coverage</h2></div></div><div class="progress"><div id="readiness-fill"></div></div><div class="readiness-row"><span>Consequential actions</span><strong id="readiness-total">-</strong></div><div class="readiness-row"><span>Structurally recoverable</span><strong id="readiness-recoverable">-</strong></div><div class="readiness-row"><span>Missing runtime bindings</span><strong id="readiness-missing">-</strong></div><div class="readiness-row"><span>Restoration eligible</span><strong id="readiness-restoration">-</strong></div></article>
         </div>
       </section>
-
       <section class="view" id="view-incident">
-        <div class="two-col incident-layout">
-          <article class="panel">
-            <div class="panel-head">
-              <div>
-                <span class="section-kicker">Recovery candidates</span>
-                <h2>Action-level truth</h2>
-              </div>
-              <span class="pill neutral">Evidence-bound</span>
-            </div>
-            <div id="candidate-list" class="candidate-list"></div>
-          </article>
-          <article class="panel">
-            <div class="panel-head">
-              <div>
-                <span class="section-kicker">Side effects</span>
-                <h2>What actually changed</h2>
-              </div>
-            </div>
-            <div id="side-effect-list" class="candidate-list"></div>
-          </article>
-        </div>
-        <article class="panel state-panel">
-          <div class="panel-head">
-            <div>
-              <span class="section-kicker">State comparison</span>
-              <h2>Before incident vs after recovery</h2>
-            </div>
-          </div>
-          <div class="state-grid">
-            <div><span>CRM owner</span><strong id="state-crm-before">-</strong><small>before incident</small></div>
-            <div><span>CRM owner</span><strong id="state-crm-after">-</strong><small>after recovery</small></div>
-            <div><span>Agent memory</span><strong id="state-memory">-</strong><small>after recovery</small></div>
-            <div><span>External messages</span><strong id="state-messages">-</strong><small>irreversible surface</small></div>
-          </div>
-        </article>
+        <div class="two-col"><article class="panel"><div class="panel-head"><div><span class="section-kicker">Recovery candidates</span><h2>Evidence and verification</h2></div></div><div id="candidate-list" class="candidate-list"></div></article><article class="panel"><div class="panel-head"><div><span class="section-kicker">Side effects</span><h2>Recovery truth</h2></div></div><div id="side-effect-list" class="candidate-list"></div></article></div>
+        <article class="panel"><div class="panel-head"><div><span class="section-kicker">State comparison</span><h2>Before and after recovery</h2></div></div><div class="readiness-row"><span>CRM owner before</span><strong id="state-crm-before">-</strong></div><div class="readiness-row"><span>CRM owner after</span><strong id="state-crm-after">-</strong></div><div class="readiness-row"><span>Memory instruction</span><strong id="state-memory">-</strong></div><div class="readiness-row"><span>Messages remaining</span><strong id="state-messages">-</strong></div></article>
       </section>
-
       <section class="view" id="view-assessment">
-        <div class="two-col assessment-layout">
-          <article class="panel">
-            <div class="panel-head">
-              <div>
-                <span class="section-kicker">Agent Recoverability Assessment</span>
-                <h2>Evidence identity</h2>
-              </div>
-              <span class="pill safe">Deterministic</span>
-            </div>
-            <div class="identity-box">
-              <span>SHA-256</span>
-              <code id="assessment-sha">-</code>
-            </div>
-            <div class="readiness-row"><span>Environment</span><strong id="assessment-env">-</strong></div>
-            <div class="readiness-row"><span>Scenario</span><strong id="assessment-scenario">-</strong></div>
-            <div class="readiness-row"><span>Incident</span><strong id="assessment-incident">-</strong></div>
-          </article>
-          <article class="panel">
-            <div class="panel-head">
-              <div>
-                <span class="section-kicker">Prioritized remediation</span>
-                <h2>What to fix next</h2>
-              </div>
-            </div>
-            <div id="remediation-list" class="candidate-list"></div>
-          </article>
-        </div>
-        <article class="panel claim-panel">
-          <div class="panel-head">
-            <div>
-              <span class="section-kicker">Claim boundary</span>
-              <h2>What this evidence does not claim</h2>
-            </div>
-          </div>
-          <div id="claim-list" class="claim-list"></div>
-        </article>
+        <div class="two-col assessment-layout"><article class="panel"><div class="panel-head"><div><span class="section-kicker">Agent Recoverability Assessment</span><h2>Evidence identity</h2></div><span class="pill safe">Deterministic</span></div><div class="identity-box"><span>SHA-256</span><code id="assessment-sha">-</code></div><div class="readiness-row"><span>Environment</span><strong id="assessment-env">-</strong></div><div class="readiness-row"><span>Scenario</span><strong id="assessment-scenario">-</strong></div><div class="readiness-row"><span>Incident</span><strong id="assessment-incident">-</strong></div></article><article class="panel"><div class="panel-head"><div><span class="section-kicker">Prioritized remediation</span><h2>What to fix next</h2></div></div><div id="remediation-list" class="candidate-list"></div></article></div>
+        <article class="panel claim-panel"><div class="panel-head"><div><span class="section-kicker">Claim boundary</span><h2>What this evidence does not claim</h2></div></div><div id="claim-list" class="claim-list"></div></article>
       </section>
-
-      <div class="error-banner" id="error-banner" hidden>
-        Could not load the product fixture. Serve the app from the repository root after generating app/data/sample.json.
-      </div>
+      <div class="error-banner" id="error-banner" hidden>Could not load verified operator evidence. Check the fixture or persisted incident API and try again.</div>
     </main>
   </div>
-  <script src="./app.js" defer></script>
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
