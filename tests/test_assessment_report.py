@@ -26,6 +26,7 @@ def test_report_keeps_residuals_and_claim_limits_visible():
 
     assert "Evidence scenario: `owned_sales_ops_multisurface_recovery`" in rendered
     assert "Evidence incident: `sandbox-sales-ops-incident`" in rendered
+    assert f"Evidence SHA-256: `{assessment['evidence_identity']['sha256']}`" in rendered
     assert "Recoverability coverage: 75%" in rendered
     assert "`external_communication`: `residual`" in rendered
     assert "### Irreversible residuals\n\n- `external_communication`" in rendered

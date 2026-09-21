@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from typing import Any
 
 from agent_recovery.readiness import RecoveryReadiness
@@ -10,6 +12,26 @@ CLAIM_LIMITS = (
     "structural_declarations_do_not_grant_runtime_authority",
     "irreversible_effects_are_residual_risk_not_undo",
 )
+
+
+def _evidence_digest(sandbox_report: dict[str, Any]) -> str:
+    """Bind the assessment to the exact deterministic controlled-incident evidence."""
+
+    evidence = {
+        "scenario": sandbox_report["scenario"],
+        "incident_id": sandbox_report["incident_id"],
+        "recovery_outcomes": sandbox_report["recovery_outcomes"],
+        "operator_status": sandbox_report["operator_status"],
+        "operator_side_effects": sandbox_report["operator_side_effects"],
+        "authority": sandbox_report["authority"],
+    }
+    encoded = json.dumps(
+        evidence,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def build_recoverability_assessment(
@@ -50,6 +72,7 @@ def build_recoverability_assessment(
         "evidence_identity": {
             "scenario": sandbox_report["scenario"],
             "incident_id": sandbox_report["incident_id"],
+            "sha256": _evidence_digest(sandbox_report),
         },
         "readiness": {
             "total_actions": readiness.total_actions,

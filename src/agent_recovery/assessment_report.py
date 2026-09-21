@@ -18,6 +18,7 @@ def render_recoverability_assessment(report: dict[str, Any]) -> str:
         f"Assessment schema: `{report['assessment_version']}`",
         f"Evidence scenario: `{evidence_identity['scenario']}`",
         f"Evidence incident: `{evidence_identity['incident_id']}`",
+        f"Evidence SHA-256: `{evidence_identity['sha256']}`",
         "",
         "## Recovery readiness",
         "",
