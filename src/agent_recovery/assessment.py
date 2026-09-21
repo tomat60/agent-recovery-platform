@@ -47,6 +47,10 @@ def build_recoverability_assessment(
     return {
         "assessment_version": "1",
         "environment": "synthetic_owned_sandbox",
+        "evidence_identity": {
+            "scenario": sandbox_report["scenario"],
+            "incident_id": sandbox_report["incident_id"],
+        },
         "readiness": {
             "total_actions": readiness.total_actions,
             "structurally_recoverable": readiness.structurally_recoverable,

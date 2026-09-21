@@ -8,6 +8,7 @@ def render_recoverability_assessment(report: dict[str, Any]) -> str:
 
     readiness = report["readiness"]
     incident = report["controlled_incident"]
+    evidence_identity = report["evidence_identity"]
     remediation = report["remediation"]
 
     lines = [
@@ -15,6 +16,8 @@ def render_recoverability_assessment(report: dict[str, Any]) -> str:
         "",
         f"Environment: `{report['environment']}`",
         f"Assessment schema: `{report['assessment_version']}`",
+        f"Evidence scenario: `{evidence_identity['scenario']}`",
+        f"Evidence incident: `{evidence_identity['incident_id']}`",
         "",
         "## Recovery readiness",
         "",
