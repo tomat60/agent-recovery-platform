@@ -92,6 +92,12 @@ def build_recoverability_assessment(
     )
 
     evidence_manifest = _evidence_manifest(readiness, sandbox_report)
+    restoration_eligible = (
+        not readiness.blockers
+        and status["verification_status"] == "verified"
+        and not status["containment_active"]
+        and status["restoration_status"] == "recorded_authorized"
+    )
 
     return {
         "assessment_version": "1",
@@ -110,6 +116,7 @@ def build_recoverability_assessment(
             "containment_active": status["containment_active"],
             "verification_status": status["verification_status"],
             "authority": sandbox_report["authority"],
+            "restoration_eligible": restoration_eligible,
             "irreversible_residuals": residuals,
         },
         "remediation": tuple(remediation),
