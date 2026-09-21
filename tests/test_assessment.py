@@ -79,6 +79,20 @@ def test_assessment_evidence_digest_changes_with_readiness_evidence():
     assert changed["evidence_identity"]["sha256"] != baseline["evidence_identity"]["sha256"]
 
 
+def test_assessment_exposes_exact_digest_evidence_manifest():
+    sandbox = run_multisurface_recovery_sandbox()
+    report = build_recoverability_assessment(readiness(), sandbox)
+    manifest = report["evidence_identity"]["manifest"]
+
+    assert manifest["readiness"] == report["readiness"]
+    assert manifest["controlled_incident"]["scenario"] == sandbox["scenario"]
+    assert manifest["controlled_incident"]["incident_id"] == sandbox["incident_id"]
+    assert manifest["controlled_incident"]["recovery_outcomes"] == sandbox["recovery_outcomes"]
+    assert manifest["controlled_incident"]["operator_status"] == sandbox["operator_status"]
+    assert manifest["controlled_incident"]["operator_side_effects"] == sandbox["operator_side_effects"]
+    assert manifest["controlled_incident"]["authority"] == sandbox["authority"]
+
+
 def test_assessment_keeps_missing_runtime_binding_as_p0_blocker():
     blocker = "missing_runtime_binding:mail.send:write@1"
     report = build_recoverability_assessment(
