@@ -35,6 +35,7 @@ def render_recoverability_assessment(report: dict[str, Any]) -> str:
         f"- Containment active: `{str(incident['containment_active']).lower()}`",
         f"- Verification status: `{incident['verification_status']}`",
         f"- Restored authority: `{incident['authority']}`",
+        f"- Restoration eligible: `{str(incident['restoration_eligible']).lower()}`",
         "",
         "### Recovery outcomes",
         "",
