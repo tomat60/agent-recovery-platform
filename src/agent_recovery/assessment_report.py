@@ -60,8 +60,10 @@ def render_recoverability_assessment(report: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
-            "This report summarizes deterministic evidence from the stated environment. "
-            "It does not grant runtime authority or claim production security effectiveness.",
+            (
+                "This report summarizes deterministic evidence from the stated environment. "
+                "It does not grant runtime authority or claim production security effectiveness."
+            ),
             "",
         ]
     )
