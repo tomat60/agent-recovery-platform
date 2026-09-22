@@ -4,7 +4,7 @@ from typing import Any
 
 from .catalog import synthetic_contracts
 from .engine import Approval, RecoveryEngine
-from .ledger import ActionLedger
+from .ledger import ActionLedger, EventType
 from .operator_api import incident_operator_detail
 from .simulator import SyntheticEnterprise
 
@@ -28,12 +28,21 @@ def run_multisurface_recovery_sandbox() -> dict[str, Any]:
         engine.register(contract)
 
     before = state.snapshot()
+    trigger = ledger.record(
+        EventType.EXTERNAL_INPUT,
+        _INCIDENT_ID,
+        {
+            "source": "owned_sales_ops_sandbox",
+            "request": "apply unverified customer ownership and follow-up instructions",
+        },
+    )
 
     crm = engine.execute(
         incident_id=_INCIDENT_ID,
         agent_id=_AGENT_ID,
         tool_id="crm.update_contact",
         params={"contact_id": "c-1", "field": "owner", "value": "compromised-team"},
+        causal_parent_event_ids=(trigger.event_id,),
     )
     memory = engine.execute(
         incident_id=_INCIDENT_ID,
@@ -90,6 +99,7 @@ def run_multisurface_recovery_sandbox() -> dict[str, Any]:
     return {
         "scenario": "owned_sales_ops_multisurface_recovery",
         "incident_id": _INCIDENT_ID,
+        "source_trigger_event_id": trigger.event_id,
         "before": before,
         "after_incident": after_incident,
         "after_recovery": after_recovery,
