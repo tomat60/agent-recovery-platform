@@ -1,19 +1,23 @@
 from __future__ import annotations
 
+import json
+
 from agent_recovery.evidence_store import JsonlEvidenceStore
 from agent_recovery.operator_api import incident_operator_detail
 from agent_recovery.persisted_operator_api import persisted_incident_detail
 from agent_recovery.pilot_sandbox import run_multisurface_recovery_sandbox
 
 
+def _json_shape(value):
+    """Compare through the same JSON boundary used by persisted evidence transport."""
+
+    return json.loads(json.dumps(value))
+
+
 def test_owned_pilot_operator_detail_survives_restart(tmp_path, monkeypatch):
     """The buyer-visible pilot must survive controller restart on canonical evidence."""
 
     evidence_path = tmp_path / "pilot-ledger.jsonl"
-    original_append = JsonlEvidenceStore.append
-
-    def persist_every_event(self, event):
-        original_append(self, event)
 
     # The sandbox remains zero-network. Capture its admitted ledger events at the durable
     # boundary, then reconstruct a fresh controller/read model from disk.
@@ -38,8 +42,10 @@ def test_owned_pilot_operator_detail_survives_restart(tmp_path, monkeypatch):
     assert detail["incident_id"] == live["incident_id"]
     assert detail["status"] == live["operator_status"]
     assert detail["next_action"] == live["operator_next_action"]
-    assert detail["recovery_candidates"] == live["operator_recovery_candidates"]
-    assert detail["side_effects"] == live["operator_side_effects"]
+    assert _json_shape(detail["recovery_candidates"]) == _json_shape(
+        live["operator_recovery_candidates"]
+    )
+    assert _json_shape(detail["side_effects"]) == _json_shape(live["operator_side_effects"])
     assert detail["active_containment"]
     assert any(residual["irreversible"] is True for residual in detail["residuals"])
 
