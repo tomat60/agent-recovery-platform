@@ -2,11 +2,15 @@ from __future__ import annotations
 
 import copy
 import importlib.util
+import sys
 from pathlib import Path
 
 import pytest
 
-SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "build_recoverability_assessment.py"
+SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
+SCRIPT = SCRIPTS / "build_recoverability_assessment.py"
+if str(SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS))
 spec = importlib.util.spec_from_file_location("build_recoverability_assessment", SCRIPT)
 assert spec and spec.loader
 module = importlib.util.module_from_spec(spec)
