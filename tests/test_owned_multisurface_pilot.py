@@ -61,6 +61,16 @@ def test_owned_pilot_rejects_incomplete_detection_recovery_or_replay():
         pilot.validate_pilot_evidence(evidence)
 
     evidence = pilot.build_pilot_evidence()
+    evidence["controlled_incident"]["blast_radius_recall"] = 0.5
+    with pytest.raises(ValueError, match="complete blast-radius recall"):
+        pilot.validate_pilot_evidence(evidence)
+
+    evidence = pilot.build_pilot_evidence()
+    evidence["controlled_incident"]["blast_radius_precision"] = 0.5
+    with pytest.raises(ValueError, match="complete blast-radius precision"):
+        pilot.validate_pilot_evidence(evidence)
+
+    evidence = pilot.build_pilot_evidence()
     evidence["recovery"]["verified_recoveries"] -= 1
     with pytest.raises(ValueError, match="every consequential action"):
         pilot.validate_pilot_evidence(evidence)
@@ -92,8 +102,18 @@ def test_owned_pilot_rejects_malformed_lifecycle_counts():
         pilot.validate_pilot_evidence(evidence)
 
     evidence = pilot.build_pilot_evidence()
+    evidence["controlled_incident"]["blast_radius_recall"] = True
+    with pytest.raises(TypeError, match="blast-radius recall"):
+        pilot.validate_pilot_evidence(evidence)
+
+    evidence = pilot.build_pilot_evidence()
     evidence["recovery"]["verified_recoveries"] = True
     with pytest.raises(TypeError, match="verified recovery count"):
+        pilot.validate_pilot_evidence(evidence)
+
+    evidence = pilot.build_pilot_evidence()
+    evidence["recovery"]["platform_residual_effects"] = False
+    with pytest.raises(TypeError, match="platform residual effect count"):
         pilot.validate_pilot_evidence(evidence)
 
     evidence = pilot.build_pilot_evidence()
