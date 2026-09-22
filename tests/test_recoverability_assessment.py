@@ -26,6 +26,7 @@ def test_assessment_is_bounded_and_authority_free() -> None:
     assert assessment["decision"]["bounded_downstream_restoration_verified"] is True
     assert assessment["decision"]["production_security_claim"] is False
     assert assessment["residual_risk"]["root_authority_remains_contained"] is True
+    assert assessment["prioritized_remediation"]
 
 
 def test_assessment_rejects_production_security_claim() -> None:
@@ -39,4 +40,30 @@ def test_assessment_rejects_boolean_coverage_ratio() -> None:
     assessment = copy.deepcopy(module.build_assessment())
     assessment["recoverability_coverage"]["ratio"] = True
     with pytest.raises(ValueError, match="coverage ratio"):
+        module.validate_assessment(assessment)
+
+
+def test_remediation_prioritizes_failed_recovery_and_replay() -> None:
+    evidence = module.build_pilot_evidence()
+    evidence["recovery"]["verified_recoveries"] = evidence["controlled_incident"]["expected_actions"] - 1
+    evidence["replay"]["verified"] = False
+    plan = module._build_remediation_plan(evidence)
+    blockers = [item["blocker"] for item in plan]
+    assert blockers[:2] == ["incomplete_verified_recovery", "replay_not_verified"]
+    assert all(item["priority"] == "P0" for item in plan[:2])
+
+
+def test_remediation_keeps_residual_effects_explicit() -> None:
+    evidence = module.build_pilot_evidence()
+    evidence["recovery"]["platform_residual_effects"] = ["external_notification"]
+    plan = module._build_remediation_plan(evidence)
+    residual = next(item for item in plan if item["blocker"] == "residual_effects_remain")
+    assert residual["priority"] == "P1"
+    assert "never represent them as undone" in residual["action"]
+
+
+def test_assessment_rejects_missing_remediation() -> None:
+    assessment = copy.deepcopy(module.build_assessment())
+    assessment["prioritized_remediation"] = []
+    with pytest.raises(ValueError, match="prioritized remediation"):
         module.validate_assessment(assessment)
