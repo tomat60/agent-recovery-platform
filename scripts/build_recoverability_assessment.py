@@ -10,6 +10,47 @@ from run_owned_multisurface_pilot import build_pilot_evidence, validate_pilot_ev
 SCHEMA_VERSION = "agent-recoverability-assessment/v1"
 
 
+def _build_remediation_plan(evidence: dict[str, Any]) -> list[dict[str, str]]:
+    controlled = evidence["controlled_incident"]
+    containment = evidence["containment"]
+    recovery = evidence["recovery"]
+    replay = evidence["replay"]
+    restoration = evidence["restoration"]
+
+    priorities: list[dict[str, str]] = []
+    if recovery["verified_recoveries"] < controlled["expected_actions"]:
+        priorities.append({
+            "priority": "P0",
+            "blocker": "incomplete_verified_recovery",
+            "action": "Complete and independently verify every represented consequential recovery before restoration.",
+        })
+    if replay["verified"] is not True:
+        priorities.append({
+            "priority": "P0",
+            "blocker": "replay_not_verified",
+            "action": "Repair the control and obtain a current positive scope-bound replay before authority release.",
+        })
+    if restoration["root_authority_restored"] is True or containment["root_agent_remains_contained"] is not True:
+        priorities.append({
+            "priority": "P0",
+            "blocker": "root_containment_not_preserved",
+            "action": "Re-establish the independent incident hold; do not restore the compromised root authority.",
+        })
+    if recovery["platform_residual_effects"]:
+        priorities.append({
+            "priority": "P1",
+            "blocker": "residual_effects_remain",
+            "action": "Record residual effects explicitly and assign operator remediation; never represent them as undone.",
+        })
+    if not priorities:
+        priorities.append({
+            "priority": "P2",
+            "blocker": "no_evidence_blocker_in_owned_sandbox",
+            "action": "Preserve the verified recovery/replay controls and validate them against the next bounded pilot scenario.",
+        })
+    return priorities
+
+
 def build_assessment() -> dict[str, Any]:
     evidence = build_pilot_evidence()
     validate_pilot_evidence(evidence)
@@ -46,6 +87,7 @@ def build_assessment() -> dict[str, Any]:
             "platform_residual_effects": recovery["platform_residual_effects"],
             "root_authority_remains_contained": evidence["containment"]["root_agent_remains_contained"],
         },
+        "prioritized_remediation": _build_remediation_plan(evidence),
         "decision": {
             "bounded_downstream_restoration_verified": (
                 replay["verified"] is True
@@ -67,8 +109,16 @@ def validate_assessment(assessment: dict[str, Any]) -> None:
         raise ValueError("assessment must remain scoped to owned sandbox evidence")
     coverage = assessment.get("recoverability_coverage")
     decision = assessment.get("decision")
+    remediation = assessment.get("prioritized_remediation")
     if not isinstance(coverage, dict) or not isinstance(decision, dict):
         raise TypeError("assessment coverage and decision must be objects")
+    if not isinstance(remediation, list) or not remediation:
+        raise ValueError("assessment must include prioritized remediation")
+    for item in remediation:
+        if not isinstance(item, dict) or item.get("priority") not in {"P0", "P1", "P2"}:
+            raise ValueError("assessment remediation entries must have bounded priorities")
+        if not isinstance(item.get("blocker"), str) or not isinstance(item.get("action"), str):
+            raise ValueError("assessment remediation entries must be evidence-readable")
     ratio = coverage.get("ratio")
     if not isinstance(ratio, (int, float)) or isinstance(ratio, bool) or not 0 <= ratio <= 1:
         raise ValueError("recoverability coverage ratio must be numeric in [0, 1]")
