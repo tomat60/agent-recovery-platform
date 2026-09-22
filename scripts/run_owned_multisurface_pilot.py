@@ -43,7 +43,7 @@ def build_pilot_evidence() -> dict[str, object]:
         raise TypeError("canonical incident phases are malformed")
 
     expected_actions = blast["expected_actions"]
-    if not isinstance(expected_actions, int) or expected_actions < 2:
+    if not isinstance(expected_actions, int) or isinstance(expected_actions, bool) or expected_actions < 2:
         raise ValueError("pilot must exercise at least two consequential actions")
 
     return {
@@ -98,11 +98,17 @@ def validate_pilot_evidence(evidence: dict[str, object]) -> None:
     recovery = evidence.get("recovery")
     replay = evidence.get("replay")
     restoration = evidence.get("restoration")
+    measurement = evidence.get("canonical_measurement")
     if not all(isinstance(value, dict) for value in (controlled, containment, recovery, replay, restoration)):
         raise TypeError("owned pilot lifecycle sections must be objects")
+    if not isinstance(measurement, dict):
+        raise TypeError("owned pilot canonical measurement must be an object")
     expected_actions = controlled["expected_actions"]
     detected_actions = controlled["detected_actions"]
+    recall = controlled["blast_radius_recall"]
+    precision = controlled["blast_radius_precision"]
     verified_recoveries = recovery["verified_recoveries"]
+    platform_residual_effects = recovery["platform_residual_effects"]
     replay_verified = replay["verified"]
     unsafe_recovery_executions = replay["unsafe_recovery_executions"]
     restored_downstream = restoration["restored_downstream_authorities"]
@@ -112,12 +118,21 @@ def validate_pilot_evidence(evidence: dict[str, object]) -> None:
         raise TypeError("owned pilot detected action count must be an integer")
     if detected_actions != expected_actions:
         raise ValueError("owned pilot requires complete blast-radius detection")
+    for name, value in (("blast-radius recall", recall), ("blast-radius precision", precision)):
+        if not isinstance(value, (int, float)) or isinstance(value, bool):
+            raise TypeError(f"owned pilot {name} must be numeric")
+        if value != 1.0:
+            raise ValueError(f"owned pilot requires complete {name}")
     if containment["root_agent_remains_contained"] is not True:
         raise ValueError("compromised root authority must remain contained")
     if not isinstance(verified_recoveries, int) or isinstance(verified_recoveries, bool):
         raise TypeError("owned pilot verified recovery count must be an integer")
     if verified_recoveries != expected_actions:
         raise ValueError("owned pilot requires independently verified recovery for every consequential action")
+    if not isinstance(platform_residual_effects, int) or isinstance(platform_residual_effects, bool):
+        raise TypeError("owned pilot platform residual effect count must be an integer")
+    if platform_residual_effects < 0:
+        raise ValueError("owned pilot platform residual effect count cannot be negative")
     if not isinstance(replay_verified, bool):
         raise TypeError("owned pilot replay verification must be boolean")
     if replay_verified is not True:
