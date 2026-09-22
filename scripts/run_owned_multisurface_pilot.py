@@ -100,22 +100,32 @@ def validate_pilot_evidence(evidence: dict[str, object]) -> None:
     restoration = evidence.get("restoration")
     if not all(isinstance(value, dict) for value in (controlled, containment, recovery, replay, restoration)):
         raise TypeError("owned pilot lifecycle sections must be objects")
-    if controlled["expected_actions"] < 2:
+    expected_actions = controlled["expected_actions"]
+    detected_actions = controlled["detected_actions"]
+    verified_recoveries = recovery["verified_recoveries"]
+    restored_downstream = restoration["restored_downstream_authorities"]
+    if not isinstance(expected_actions, int) or isinstance(expected_actions, bool) or expected_actions < 2:
         raise ValueError("owned pilot must exercise multiple consequential actions")
-    if controlled["detected_actions"] != controlled["expected_actions"]:
+    if not isinstance(detected_actions, int) or isinstance(detected_actions, bool):
+        raise TypeError("owned pilot detected action count must be an integer")
+    if detected_actions != expected_actions:
         raise ValueError("owned pilot requires complete blast-radius detection")
     if containment["root_agent_remains_contained"] is not True:
         raise ValueError("compromised root authority must remain contained")
-    if recovery["verified_recoveries"] < 1:
-        raise ValueError("owned pilot requires at least one independently verified recovery")
+    if not isinstance(verified_recoveries, int) or isinstance(verified_recoveries, bool):
+        raise TypeError("owned pilot verified recovery count must be an integer")
+    if verified_recoveries != expected_actions:
+        raise ValueError("owned pilot requires independently verified recovery for every consequential action")
     if replay["verified"] is not True:
         raise ValueError("owned pilot requires positive replay verification")
     if replay["unsafe_recovery_executions"] != 0:
         raise ValueError("owned pilot recorded an unsafe recovery execution")
     if restoration["root_authority_restored"] is not False:
         raise ValueError("owned pilot must not restore compromised root authority")
-    if restoration["restored_downstream_authorities"] < 1:
-        raise ValueError("owned pilot requires evidence of bounded downstream restoration")
+    if not isinstance(restored_downstream, int) or isinstance(restored_downstream, bool):
+        raise TypeError("owned pilot restored downstream authority count must be an integer")
+    if restored_downstream < 1 or restored_downstream > expected_actions:
+        raise ValueError("owned pilot requires bounded downstream restoration")
 
 
 def reproduce(output_dir: Path) -> dict[str, object]:
