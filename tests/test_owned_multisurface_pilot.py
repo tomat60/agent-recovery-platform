@@ -95,3 +95,13 @@ def test_owned_pilot_rejects_malformed_lifecycle_counts():
     evidence["recovery"]["verified_recoveries"] = True
     with pytest.raises(TypeError, match="verified recovery count"):
         pilot.validate_pilot_evidence(evidence)
+
+    evidence = pilot.build_pilot_evidence()
+    evidence["replay"]["verified"] = 1
+    with pytest.raises(TypeError, match="replay verification"):
+        pilot.validate_pilot_evidence(evidence)
+
+    evidence = pilot.build_pilot_evidence()
+    evidence["replay"]["unsafe_recovery_executions"] = False
+    with pytest.raises(TypeError, match="unsafe recovery execution count"):
+        pilot.validate_pilot_evidence(evidence)

@@ -103,6 +103,8 @@ def validate_pilot_evidence(evidence: dict[str, object]) -> None:
     expected_actions = controlled["expected_actions"]
     detected_actions = controlled["detected_actions"]
     verified_recoveries = recovery["verified_recoveries"]
+    replay_verified = replay["verified"]
+    unsafe_recovery_executions = replay["unsafe_recovery_executions"]
     restored_downstream = restoration["restored_downstream_authorities"]
     if not isinstance(expected_actions, int) or isinstance(expected_actions, bool) or expected_actions < 2:
         raise ValueError("owned pilot must exercise multiple consequential actions")
@@ -116,9 +118,13 @@ def validate_pilot_evidence(evidence: dict[str, object]) -> None:
         raise TypeError("owned pilot verified recovery count must be an integer")
     if verified_recoveries != expected_actions:
         raise ValueError("owned pilot requires independently verified recovery for every consequential action")
-    if replay["verified"] is not True:
+    if not isinstance(replay_verified, bool):
+        raise TypeError("owned pilot replay verification must be boolean")
+    if replay_verified is not True:
         raise ValueError("owned pilot requires positive replay verification")
-    if replay["unsafe_recovery_executions"] != 0:
+    if not isinstance(unsafe_recovery_executions, int) or isinstance(unsafe_recovery_executions, bool):
+        raise TypeError("owned pilot unsafe recovery execution count must be an integer")
+    if unsafe_recovery_executions != 0:
         raise ValueError("owned pilot recorded an unsafe recovery execution")
     if restoration["root_authority_restored"] is not False:
         raise ValueError("owned pilot must not restore compromised root authority")
