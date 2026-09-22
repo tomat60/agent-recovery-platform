@@ -61,8 +61,8 @@ def test_owned_pilot_rejects_incomplete_detection_recovery_or_replay():
         pilot.validate_pilot_evidence(evidence)
 
     evidence = pilot.build_pilot_evidence()
-    evidence["recovery"]["verified_recoveries"] = 0
-    with pytest.raises(ValueError, match="verified recovery"):
+    evidence["recovery"]["verified_recoveries"] -= 1
+    with pytest.raises(ValueError, match="every consequential action"):
         pilot.validate_pilot_evidence(evidence)
 
     evidence = pilot.build_pilot_evidence()
@@ -71,8 +71,27 @@ def test_owned_pilot_rejects_incomplete_detection_recovery_or_replay():
         pilot.validate_pilot_evidence(evidence)
 
 
-def test_owned_pilot_rejects_missing_bounded_downstream_restoration():
+def test_owned_pilot_rejects_missing_or_overbroad_downstream_restoration():
     evidence = pilot.build_pilot_evidence()
     evidence["restoration"]["restored_downstream_authorities"] = 0
     with pytest.raises(ValueError, match="bounded downstream restoration"):
+        pilot.validate_pilot_evidence(evidence)
+
+    evidence = pilot.build_pilot_evidence()
+    evidence["restoration"]["restored_downstream_authorities"] = (
+        evidence["controlled_incident"]["expected_actions"] + 1
+    )
+    with pytest.raises(ValueError, match="bounded downstream restoration"):
+        pilot.validate_pilot_evidence(evidence)
+
+
+def test_owned_pilot_rejects_malformed_lifecycle_counts():
+    evidence = pilot.build_pilot_evidence()
+    evidence["controlled_incident"]["expected_actions"] = True
+    with pytest.raises(ValueError, match="multiple consequential actions"):
+        pilot.validate_pilot_evidence(evidence)
+
+    evidence = pilot.build_pilot_evidence()
+    evidence["recovery"]["verified_recoveries"] = True
+    with pytest.raises(TypeError, match="verified recovery count"):
         pilot.validate_pilot_evidence(evidence)
