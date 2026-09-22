@@ -6,7 +6,6 @@ from pathlib import Path
 
 import pytest
 
-
 SCRIPT = Path(__file__).parents[1] / "scripts" / "run_owned_multisurface_pilot.py"
 SPEC = importlib.util.spec_from_file_location("owned_multisurface_pilot", SCRIPT)
 assert SPEC is not None and SPEC.loader is not None
