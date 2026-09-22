@@ -52,3 +52,27 @@ def test_owned_pilot_rejects_unsafe_recovery_or_root_restoration():
     evidence["restoration"]["root_authority_restored"] = True
     with pytest.raises(ValueError, match="must not restore"):
         pilot.validate_pilot_evidence(evidence)
+
+
+def test_owned_pilot_rejects_incomplete_detection_recovery_or_replay():
+    evidence = pilot.build_pilot_evidence()
+    evidence["controlled_incident"]["detected_actions"] -= 1
+    with pytest.raises(ValueError, match="complete blast-radius"):
+        pilot.validate_pilot_evidence(evidence)
+
+    evidence = pilot.build_pilot_evidence()
+    evidence["recovery"]["verified_recoveries"] = 0
+    with pytest.raises(ValueError, match="verified recovery"):
+        pilot.validate_pilot_evidence(evidence)
+
+    evidence = pilot.build_pilot_evidence()
+    evidence["replay"]["verified"] = False
+    with pytest.raises(ValueError, match="positive replay"):
+        pilot.validate_pilot_evidence(evidence)
+
+
+def test_owned_pilot_rejects_missing_bounded_downstream_restoration():
+    evidence = pilot.build_pilot_evidence()
+    evidence["restoration"]["restored_downstream_authorities"] = 0
+    with pytest.raises(ValueError, match="bounded downstream restoration"):
+        pilot.validate_pilot_evidence(evidence)
