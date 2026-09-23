@@ -52,9 +52,27 @@ This list promotes candidates only when current public product evidence shows co
 - **Disqualifier:** deprioritize if CrewAI already verifies external compensation outcomes and fail-closed selective authority restoration across enterprise tool calls.
 - **Sources:** https://crewai.com/agent-management-platform and https://crewai.com/pricing (verified 2026-09-23).
 
+### 6. Zapier — design / integration partner
+- **Public evidence:** Zapier MCP lets AI clients take real actions across 9,000+ apps and tens of thousands of actions, including writes such as sending messages and updating records. Zapier provides scoped app/action access and logs actions in History; Zapier Agents can also be triggered from apps, schedules, Zaps and MCP.
+- **Likely buyer / sponsor:** MCP/Agents product leader, AI platform product leader, enterprise security/product engineering leader.
+- **Pain hypothesis:** scoped authorization and action history constrain and record agent writes, but after a permitted multi-app action chain causes an incident there is still a distinct need to establish causal effects, verify compensation outcomes, preserve irreversible residuals and decide exactly which authority can safely return.
+- **Why Agent Recovery can complement rather than replace it:** treat Zapier action history and tool-call evidence as provenance inputs and bind Recovery Contracts plus post-incident verification to consequential writes; do not compete on integrations, credentials, workflow automation or access governance.
+- **Opening line:** “Zapier already gives AI agents governed hands across thousands of apps; we’re testing the complementary recovery proof layer for when a permitted action chain goes wrong—what was actually compensated, what remains residual, and what scope is safe to restore.”
+- **Disqualifier:** deprioritize if Zapier already provides evidence-backed dependency-aware compensation of committed cross-app effects plus replay-gated selective restoration, rather than action history, retries or workflow rollback alone.
+- **Sources:** https://zapier.com/mcp, https://zapier.com/mcp/agents and https://help.zapier.com/hc/en-us/articles/48308034391821-What-is-Zapier-MCP (verified 2026-09-23).
+
+### 7. Workato — enterprise orchestration / strategic partner
+- **Public evidence:** Workato Agentic Orchestration positions autonomous agents as executing multi-step business actions across departments and systems, including thousands of actions across finance, sales and operations, while logging and tracing every agent action with enterprise controls.
+- **Likely buyer / sponsor:** Agentic product leader, enterprise automation/platform leader, security/governance product leader.
+- **Pain hypothesis:** enterprise controls and traceability reduce execution risk, but broad autonomous cross-system action creates a separate recovery problem after an incident: dependency-aware compensation, verified outcomes, residual truth and selective restoration of affected authority.
+- **Why Agent Recovery can complement rather than replace it:** consume orchestration/action evidence as causal provenance and add framework-neutral Recovery Contracts, compensation verification and incident-to-regression replay; do not compete on orchestration, integrations, governance or general observability.
+- **Opening line:** “Workato already orchestrates governed agents across consequential business systems; we’re focused on the next incident boundary—proving which external effects were recovered or compensated and which exact authority is safe to restore.”
+- **Disqualifier:** deprioritize if Workato already verifies dependency-aware compensation of executed cross-system effects and gates selective authority restoration on fresh recovery/replay evidence.
+- **Sources:** https://www.workato.com/agentic and https://www.workato.com/agentic/agent-orchestration (verified 2026-09-23).
+
 ## Qualification state
 
-Five candidates are now promoted from research because current first-party evidence confirms real agent/tool execution plus a distinct plausible recoverability boundary. Other candidates in `DESIGN_PARTNER_PIPELINE.md` remain research-only until the same source-verification standard is met.
+Seven candidates are now promoted from research because current first-party evidence confirms real agent/tool execution plus a distinct plausible recoverability boundary. Other candidates in `DESIGN_PARTNER_PIPELINE.md` remain research-only until the same source-verification standard is met.
 
 ## Owner gate
 
