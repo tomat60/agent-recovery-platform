@@ -79,10 +79,28 @@ This list promotes candidates only when current public product evidence shows co
 - **Disqualifier:** deprioritize if Arize already provides dependency-aware recovery execution plus evidence-gated selective authority restoration for committed external side effects, rather than tracing, evaluation, sandbox policy and downstream outcome verification.
 - **Sources:** https://arize.com/guides/ai-agent-handbook/agent-observability/, https://arize.com/resources/whats-an-agent-observability-platform/ and https://arize.com/resources/agent-reliability/ (verified 2026-09-23).
 
+### 9. Langfuse — observability / strategic integration partner
+- **Public evidence:** Langfuse is an OTel-native agent observability and evaluation platform whose hierarchical traces capture LLM calls, tool invocations and retrieval steps; production signals can be promoted into datasets and regression experiments. Langfuse explicitly does not host or run agents.
+- **Likely buyer / sponsor:** agent observability product leader, platform/integrations leader, partnerships or product engineering leader.
+- **Pain hypothesis:** Langfuse can preserve rich causal evidence and turn failures into regression data, but an observability/eval layer does not itself prove dependency-aware compensation of committed external effects or decide which authority is safe to restore.
+- **Why Agent Recovery can complement rather than replace it:** consume OTel traces as causal evidence, attach Recovery Contracts and verified compensation outcomes, then return incident-derived regression cases to the existing evaluation loop; do not rebuild tracing or agent hosting.
+- **Opening line:** “Langfuse already turns production agent behavior into trace and regression evidence; we’re testing the complementary recovery control that uses that evidence to prove compensation, preserve residual truth and gate exact authority restoration after consequential tool actions.”
+- **Disqualifier:** deprioritize if Langfuse adds evidence-backed recovery execution plus replay-gated selective authority restoration for committed external effects, rather than observability/evaluation alone.
+- **Sources:** https://langfuse.com/ and https://langfuse.com/resources/engineering/clarifications (verified 2026-09-23).
+
+### 10. Braintrust — observability / strategic integration partner
+- **Public evidence:** Braintrust traces production agent tool calls, supports OpenTelemetry and framework-agnostic instrumentation, and promotes failing production traces into versioned eval datasets/regression tests.
+- **Likely buyer / sponsor:** agent observability product leader, platform/integrations leader, partnerships or product engineering leader.
+- **Pain hypothesis:** tracing and regression evaluation can identify and reproduce failures, while a separate post-incident control is still needed to classify committed side effects, verify compensation outcomes, preserve irreversible residuals and gate restoration of affected authority.
+- **Why Agent Recovery can complement rather than replace it:** use Braintrust traces as provenance and its datasets as a natural sink for incident-to-regression cases while Agent Recovery owns recovery contracts, compensation verification and restoration eligibility.
+- **Opening line:** “Braintrust already closes the loop from production traces to regression tests; we’re focused on the missing incident step between those two—verifying what external effects were actually recovered and what authority is safe to restore before the agent returns.”
+- **Disqualifier:** deprioritize if Braintrust already executes dependency-aware compensation and gates selective authority restoration on current recovery/replay evidence, beyond tracing, scoring and release regression checks.
+- **Source:** https://www.braintrust.dev/ (verified 2026-09-23).
+
 ## Qualification state
 
-Eight candidates are now promoted from research because current first-party evidence confirms real agent/tool execution or high-value causal evidence infrastructure plus a distinct plausible recoverability boundary. Other candidates in `DESIGN_PARTNER_PIPELINE.md` remain research-only until the same source-verification standard is met.
+Ten design/integration candidates are now promoted from research because current first-party evidence confirms real agent/tool execution or high-value causal evidence infrastructure plus a distinct plausible recoverability boundary. This completes the requested top-10 design-partner shortlist; the next qualification gap is the separate top-5 strategic/channel partner shortlist. Other candidates in `DESIGN_PARTNER_PIPELINE.md` remain research-only until the same source-verification standard is met.
 
 ## Owner gate
 
-Do not send these messages, submit partner forms, accept terms, or make customer commitments without Paweł’s explicit external-action approval. Next autonomous step is to verify the remaining strongest candidates and expand this into the requested top-10 design-partner + top-5 strategic/channel shortlist while keeping each entry source-backed and disqualifiable.
+Do not send these messages, submit partner forms, accept terms, or make customer commitments without Paweł’s explicit external-action approval. Next autonomous step is to build the separate top-5 strategic/channel partner shortlist with the same source-backed, disqualifiable standard, then package the final owner-reviewable outreach set without sending externally.
