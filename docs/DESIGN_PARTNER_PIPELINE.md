@@ -38,9 +38,9 @@ Paweł visited the event on 2026-09-23. Treat booth presence as a warm contextua
 | --- | --- | --- | --- |
 | Saugumo operacijų centras / SOC Factory (Lithuania) | Channel/design-partner candidate | Small vCISO/SOC provider with 60+ Lithuanian clients, DORA/NIS2 work and technical leadership. Complementary to agent recoverability rather than directly competitive. | Outreach sent 2026-09-23 to info@saugumovadovas.lt asking for technology/partnership owner. |
 | Konsorcjum FEN | Polish channel / VAD candidate | Explicit VAD model, presales engineering, co-selling, demos, partner enablement and security portfolio. Could distribute or co-sell a new recoverability capability if pilot proof lands. | Outreach sent 2026-09-23 to Rafał Gałka (Security PM), cc Maciej Cenkier (BD Director). |
-| Acronis | Strategic platform / integration candidate and long-term adjacent threat | Strong data/infrastructure recovery, MSP channel and 300+ integration ecosystem. Our wedge is agent-action recoverability above workload/data restore. | Outreach sent 2026-09-23 to TechnologyPartnerProgram@acronis.com asking about CyberApp/API fit and maturity requirements. |
+| Acronis | Strategic platform / integration candidate and long-term adjacent threat | Strong data/infrastructure recovery, MSP channel and 300+ integration ecosystem. Our wedge is agent-action recoverability above workload/data restore. | Initial TechnologyPartnerProgram email bounced because the group blocks external senders. Routing request sent 2026-09-23 to Eastern Europe PR contact Silviya Petrova asking for the correct Technology Ecosystem / ISV owner. Do not submit the partner-program form yet because it requires agreement to program terms. |
 | Cynet | Adjacent competitor / possible integration route | AI-powered XDR/MDR automates threat detection and response across endpoint/identity/cloud/email/SaaS. Not currently the same product category, but could expand toward agent-action recovery. | Monitor before contact; qualify whether partnership beats competitive disclosure risk. |
-| FUDO Security | Strategic adjacent vendor / integration candidate | Privileged access/session control is complementary to exact authority containment/restoration. Potential integration: privileged-session evidence feeding containment/restoration decisions while recovery verification remains in Agent Recovery Platform. | Outreach sent 2026-09-23 to partners@fudosecurity.com. |
+| FUDO Security | Strategic adjacent vendor / integration candidate | Privileged access/session control is complementary to exact authority containment/restoration. Potential integration: privileged-session evidence feeding containment/restoration decisions while recovery verification remains in Agent Recovery Platform. | Partnership outreach sent 2026-09-23 to partners@fudosecurity.com. |
 | REKOWERY / data-recovery vendors | Low-to-medium partner relevance | Traditional recovery can complement our application-level agent recovery but does not validate our wedge alone. | Research selectively |
 
 ## Initial channel / strategic partner classes
@@ -76,3 +76,13 @@ For every target promoted to the send-list, record:
 - FEN publicly describes itself as a Value Added Distributor providing presales engineering, joint customer presentations and partner enablement.
 
 These facts validate fit for further research; they do not imply interest in partnering.
+
+
+## Outreach response tracking — 2026-09-23
+
+- **FEN:** Maciej Cenkier returned an automatic out-of-office reply through 2026-09-24. Keep the thread warm; no duplicate same-day message. If no human response after return, follow up through the existing thread / security@fen.pl.
+- **Acronis:** the published Technology Partner Program mailbox rejected external senders. A routing request was sent to Acronis Eastern Europe PR. The current Technology Ecosystem web sign-up requires agreement to program terms, so registration remains owner-gated.
+- **SOC Factory:** awaiting response.
+- **FUDO Security:** first partner-team outreach sent; awaiting response.
+
+Next follow-up rule: no same-day chasing. Follow up after a reasonable business interval only if the target remains high-fit and no human response arrived.
