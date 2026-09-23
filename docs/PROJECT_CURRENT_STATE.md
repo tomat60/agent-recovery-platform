@@ -1,119 +1,120 @@
 # Project Current State
 
-Date: 2026-09-16
+Date: 2026-09-23
 
 ## Status
 
-The Agents for Humans submission window is closed. Competition material is historical/reusable evidence, not the execution target.
-
-Agent Recovery Platform is a **commercial-product-first** project. Competitions, grants, accelerators and demo days are secondary leverage only when they materially improve funding, credibility, distribution or customer access without throwaway architecture.
+Agent Recovery Platform is a **commercial-product-first** project. The closed Agents for Humans submission is historical/reusable evidence only.
 
 Current accepted `main`:
 
-`331db0157884125874b64d82e4dc913689d6e42a`
+`75695ec1f8b6779ec83667a963213bd4c4aa079b`
 
-Latest accepted product slice:
+Latest accepted slice:
 
-PR #79 `Add framework-neutral Recovery Contract schema boundary`
+PR #145 `P6: package first design-partner commercial offer and research pipeline`.
 
-Exact-head `recovery-ci #278` and post-merge `recovery-ci #279` passed. The accepted product now has framework-neutral action evidence ingestion, durable evidence/provenance across restart, and a versioned Recovery Contract boundary for write-capable tools. Contracts bind stable tool/action identity and parameters/context, classify effects as reversible, compensatable or irreversible, require recovery/compensation and independent verification obligations where applicable, fail closed on malformed/unsupported/semantically incomplete contracts, and do not grant model output any authority. Irreversible effects remain explicit residual risk rather than simulated undo.
+Exact-head acceptance for #145 passed and post-merge `recovery-ci #432` passed on current `main`.
 
-## Product thesis
+## Product truth now accepted
 
-Agent Recovery Platform is a recovery-first control layer for autonomous and write-capable AI agents.
+The accepted product has progressed through the commercial foundation needed for buyer validation:
 
-Lifecycle:
+- framework-neutral action evidence ingestion and OTel-compatible normalization;
+- durable evidence/provenance and persistent incident/containment/recovery state across restart;
+- versioned Recovery Contracts separated from trusted runtime bindings;
+- deterministic Recovery Readiness / CI coverage;
+- read-only operator API and commercial console over canonical persisted incident state;
+- one repeatable owned multi-surface pilot with recovery, replay and restoration evidence;
+- deterministic Agent Recoverability Assessment with evidence identity, residual truth and evidence-derived remediation priorities;
+- a bounded commercial launch pack, initial pricing hypothesis and design-partner research pipeline.
+
+Core lifecycle remains:
 
 **incident -> containment -> evidence -> recovery / compensation -> replay / regression -> verified restoration**
 
-Core rules:
+Core rules remain:
 
-**No autonomous write without a validated Recovery Contract.**
-
-**Model output is never authorization.**
-
-**No downstream authority release without complete current recovery evidence and scope-bound replay or equivalent verification.**
-
-Irreversible external effects remain explicit residual risk. The product never claims that an irreversible side effect was undone.
+- **No autonomous write without a validated recovery path.**
+- **Model output is never authorization.**
+- **No restored authority without current scope-bound recovery/replay evidence.**
+- Irreversible external effects remain explicit residual risk; they are never represented as undone.
 
 ## Commercial wedge
 
-Generic agent rollback is crowded prior art. The durable wedge remains:
+Generic agent rollback/rewind is crowded prior art. The durable wedge remains the combination of:
 
-1. cross-agent causal provenance across shared state, identities and external side effects;
-2. recovery-path security so compromised or stale actors cannot forge recovery or restoration;
+1. cross-agent causal provenance across shared state and external side effects;
+2. recovery-path integrity, stale-authority rejection and fail-closed restoration;
 3. framework-neutral Recovery Contracts and measurable recoverability coverage;
 4. dependency-aware reversible / compensatable / irreversible recovery with explicit residual truth;
 5. incident-to-regression conversion and replay against repaired controls;
 6. verified selective restoration of only the exact safe scope;
 7. Recovery Intelligence accumulated from action types, failure patterns, recovery strategies, verification outcomes and residual effects.
 
-Assume observability, runtime-security and resilience vendors will add tracing, policy gates, kill switches and basic rollback. Do not compete on those alone.
+Assume observability, runtime-security, backup and agent-platform vendors will converge on tracing, policy gates, kill switches and basic rollback. Do not compete on those alone.
 
-## Current commercial execution order
+## Current execution front
 
-### P1 - Productization foundation
+The current priority is **P6 commercial validation**, while product work continues only where it unblocks a design-partner assessment, materially strengthens buyer proof, reduces integration cost or improves trustworthy restoration evidence.
 
-PR #77 established framework-neutral action evidence ingestion. PR #78 made evidence durable across restart with deterministic integrity reconstruction. PR #79 established the versioned framework-neutral Recovery Contract boundary.
+Issue #144 is the active commercial package/pipeline gate. The first launch pack and research seed landed in PR #145, but #144 is not complete until the research pipeline is promoted into a short, source-verified, ranked send-list with buyer roles, concrete pain hypotheses, personalized opening lines and disqualifiers where found.
 
-The next bounded slice is **persistent containment/recovery state**. It should answer the next pilot-critical question: can incident holds, recovery progress, verification state and restoration eligibility survive controller restart without weakening freshness, scope binding, stale-authority rejection or residual-risk truth?
+Issue #128 remains the 14-day commercialization umbrella. Closed issue #126 confirms the persisted incident API/operator-console binding is already completed and must not be resumed as an old front.
 
-Requirements:
+Next autonomous actions:
 
-- persist incident containment/hold state independently from agent/model narration;
-- persist recovery attempts/results and independent verification evidence with stable incident/action identity;
-- reconstruct state fail closed after restart, rejecting tampering, truncation, stale or incident-mismatched recovery evidence;
-- preserve exact scope binding and later-writer protections;
-- never convert persisted telemetry/model output into authorization;
-- keep irreversible residual effects explicit after restart;
-- deterministic restart fixtures covering partial recovery, failed verification, successful compensation and irreversible residuals;
-- no paid infrastructure, cloud dependency, customer data or new model authority.
+1. verify and qualify the strongest design-partner and strategic-partner candidates against current public product evidence;
+2. promote only high-confidence candidates into a ranked owner-reviewable send-list;
+3. prepare tailored outreach variants and compact technical diligence material without sending externally;
+4. keep the owned pilot and assessment artifacts reproducible and claim-bounded;
+5. implement only buyer/pilot-blocking product gaps discovered during qualification.
 
-After persistent containment/recovery state, continue P1 with operator-grade APIs. Prefer OTel-compatible ingestion/adapters rather than rebuilding observability.
+## Commercial offer
 
-### P2 - Recovery Readiness / CI gate
+Initial offer: **Agent Recoverability Assessment** for one bounded write-capable agent workflow.
 
-Productize a developer-facing check that identifies write-capable actions and requires a valid recovery path before production. Output measurable recoverability coverage rather than a generic security score.
+Current design-partner pricing hypothesis: **EUR 1,500–3,000**. This is a willingness-to-pay test, not a published commitment.
 
-### P3 - Operator Console
+Buyer deliverable includes the write/authority map, Recovery Contract coverage, controlled incident evidence, containment/blast-radius evidence, verified recovery/compensation, replay/regression result, irreversible residual register, restoration eligibility, prioritized remediation and evidence identity.
 
-Evolve the judge-era console into an incident-response workflow showing incident, affected authority, causal graph, side effects, recovery class and obligations, proposed recovery versus deterministic admission, independent state verification, residual irreversible effects, replay/regression evidence, exact restoration decision and remaining containment. Evidence and advisory reasoning remain visibly separate.
+## Success gates
 
-### P4 - One realistic integration
+Before broad SaaS expansion, seek evidence of demand:
 
-Prove one end-to-end owned/sandbox workflow with real integration semantics and more than one side-effect surface. Prefer a high-signal developer/SaaS workflow over many shallow connectors.
+- roughly 10 qualified buyer/partner conversations;
+- at least 2 concrete pilot/assessment interests;
+- at least 1 MSSP/AppSec/cloud-security/AI consultancy partner signal;
+- one realistic pilot-ready integration path;
+- evidence about whether buyers value pre-incident Recoverability Assurance, post-incident Verified Recovery, or the combined control-plane proposition.
 
-### P5 - Agent Recoverability Assessment
+External outreach remains owner-gated. Research, qualification, briefs, demo packages, pricing hypotheses and drafts remain autonomous.
 
-Turn the engine into a repeatable service deliverable: tool/authority map, Recovery Contract coverage, controlled incident suite, containment/blast-radius evidence, recovery/compensation verification, replay/regression result, residual-risk register and prioritized remediation plan.
+## Accepted claim boundary
 
-### P6 - Commercial validation
+The project does **not** claim universal rollback/prevention, authenticated global ledger completeness, distributed-controller consensus, arbitrary production recovery, complete causal capture when instrumentation is absent, complete production replay equivalence, production security effectiveness from the owned sandbox, restoration of irreversible effects, or safe restoration without current independent evidence.
 
-Before broad SaaS work, seek willingness-to-pay evidence. Target roughly 10 qualified buyer/partner conversations, at least 2 concrete pilot/assessment interests, at least 1 MSSP/AppSec/cloud-security/AI consultancy partner signal, and one realistic pilot-ready integration. External outreach remains owner-gated; research, briefs, demo packages, pricing hypotheses and drafts are autonomous.
+These are engineering/evidence boundaries, not marketing footnotes.
 
-## Accepted security foundation
+## Engineering decision rule
 
-The accepted implementation includes strict Recovery Contract validation, advisory-only model output, parameter/context-bound approvals, independent containment holds, fresh scope-bound restoration, deep-detached evidence payloads, integrity checks before privileged recovery/restoration, incident-bound recovery-result reuse, later-writer protection, verification targets derived from preserved pre-action evidence, explicit residual evidence, replay freshness/supersession checks and restoration requiring complete represented recovery plus current positive exact-scope replay.
+Do not add major backend scope merely because it is technically interesting. New engineering must answer at least one of:
 
-PR #77 adds a framework-neutral observation boundary without expanding runtime authority. PR #78 adds durable local evidence persistence and fail-closed reconstruction across restart. PR #79 adds the versioned Recovery Contract boundary and deterministic validation semantics without turning contract metadata into authorization.
+- does it unblock a design-partner assessment?
+- does it make buyer proof materially stronger?
+- does it reduce integration cost?
+- does it improve trustworthy restoration evidence?
+- does it repair a correctness/security regression?
 
-## Explicit limits
-
-The project does **not** yet claim authenticated ledger completeness, distributed-controller consensus, remote proof/approval forgery resistance without an authenticated issuer boundary, globally complete causal capture when instrumentation is missing, complete production replay topology/provider/time equivalence, arbitrary production rollback, universal attack prevention, production security effectiveness, or safe restoration of every compromised source agent.
-
-These are engineering/evidence gaps, not marketing footnotes.
-
-## Competition assets
-
-Judge console, competition architecture asset, video plan, Devpost draft, submission checklist and verified Strands + Bedrock advisory proof remain reusable historical material. Do not finish the abandoned competition video unless it becomes useful for a customer, investor, partner or a new high-fit opportunity.
+Otherwise defer it until buyer evidence justifies expansion.
 
 ## Owner-only gates
 
-- new spend or paid model/provider calls
-- credentials, secrets, login/MFA and cloud account changes
-- customer/private production data
-- destructive real-world actions
-- legal terms and contracts
-- final external outreach, publication or customer commitments
+- new spend or paid model/provider calls;
+- credentials, secrets, login/MFA and cloud account changes;
+- customer/private production data or serious real pilot access;
+- destructive real-world actions;
+- legal terms and contracts;
+- final external outreach, publication or customer commitments.
 
 Repo-only product work, zero-cost research, branch/PR/CI/review/merge, sandbox implementation, demo preparation, assessment templates and prospect research remain autonomous.
