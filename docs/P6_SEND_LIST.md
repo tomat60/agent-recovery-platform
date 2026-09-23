@@ -25,10 +25,37 @@ This list promotes candidates only when current public product evidence shows co
 - **Disqualifier:** deprioritize if n8n can already verify cross-system compensation and scope-bound restoration after consequential agent actions, not merely workflow-version rollback or reruns.
 - **Source:** https://n8n.io/, https://n8n.io/ai-agents/, https://n8n.io/mcp/ (verified 2026-09-23).
 
+### 3. Composio — strategic integration / design partner
+- **Public evidence:** Composio exposes agent tool execution across 1,500+ applications and 20,000+ tools, with managed authentication, access policies, execution logs and an enterprise MCP gateway/audit layer. Its own product material explicitly positions agents as taking actions across connected apps.
+- **Likely buyer / sponsor:** MCP Gateway or developer-platform product leader, agent infrastructure lead, security product leader.
+- **Pain hypothesis:** a governed tool gateway can constrain and record actions, but cross-application writes still leave a post-incident question: which effects are reversible or compensatable, which recovery actually succeeded, and which authority is safe to restore.
+- **Why Agent Recovery can complement rather than replace it:** consume gateway/tool execution evidence and bind Recovery Contracts plus compensation/replay verification to consequential actions; do not compete on auth, tool discovery, policy enforcement or audit logging.
+- **Opening line:** “Composio already governs the boundary where agents act across thousands of tools; we’re testing the recovery contract and verification layer for what happens after one of those permitted actions causes a cross-system incident.”
+- **Disqualifier:** deprioritize if Composio already verifies dependency-aware compensation of executed cross-app effects and gates restoration on fresh recovery/replay evidence.
+- **Sources:** https://composio.dev/mcp-gateway and https://composio.dev/for-you (verified 2026-09-23).
+
+### 4. LangChain / LangSmith — runtime / strategic partner
+- **Public evidence:** LangSmith Deployment runs production agents on a durable runtime with fault tolerance, human-in-the-loop, multi-agent coordination, centralized versioning and instant agent rollbacks. LangChain also describes checkpointed durable execution and resume-from-exact-point behavior for agent runs.
+- **Likely buyer / sponsor:** LangSmith Deployment product leader, runtime/platform engineering leader, enterprise security/product leader.
+- **Pain hypothesis:** runtime durability and agent-version rollback solve execution continuity and software rollback, but they do not obviously prove compensation of external side effects already committed across tools or scope-bound restoration after a security/reliability incident.
+- **Why Agent Recovery can complement rather than replace it:** use runtime traces/checkpoints as evidence inputs while independently modeling side-effect recovery contracts, residuals, replay/regression and restoration eligibility.
+- **Opening line:** “LangSmith already makes agent execution durable and rollback-friendly; we’re focused on the harder boundary after a tool call commits externally—proving what was compensated, what remains residual, and what authority can safely come back.”
+- **Disqualifier:** deprioritize if LangSmith already provides evidence-backed cross-system compensation and selective authority restoration for committed external effects, beyond agent/runtime rollback and resumption.
+- **Source:** https://www.langchain.com/langsmith/deployment and https://www.langchain.com/blog/runtime-behind-production-deep-agents (verified 2026-09-23).
+
+### 5. CrewAI — enterprise runtime / design partner
+- **Public evidence:** CrewAI positions its platform for production multi-agent workflows that autonomously interact with enterprise applications and tools, with tracing, controls, RBAC, audit trails, human-in-the-loop checkpoints, policies and enterprise governance.
+- **Likely buyer / sponsor:** enterprise platform/product leader, agent runtime leader, security/governance product leader.
+- **Pain hypothesis:** governance, tracing and checkpoints reduce execution risk, while persistent state helps resume interrupted workflows; neither by itself establishes that already-executed external effects were compensated or that only the recovered authority scope is safe to restore.
+- **Why Agent Recovery can complement rather than replace it:** attach recoverability readiness and Recovery Contracts to governed tool actions, then turn incident evidence into verified compensation, replay/regression and restoration decisions.
+- **Opening line:** “CrewAI already gives enterprises governance and durable agent workflows; we’re testing the complementary incident-recovery proof layer for external side effects that survive a workflow checkpoint or restart.”
+- **Disqualifier:** deprioritize if CrewAI already verifies external compensation outcomes and fail-closed selective authority restoration across enterprise tool calls.
+- **Sources:** https://crewai.com/agent-management-platform and https://crewai.com/pricing (verified 2026-09-23).
+
 ## Qualification state
 
-Pipedream and n8n are promoted from research candidates because current first-party evidence confirms real tool execution and multi-system side effects. Other candidates in `DESIGN_PARTNER_PIPELINE.md` remain research-only until the same source-verification standard is met.
+Five candidates are now promoted from research because current first-party evidence confirms real agent/tool execution plus a distinct plausible recoverability boundary. Other candidates in `DESIGN_PARTNER_PIPELINE.md` remain research-only until the same source-verification standard is met.
 
 ## Owner gate
 
-Do not send these messages, submit partner forms, accept terms, or make customer commitments without Paweł’s explicit external-action approval. Next autonomous step is to verify additional candidates and expand this into the requested top-10 design-partner + top-5 strategic/channel shortlist while keeping each entry source-backed and disqualifiable.
+Do not send these messages, submit partner forms, accept terms, or make customer commitments without Paweł’s explicit external-action approval. Next autonomous step is to verify the remaining strongest candidates and expand this into the requested top-10 design-partner + top-5 strategic/channel shortlist while keeping each entry source-backed and disqualifiable.
