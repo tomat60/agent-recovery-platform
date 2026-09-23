@@ -8,13 +8,13 @@ Agent Recovery Platform is a **commercial-product-first** project. The closed Ag
 
 Current accepted `main`:
 
-`75695ec1f8b6779ec83667a963213bd4c4aa079b`
+`8d0692079a2818aa2155d7d5880cf4ddd3b6a899`
 
 Latest accepted slice:
 
-PR #145 `P6: package first design-partner commercial offer and research pipeline`.
+PR #155 `P6: rank first design-partner send list`.
 
-Exact-head acceptance for #145 passed and post-merge `recovery-ci #432` passed on current `main`.
+Post-merge `recovery-ci #450` passed on this exact `main` head.
 
 ## Product truth now accepted
 
@@ -27,7 +27,8 @@ The accepted product has progressed through the commercial foundation needed for
 - read-only operator API and commercial console over canonical persisted incident state;
 - one repeatable owned multi-surface pilot with recovery, replay and restoration evidence;
 - deterministic Agent Recoverability Assessment with evidence identity, residual truth and evidence-derived remediation priorities;
-- a bounded commercial launch pack, initial pricing hypothesis and design-partner research pipeline.
+- a bounded commercial launch pack, initial pricing hypothesis and design-partner research pipeline;
+- a first source-verified ranked design-partner send list, with Composio, n8n and LangChain/LangSmith as the recommended first wave.
 
 Core lifecycle remains:
 
@@ -42,33 +43,23 @@ Core rules remain:
 
 ## Commercial wedge
 
-Generic agent rollback/rewind is crowded prior art. The durable wedge remains the combination of:
-
-1. cross-agent causal provenance across shared state and external side effects;
-2. recovery-path integrity, stale-authority rejection and fail-closed restoration;
-3. framework-neutral Recovery Contracts and measurable recoverability coverage;
-4. dependency-aware reversible / compensatable / irreversible recovery with explicit residual truth;
-5. incident-to-regression conversion and replay against repaired controls;
-6. verified selective restoration of only the exact safe scope;
-7. Recovery Intelligence accumulated from action types, failure patterns, recovery strategies, verification outcomes and residual effects.
+Generic agent rollback/rewind is crowded prior art. The durable wedge remains cross-agent causal provenance, recovery-path integrity, framework-neutral Recovery Contracts, dependency-aware compensation with residual truth, incident-to-regression replay, verified selective restoration and accumulated Recovery Intelligence.
 
 Assume observability, runtime-security, backup and agent-platform vendors will converge on tracing, policy gates, kill switches and basic rollback. Do not compete on those alone.
 
 ## Current execution front
 
-The current priority is **P6 commercial validation**, while product work continues only where it unblocks a design-partner assessment, materially strengthens buyer proof, reduces integration cost or improves trustworthy restoration evidence.
+The current priority is **P6 commercial validation**. Issue #144 remains the active package/pipeline gate and issue #128 remains the 14-day commercialization umbrella.
 
-Issue #144 is the active commercial package/pipeline gate. The first launch pack and research seed landed in PR #145, but #144 is not complete until the research pipeline is promoted into a short, source-verified, ranked send-list with buyer roles, concrete pain hypotheses, personalized opening lines and disqualifiers where found.
+The first ranked send-list exists, but #144 is not complete. Next autonomous actions are:
 
-Issue #128 remains the 14-day commercialization umbrella. Closed issue #126 confirms the persisted incident API/operator-console binding is already completed and must not be resumed as an old front.
-
-Next autonomous actions:
-
-1. verify and qualify the strongest design-partner and strategic-partner candidates against current public product evidence;
-2. promote only high-confidence candidates into a ranked owner-reviewable send-list;
-3. prepare tailored outreach variants and compact technical diligence material without sending externally;
-4. keep the owned pilot and assessment artifacts reproducible and claim-bounded;
+1. expand the ranked design-partner list from five to ten only with current source-verified evidence, buyer role, pain hypothesis, opening line and disqualifier;
+2. keep five channel/strategic partner targets source-verified and owner-reviewable;
+3. complete ready-to-send message variants and compact technical diligence material without external sending;
+4. map one representative Composio cross-app write chain and one synthetic n8n two-surface workflow to current Recovery Contract / owned-pilot evidence without credentials or customer data;
 5. implement only buyer/pilot-blocking product gaps discovered during qualification.
+
+Closed issue #126 confirms the persisted incident API/operator-console binding is completed and must not be resumed as an old front.
 
 ## Commercial offer
 
@@ -94,19 +85,9 @@ External outreach remains owner-gated. Research, qualification, briefs, demo pac
 
 The project does **not** claim universal rollback/prevention, authenticated global ledger completeness, distributed-controller consensus, arbitrary production recovery, complete causal capture when instrumentation is absent, complete production replay equivalence, production security effectiveness from the owned sandbox, restoration of irreversible effects, or safe restoration without current independent evidence.
 
-These are engineering/evidence boundaries, not marketing footnotes.
-
 ## Engineering decision rule
 
-Do not add major backend scope merely because it is technically interesting. New engineering must answer at least one of:
-
-- does it unblock a design-partner assessment?
-- does it make buyer proof materially stronger?
-- does it reduce integration cost?
-- does it improve trustworthy restoration evidence?
-- does it repair a correctness/security regression?
-
-Otherwise defer it until buyer evidence justifies expansion.
+Do not add major backend scope merely because it is technically interesting. New engineering must unblock a design-partner assessment, materially strengthen buyer proof, reduce integration cost, improve trustworthy restoration evidence, or repair a correctness/security regression. Otherwise defer it until buyer evidence justifies expansion.
 
 ## Owner-only gates
 
