@@ -70,9 +70,18 @@ This list promotes candidates only when current public product evidence shows co
 - **Disqualifier:** deprioritize if Workato already verifies dependency-aware compensation of executed cross-system effects and gates selective authority restoration on fresh recovery/replay evidence.
 - **Sources:** https://www.workato.com/agentic and https://www.workato.com/agentic/agent-orchestration (verified 2026-09-23).
 
+### 8. Arize AI — observability / strategic integration partner
+- **Public evidence:** Arize AX and Phoenix capture agent traces spanning tool activity, handoffs and state changes, support OpenTelemetry/OpenInference, and explicitly recommend verifying consequential task completion in the downstream system. Arize also turns production failures into regression datasets and experiments.
+- **Likely buyer / sponsor:** agent observability product leader, OpenInference/platform leader, partnerships/product engineering leader.
+- **Pain hypothesis:** rich traces and evaluations can explain what an agent did and whether an intended outcome occurred, but observability alone does not establish dependency-aware compensation of committed external effects, residual truth, or fail-closed restoration of only the recovered authority scope.
+- **Why Agent Recovery can complement rather than replace it:** ingest OpenTelemetry/OpenInference traces as causal evidence, then add Recovery Contracts, verified compensation outcomes, incident-to-regression replay and restoration eligibility; feed recovery outcomes back into the regression corpus instead of building a competing tracing stack.
+- **Opening line:** “Arize already captures the evidence needed to explain agent incidents; we’re testing the complementary control that turns those traces into verified compensation, residual truth, regression replay and an exact decision about which authority is safe to restore.”
+- **Disqualifier:** deprioritize if Arize already provides dependency-aware recovery execution plus evidence-gated selective authority restoration for committed external side effects, rather than tracing, evaluation, sandbox policy and downstream outcome verification.
+- **Sources:** https://arize.com/guides/ai-agent-handbook/agent-observability/, https://arize.com/resources/whats-an-agent-observability-platform/ and https://arize.com/resources/agent-reliability/ (verified 2026-09-23).
+
 ## Qualification state
 
-Seven candidates are now promoted from research because current first-party evidence confirms real agent/tool execution plus a distinct plausible recoverability boundary. Other candidates in `DESIGN_PARTNER_PIPELINE.md` remain research-only until the same source-verification standard is met.
+Eight candidates are now promoted from research because current first-party evidence confirms real agent/tool execution or high-value causal evidence infrastructure plus a distinct plausible recoverability boundary. Other candidates in `DESIGN_PARTNER_PIPELINE.md` remain research-only until the same source-verification standard is met.
 
 ## Owner gate
 
