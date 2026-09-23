@@ -2,7 +2,7 @@
 
 Date: 2026-09-23
 
-This is a research pipeline, not an outreach list. Every organization must be verified before contact. Final sending is owner-gated.
+This is an active research/outreach pipeline. Paweł has authorized low-volume, evidence-based outreach waves from `hello@paweltomczak.com`. Legal commitments, spend, production access/data and binding terms remain gated.
 
 ## Qualification rubric
 
@@ -29,6 +29,19 @@ Score 0–2 on each:
 | LlamaIndex | Agent/data framework used for enterprise agent applications | Recovery Readiness integration candidate | Verify |
 | n8n | Workflow automation plus AI-agent execution across business systems | Strong multi-surface sandbox/design-partner candidate | Verify |
 | Pipedream | Tool/API execution infrastructure used by AI workflows | Tool-boundary recovery/compensation integration candidate | Verify |
+
+## Warsaw Tech Week / CYBER SECURITY Expo Poland 2026
+
+Paweł visited the event on 2026-09-23. Treat booth presence as a warm contextual signal, not proof of product fit.
+
+| Organization | Role in our strategy | Evidence / rationale | Current action |
+| --- | --- | --- | --- |
+| Saugumo operacijų centras / SOC Factory (Lithuania) | Channel/design-partner candidate | Small vCISO/SOC provider with 60+ Lithuanian clients, DORA/NIS2 work and technical leadership. Complementary to agent recoverability rather than directly competitive. | Outreach sent 2026-09-23 to info@saugumovadovas.lt asking for technology/partnership owner. |
+| Konsorcjum FEN | Polish channel / VAD candidate | Explicit VAD model, presales engineering, co-selling, demos, partner enablement and security portfolio. Could distribute or co-sell a new recoverability capability if pilot proof lands. | Outreach sent 2026-09-23 to Rafał Gałka (Security PM), cc Maciej Cenkier (BD Director). |
+| Acronis | Strategic platform / integration candidate and long-term adjacent threat | Strong data/infrastructure recovery, MSP channel and 300+ integration ecosystem. Our wedge is agent-action recoverability above workload/data restore. | Outreach sent 2026-09-23 to TechnologyPartnerProgram@acronis.com asking about CyberApp/API fit and maturity requirements. |
+| Cynet | Adjacent competitor / possible integration route | AI-powered XDR/MDR automates threat detection and response across endpoint/identity/cloud/email/SaaS. Not currently the same product category, but could expand toward agent-action recovery. | Monitor before contact; qualify whether partnership beats competitive disclosure risk. |
+| FUDO Security | Strategic adjacent vendor | Privileged access/session control is complementary to exact authority containment/restoration. Potential future integration if agent identity/privilege becomes buyer pull. | Research |
+| REKOWERY / data-recovery vendors | Low-to-medium partner relevance | Traditional recovery can complement our application-level agent recovery but does not validate our wedge alone. | Research selectively |
 
 ## Initial channel / strategic partner classes
 
@@ -58,5 +71,8 @@ For every target promoted to the send-list, record:
 - Dust positions enterprise agents that connect to company tools, act across workflows, and use governance/audit controls.
 - Arize positions end-to-end agent observability/evaluation around actions and tool use.
 - Langfuse positions tracing/evals across agent tool invocation and production behavior.
+- Acronis explicitly supports third-party CyberApps/Public API integrations and a large MSP/channel ecosystem; its core recovery remains workload/data/infrastructure oriented.
+- SOC Factory publicly offers SOC monitoring, CISO-as-a-service and DORA/NIS2-oriented resilience work, creating a plausible channel-assessment fit.
+- FEN publicly describes itself as a Value Added Distributor providing presales engineering, joint customer presentations and partner enablement.
 
 These facts validate fit for further research; they do not imply interest in partnering.
