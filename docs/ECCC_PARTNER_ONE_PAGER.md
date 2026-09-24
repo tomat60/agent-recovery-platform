@@ -1,7 +1,7 @@
 # Agent Recovery Platform — ECCC Partner One-Pager
 
 Date: 2026-09-24
-Purpose: partner / consortium discussion for DIGITAL-ECCC-2026-DEPLOY-CYBER-11
+Purpose: partner / consortium discussion for DIGITAL-ECCC-2027-DEPLOY-CYBER-11
 
 ## One-line proposition
 
@@ -124,3 +124,12 @@ We want to determine:
 - what integration and independent evaluation work belongs in the proposal.
 
 Current call deadline: **2027-01-14, 17:00 CET**.
+
+Current target topics:
+- **DIGITAL-ECCC-2027-DEPLOY-CYBER-11-AI4SME** — preferred;
+- **DIGITAL-ECCC-2027-DEPLOY-CYBER-11-CYBERAI** — secondary.
+
+Near-term partner-search milestone:
+**German-Polish Cybersecurity Matchmaking & Proposal Writing Workshop, Warsaw, 1–2 October 2026.**
+
+Agent Recovery is currently pre-incorporation. The intended consortium role is technology provider + recovery work-package owner; entity formation should happen only when a real consortium/commercial path requires it.
