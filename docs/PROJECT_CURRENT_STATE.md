@@ -8,13 +8,13 @@ Agent Recovery Platform is a **commercial-product-first** project. The closed Ag
 
 Current accepted `main`:
 
-`c28a27b6d2b921c6fb95fd24c77f53e1942f7c95`
+`7c105e486b565669de5c6f8599e7abc000ce3723`
 
 Latest accepted slice:
 
-PR #161 `P6: add design-partner technical diligence pack`.
+PR #163 `P6: add first-wave design-partner outreach package`.
 
-Post-merge `recovery-ci #460` passed on this exact `main` head.
+Post-merge `recovery-ci #464` passed on this exact `main` head.
 
 ## Product truth now accepted
 
@@ -30,7 +30,8 @@ The accepted product has progressed through the commercial foundation needed for
 - a bounded commercial launch pack and design-partner research pipeline;
 - a source-verified ranked ten-target design-partner send list, led by Composio, n8n and LangChain/LangSmith;
 - representative Composio and synthetic n8n integration mappings tied to current Recovery Contract / owned-pilot evidence;
-- a compact technical diligence pack for first design-partner qualification.
+- a compact technical diligence pack for first design-partner qualification;
+- an owner-reviewable first-wave outreach package for Composio, n8n and LangChain/LangSmith, with sequencing, qualification and disqualification tracking while final sending remains owner-gated.
 
 Core lifecycle remains:
 
@@ -53,13 +54,13 @@ Assume observability, runtime-security, backup and agent-platform vendors will c
 
 The current priority is **P6 commercial validation**. Issue #144 remains the active package/pipeline gate and issue #128 remains the 14-day commercialization umbrella.
 
-The ranked ten-target design-partner list, representative Composio/n8n workflow mappings and technical diligence pack now exist. Next autonomous actions are:
+The ranked ten-target design-partner list, representative Composio/n8n workflow mappings, technical diligence pack and first-wave outreach package now exist. Next autonomous actions are:
 
 1. keep five channel/strategic partner targets source-verified and owner-reviewable, promoting only targets with a concrete complementary route to market or assessment delivery;
-2. complete ready-to-send message variants for the highest-ranked design partners without external sending;
-3. keep the demo/assessment runbook aligned with the current owned pilot and diligence questions;
+2. inspect existing Composio and LangChain/LangSmith outreach threads before any owner-approved follow-up so the first wave never duplicates contact;
+3. keep the demo/assessment runbook aligned with the current owned pilot, diligence questions and first-wave message claims;
 4. qualify whether the representative Composio and n8n mappings expose any buyer/pilot-blocking product gap; implement only evidence-backed gaps;
-5. prepare owner-reviewable first-wave outreach sequencing and response/disqualification tracking, while keeping final external sending owner-gated.
+5. keep first-wave response/disqualification tracking evidence-based and prepare the next bounded commercial action without external sending.
 
 Closed issue #126 confirms the persisted incident API/operator-console binding is completed and must not be resumed as an old front.
 
