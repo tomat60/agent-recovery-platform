@@ -62,3 +62,17 @@ def test_loader_rejects_missing_restart_continuity_contract(tmp_path: Path) -> N
     path.write_text(json.dumps(value), encoding="utf-8")
     with pytest.raises(ValueError, match="restart continuity"):
         MODULE.load_evidence(path)
+
+
+def test_renderer_rejects_direct_authority_bypass() -> None:
+    value = evidence()
+    value["authorization_effect"] = "restore"
+    with pytest.raises(ValueError, match="authority-free"):
+        MODULE.render_summary(value)
+
+
+def test_renderer_rejects_direct_restart_continuity_bypass() -> None:
+    value = evidence()
+    value["restart_continuity_required"] = False
+    with pytest.raises(ValueError, match="restart continuity"):
+        MODULE.render_summary(value)
