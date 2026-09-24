@@ -8,13 +8,13 @@ Agent Recovery Platform is a **commercial-product-first** project. The closed Ag
 
 Current accepted `main`:
 
-`7c105e486b565669de5c6f8599e7abc000ce3723`
+`641bb1833f6dd2b48faa8dc8ca46c610ebc84ba0`
 
 Latest accepted slice:
 
-PR #163 `P6: add first-wave design-partner outreach package`.
+PR #165 `P6: record authorized first-wave outreach state`.
 
-Post-merge `recovery-ci #464` passed on this exact `main` head.
+The latest accepted change records Paweł's 2026-09-23 authorization for the bounded first outreach wave. Keep outreach low-volume, evidence-based and personalized. Legal terms, spend, production access and customer commitments remain owner-gated.
 
 ## Product truth now accepted
 
@@ -31,7 +31,7 @@ The accepted product has progressed through the commercial foundation needed for
 - a source-verified ranked ten-target design-partner send list, led by Composio, n8n and LangChain/LangSmith;
 - representative Composio and synthetic n8n integration mappings tied to current Recovery Contract / owned-pilot evidence;
 - a compact technical diligence pack for first design-partner qualification;
-- an owner-reviewable first-wave outreach package for Composio, n8n and LangChain/LangSmith, with sequencing, qualification and disqualification tracking while final sending remains owner-gated.
+- a first-wave outreach package for Composio, n8n and LangChain/LangSmith, with sequencing, qualification and disqualification tracking.
 
 Core lifecycle remains:
 
@@ -54,13 +54,13 @@ Assume observability, runtime-security, backup and agent-platform vendors will c
 
 The current priority is **P6 commercial validation**. Issue #144 remains the active package/pipeline gate and issue #128 remains the 14-day commercialization umbrella.
 
-The ranked ten-target design-partner list, representative Composio/n8n workflow mappings, technical diligence pack and first-wave outreach package now exist. Next autonomous actions are:
+The first outreach wave is authorized. Next autonomous actions are:
 
-1. keep five channel/strategic partner targets source-verified and owner-reviewable, promoting only targets with a concrete complementary route to market or assessment delivery;
-2. inspect existing Composio and LangChain/LangSmith outreach threads before any owner-approved follow-up so the first wave never duplicates contact;
+1. execute only the bounded, personalized first wave already authorized, checking existing threads before each contact to prevent duplicates;
+2. keep five channel/strategic partner targets source-verified and owner-reviewable, promoting only targets with a concrete complementary route to market or assessment delivery;
 3. keep the demo/assessment runbook aligned with the current owned pilot, diligence questions and first-wave message claims;
 4. qualify whether the representative Composio and n8n mappings expose any buyer/pilot-blocking product gap; implement only evidence-backed gaps;
-5. keep first-wave response/disqualification tracking evidence-based and prepare the next bounded commercial action without external sending.
+5. record responses, disqualifications and follow-up evidence without expanding scope into legal commitments, paid services, production access or customer promises.
 
 Closed issue #126 confirms the persisted incident API/operator-console binding is completed and must not be resumed as an old front.
 
@@ -82,7 +82,7 @@ Before broad SaaS expansion, seek evidence of demand:
 - one realistic pilot-ready integration path;
 - evidence about whether buyers value pre-incident Recoverability Assurance, post-incident Verified Recovery, or the combined control-plane proposition.
 
-External outreach remains owner-gated. Research, qualification, briefs, demo packages, pricing hypotheses and drafts remain autonomous.
+The bounded first outreach wave is authorized. Any expansion beyond that wave, legal terms, spend, production access or customer commitments remains owner-gated.
 
 ## Accepted claim boundary
 
@@ -99,6 +99,6 @@ Do not add major backend scope merely because it is technically interesting. New
 - customer/private production data or serious real pilot access;
 - destructive real-world actions;
 - legal terms and contracts;
-- final external outreach, publication or customer commitments.
+- outreach beyond the specifically authorized first wave, publication or customer commitments.
 
 Repo-only product work, zero-cost research, branch/PR/CI/review/merge, sandbox implementation, demo preparation, assessment templates and prospect research remain autonomous.
