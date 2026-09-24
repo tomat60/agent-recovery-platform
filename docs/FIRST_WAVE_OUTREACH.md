@@ -2,7 +2,7 @@
 
 Date: 2026-09-24
 
-Status: owner-reviewable draft only. **Do not send externally without Paweł's explicit approval for the exact recipient/message.**
+Status: first wave authorized by Paweł on 2026-09-23. Keep outreach low-volume, evidence-based and personalized; legal terms, spend, production access and customer commitments remain owner-gated.
 
 ## Objective
 
