@@ -76,3 +76,38 @@ def test_renderer_rejects_direct_restart_continuity_bypass() -> None:
     value["restart_continuity_required"] = False
     with pytest.raises(ValueError, match="restart continuity"):
         MODULE.render_summary(value)
+
+
+def test_renderer_rejects_detected_actions_above_expected() -> None:
+    value = evidence()
+    value["controlled_incident"]["detected_actions"] = 3
+    with pytest.raises(ValueError, match="cannot exceed"):
+        MODULE.render_summary(value)
+
+
+def test_renderer_rejects_out_of_range_recall() -> None:
+    value = evidence()
+    value["controlled_incident"]["blast_radius_recall"] = 1.01
+    with pytest.raises(ValueError, match="between 0 and 1"):
+        MODULE.render_summary(value)
+
+
+def test_renderer_rejects_negative_residual_count() -> None:
+    value = evidence()
+    value["recovery"]["platform_residual_effects"] = -1
+    with pytest.raises(ValueError, match="non-negative integer"):
+        MODULE.render_summary(value)
+
+
+def test_renderer_rejects_empty_surface_claim() -> None:
+    value = evidence()
+    value["surfaces"] = []
+    with pytest.raises(ValueError, match="non-empty list"):
+        MODULE.render_summary(value)
+
+
+def test_renderer_rejects_string_booleans() -> None:
+    value = evidence()
+    value["replay"]["verified"] = "true"
+    with pytest.raises(ValueError, match="must be boolean"):
+        MODULE.render_summary(value)
