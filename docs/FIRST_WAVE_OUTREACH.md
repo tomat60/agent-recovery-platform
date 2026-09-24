@@ -10,9 +10,9 @@ Test willingness to engage around a bounded **Agent Recoverability Assessment** 
 
 ## Wave 1 order
 
-1. **Composio** — strongest tool-execution boundary fit; existing outreach thread means inspect the thread before any follow-up and avoid duplicate contact.
-2. **n8n** — strongest workflow/side-effect fit; use the representative synthetic mapping as the technical anchor.
-3. **LangChain / LangSmith** — strong runtime/trace adjacency; existing outreach thread means inspect before follow-up.
+1. **Composio** — strongest tool-execution boundary fit; initial partnerships outreach sent 2026-09-23; await signal before a follow-up.
+2. **n8n** — strongest workflow/side-effect fit; initial outreach sent 2026-09-23 and routed by n8n to Sophie Hillier with Freddie copied. A technical clarification was sent 2026-09-24; await human response rather than duplicating contact.
+3. **LangChain / LangSmith** — strong runtime/trace adjacency; initial outreach sent 2026-09-23; await signal before a follow-up.
 
 Wave 2 after signal/no-signal: Pipedream, Dust, Braintrust. Do not broaden merely to increase send count.
 
@@ -76,9 +76,9 @@ For each contact, record only evidence-backed state:
 
 | Target | Route checked | Sent | Response | Technical fit | Sandbox path | Buyer signal | Next action |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Composio | existing thread — inspect before action | owner-gated | — | pending | representative mapping exists | unknown | review thread, then owner approves exact follow-up if appropriate |
-| n8n | not yet sent in this package | owner-gated | — | pending | synthetic mapping exists | unknown | owner approves exact route/message |
-| LangChain / LangSmith | existing thread — inspect before action | owner-gated | — | pending | trace/runtime evidence route | unknown | review thread, then owner approves exact follow-up if appropriate |
+| Composio | partnerships route checked | 2026-09-23 | none observed yet | pending | representative mapping exists | unknown | wait for signal; no duplicate follow-up |
+| n8n | sales route routed to Sophie Hillier; Freddie copied | 2026-09-23; clarification 2026-09-24 | routing acknowledgement and named handoff; no human technical response yet | pending | synthetic mapping exists | early routing signal only | wait for Sophie/human response; prepare bounded sandbox discussion if technical fit is confirmed |
+| LangChain / LangSmith | hello route checked | 2026-09-23 | none observed yet | pending | trace/runtime evidence route | unknown | wait for signal; no duplicate follow-up |
 
 A positive reply is not yet a pilot. Promote to pilot candidate only when there is a named technical owner, one bounded workflow, a non-production/synthetic execution path, and agreement that recovery evidence addresses a real gap.
 
@@ -88,4 +88,4 @@ Stop pursuing the assessment if the target already provides equivalent dependenc
 
 ## Claim boundary
 
-Do not claim universal rollback, prevention, complete causal capture without instrumentation, production replay equivalence, restoration of irreversible effects, or production security effectiveness from owned sandbox evidence. External sending, commercial commitments, terms, spend and serious pilot access remain owner-gated.
+Do not claim universal rollback, prevention, complete causal capture without instrumentation, production replay equivalence, restoration of irreversible effects, or production security effectiveness from owned sandbox evidence. Outreach beyond this authorized first wave, commercial commitments, terms, spend and serious pilot access remain owner-gated.
