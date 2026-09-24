@@ -1,6 +1,6 @@
 # Project Current State
 
-Date: 2026-09-23
+Date: 2026-09-24
 
 ## Status
 
@@ -8,13 +8,13 @@ Agent Recovery Platform is a **commercial-product-first** project. The closed Ag
 
 Current accepted `main`:
 
-`8d0692079a2818aa2155d7d5880cf4ddd3b6a899`
+`c28a27b6d2b921c6fb95fd24c77f53e1942f7c95`
 
 Latest accepted slice:
 
-PR #155 `P6: rank first design-partner send list`.
+PR #161 `P6: add design-partner technical diligence pack`.
 
-Post-merge `recovery-ci #450` passed on this exact `main` head.
+Post-merge `recovery-ci #460` passed on this exact `main` head.
 
 ## Product truth now accepted
 
@@ -27,8 +27,10 @@ The accepted product has progressed through the commercial foundation needed for
 - read-only operator API and commercial console over canonical persisted incident state;
 - one repeatable owned multi-surface pilot with recovery, replay and restoration evidence;
 - deterministic Agent Recoverability Assessment with evidence identity, residual truth and evidence-derived remediation priorities;
-- a bounded commercial launch pack, initial pricing hypothesis and design-partner research pipeline;
-- a first source-verified ranked design-partner send list, with Composio, n8n and LangChain/LangSmith as the recommended first wave.
+- a bounded commercial launch pack and design-partner research pipeline;
+- a source-verified ranked ten-target design-partner send list, led by Composio, n8n and LangChain/LangSmith;
+- representative Composio and synthetic n8n integration mappings tied to current Recovery Contract / owned-pilot evidence;
+- a compact technical diligence pack for first design-partner qualification.
 
 Core lifecycle remains:
 
@@ -51,13 +53,13 @@ Assume observability, runtime-security, backup and agent-platform vendors will c
 
 The current priority is **P6 commercial validation**. Issue #144 remains the active package/pipeline gate and issue #128 remains the 14-day commercialization umbrella.
 
-The first ranked send-list exists, but #144 is not complete. Next autonomous actions are:
+The ranked ten-target design-partner list, representative Composio/n8n workflow mappings and technical diligence pack now exist. Next autonomous actions are:
 
-1. expand the ranked design-partner list from five to ten only with current source-verified evidence, buyer role, pain hypothesis, opening line and disqualifier;
-2. keep five channel/strategic partner targets source-verified and owner-reviewable;
-3. complete ready-to-send message variants and compact technical diligence material without external sending;
-4. map one representative Composio cross-app write chain and one synthetic n8n two-surface workflow to current Recovery Contract / owned-pilot evidence without credentials or customer data;
-5. implement only buyer/pilot-blocking product gaps discovered during qualification.
+1. keep five channel/strategic partner targets source-verified and owner-reviewable, promoting only targets with a concrete complementary route to market or assessment delivery;
+2. complete ready-to-send message variants for the highest-ranked design partners without external sending;
+3. keep the demo/assessment runbook aligned with the current owned pilot and diligence questions;
+4. qualify whether the representative Composio and n8n mappings expose any buyer/pilot-blocking product gap; implement only evidence-backed gaps;
+5. prepare owner-reviewable first-wave outreach sequencing and response/disqualification tracking, while keeping final external sending owner-gated.
 
 Closed issue #126 confirms the persisted incident API/operator-console binding is completed and must not be resumed as an old front.
 
