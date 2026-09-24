@@ -1,12 +1,38 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from typing import Any
+
+
+def _validate_evidence_identity(report: dict[str, Any]) -> None:
+    """Fail closed if buyer-facing assessment evidence is stale or tampered."""
+
+    identity = report["evidence_identity"]
+    manifest = identity["manifest"]
+    encoded = json.dumps(
+        manifest,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+    ).encode("utf-8")
+    if hashlib.sha256(encoded).hexdigest() != identity["sha256"]:
+        raise ValueError("assessment evidence digest mismatch")
+
+    if manifest["readiness"] != report["readiness"]:
+        raise ValueError("assessment readiness does not match evidence manifest")
+
+    incident = report["controlled_incident"]
+    manifest_incident = manifest["controlled_incident"]
+    for field in ("scenario", "incident_id", "recovery_outcomes", "authority"):
+        if manifest_incident[field] != incident[field]:
+            raise ValueError(f"assessment controlled incident {field} does not match evidence manifest")
 
 
 def render_recoverability_assessment(report: dict[str, Any]) -> str:
     """Render a deterministic, claim-bounded assessment deliverable."""
 
+    _validate_evidence_identity(report)
     readiness = report["readiness"]
     incident = report["controlled_incident"]
     evidence_identity = report["evidence_identity"]
