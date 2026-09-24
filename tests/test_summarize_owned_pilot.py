@@ -51,3 +51,14 @@ def test_loader_rejects_authority_bearing_artifact(tmp_path: Path) -> None:
     path.write_text(json.dumps(value), encoding="utf-8")
     with pytest.raises(ValueError, match="authority-free"):
         MODULE.load_evidence(path)
+
+
+def test_loader_rejects_missing_restart_continuity_contract(tmp_path: Path) -> None:
+    import json
+
+    value = evidence()
+    value["restart_continuity_required"] = False
+    path = tmp_path / "pilot.json"
+    path.write_text(json.dumps(value), encoding="utf-8")
+    with pytest.raises(ValueError, match="restart continuity"):
+        MODULE.load_evidence(path)
