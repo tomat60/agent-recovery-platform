@@ -6,13 +6,17 @@ Date: 2026-09-24
 
 Agent Recovery Platform is a **commercial-product-first cybersecurity company/project**. Funding is a permanent parallel workstream, not the product goal.
 
-Current accepted `main` at the start of this funding update:
+Current accepted `main`:
 
-`2f48091e26c1d6407b44772730a51dbf84d20ab3`
+`fffe3119318e4cea1fd953a91e453909818923c4`
 
 Latest accepted commercial signal:
 
 PR #167 / commit `2f48091e...` records the first meaningful n8n routing signal: the Recoverability Assessment was understood correctly and routed to a named human contact for continuation. This is qualification/routing evidence, not yet a pilot or buyer commitment.
+
+Latest accepted execution/funding movement:
+
+PR #170 / commit `fffe3119...` makes funding a permanent parallel workstream, corrects the ECCC call identifiers to the 2027 call family, adds the live funding tracker and prepares the Warsaw matchmaking pack. Exact-head `main` CI run `35992035690` completed successfully on 2026-09-24.
 
 Core lifecycle remains:
 
@@ -37,7 +41,8 @@ The accepted product foundation includes:
 - deterministic Agent Recoverability Assessment with evidence identity, residual truth and evidence-derived remediation priorities;
 - a source-verified ranked design-partner/channel pipeline;
 - representative Composio and synthetic n8n pilot mappings;
-- a compact technical diligence pack and first-wave outreach package.
+- a compact technical diligence pack and first-wave outreach package;
+- an ECCC partner one-pager, live funding opportunity tracker and Warsaw matchmaking pack.
 
 Evidence discipline remains strict: synthetic benchmarks, owned sandbox results, external pilots and production evidence are different classes and must never be conflated.
 
@@ -51,7 +56,7 @@ The project now runs five permanent parallel fronts:
 4. **Funding / grants** — continuously research, qualify and prepare non-dilutive and accelerator opportunities without deforming the product.
 5. **Company readiness** — monitor the point at which a legal entity, IP chain, insurance, contracts or financing structure becomes necessary.
 
-Issue #128 remains the commercialization umbrella. Issue #144 remains the design-partner packaging/pipeline gate. Funding work must be tracked in repo alongside these fronts.
+Issue #128 remains the commercialization umbrella. Issue #144 remains the design-partner packaging/pipeline gate. Issue #169 is the active ECCC/funding execution gate.
 
 ## Commercial proof gates
 
@@ -102,7 +107,7 @@ Official event remains open for registration as of 2026-09-24.
 
 On 2026-09-24, an email was sent to `ncc@cyfra.gov.pl` asking whether a pre-incorporation founder can participate and requesting the current registration route / spot confirmation.
 
-This event is currently the highest-leverage near-term funding action because it can produce a coordinator and consortium partners before the January deadline.
+The repo now contains `docs/ECCC_MATCHMAKING_WORKSHOP_PACK.md` with the 90-second introduction, recovery work-package scope, pilot KPIs, partner qualification questions and meeting close. This event remains the highest-leverage near-term funding action because it can produce a coordinator and consortium partners before the January deadline.
 
 ### EIC path
 
@@ -167,9 +172,9 @@ Autonomous actions include research, qualified outreach, partner search, branch/
 
 ## Immediate next actions
 
-1. Secure/confirm attendance at the 1–2 Oct Warsaw matchmaking workshop.
-2. Prepare the workshop pack: one-pager, 90-second demo narrative, architecture/claim boundary, pilot KPI sheet and consortium role matrix.
-3. Qualify coordinator + SME end-user + MSSP/AppSec partner candidates before the workshop.
-4. Continue n8n and other commercial conversations in parallel.
-5. Correct all legacy references from `DIGITAL-ECCC-2026...` to the official `DIGITAL-ECCC-2027...` call identifiers.
-6. Maintain `docs/FUNDING_OPPORTUNITY_TRACKER.md` as the operational funding source of truth.
+1. Secure/confirm attendance at the 1–2 Oct Warsaw matchmaking workshop; watch the NCC reply and act on the registration route when available.
+2. Qualify coordinator + SME end-user + MSSP/AppSec partner candidates before the workshop and map each to a concrete role in the recovery work package.
+3. Continue n8n and other qualified commercial conversations in parallel; convert routing signals into a bounded design-partner/pilot discussion.
+4. Correct any remaining legacy `DIGITAL-ECCC-2026...` references only where they incorrectly describe the current call; preserve historical references when they are genuinely historical.
+5. Maintain `docs/FUNDING_OPPORTUNITY_TRACKER.md` as the operational funding source of truth.
+6. Keep product engineering focused on pilotability and buyer proof; funding preparation must not starve executable product work.
