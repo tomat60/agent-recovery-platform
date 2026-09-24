@@ -8,15 +8,18 @@ Agent Recovery Platform is a **commercial-product-first cybersecurity company/pr
 
 Current accepted `main`:
 
-`fffe3119318e4cea1fd953a91e453909818923c4`
+`6acd8e956e0a3f90fae7d7a0930df21b5269549e`
 
-Latest accepted commercial signal:
+Latest accepted commercial signals:
 
-PR #167 / commit `2f48091e...` records the first meaningful n8n routing signal: the Recoverability Assessment was understood correctly and routed to a named human contact for continuation. This is qualification/routing evidence, not yet a pilot or buyer commitment.
+- PR #167 / commit `2f48091e...` records the first meaningful n8n routing signal: the Recoverability Assessment was understood correctly and routed to a named human contact for continuation. This is qualification/routing evidence, not yet a pilot or buyer commitment.
+- Kyvvu co-founder & CEO Jeroen Ghijsen responded positively to the targeted outreach and explicitly proposed meeting at TechEx Europe 2026. After a follow-up, he proposed a short regular phone call for 2026-09-30 at 11:30 before the Amsterdam meeting. This is a real partner-discovery signal, not yet a design-partner, integration or commercial commitment.
 
-Latest accepted execution/funding movement:
+Latest accepted product/security and funding movement:
 
-PR #170 / commit `fffe3119...` makes funding a permanent parallel workstream, corrects the ECCC call identifiers to the 2027 call family, adds the live funding tracker and prepares the Warsaw matchmaking pack. Exact-head `main` CI run `35992035690` completed successfully on 2026-09-24.
+- PR #172 / commit `4e7f8758...` adds a buyer-readable owned-pilot evidence summary and fail-closed restart-continuity validation.
+- PR #173 / commit `6acd8e95...` closes the direct-renderer evidence-validation bypass so reusable rendering cannot turn unvalidated canonical-looking input into buyer-facing claims. Exact-head `main` CI run `36025345119` completed successfully on 2026-09-24.
+- PR #170 / commit `fffe3119...` makes funding a permanent parallel workstream, corrects the ECCC call identifiers to the 2027 call family, adds the live funding tracker and prepares the Warsaw matchmaking pack.
 
 Core lifecycle remains:
 
@@ -69,6 +72,8 @@ Before broad SaaS expansion, seek:
 - evidence about whether buyers value pre-incident Recoverability Assurance, post-incident Verified Recovery, or the combined proposition.
 
 Commercial outreach is authorized when it is low-volume, qualified, personalized and evidence-based. Do not wait for per-message approval.
+
+For founder-facing synchronous discovery, prefer the lowest-friction format that still advances the deal: async/email or the already-planned in-person TechEx meeting by default; use a short pre-event call only where a concrete high-value counterpart requests or materially benefits from it. Keep any such call tightly scripted around qualification and a concrete next step.
 
 ## Funding strategy — active truth
 
@@ -174,7 +179,7 @@ Autonomous actions include research, qualified outreach, partner search, branch/
 
 1. Secure/confirm attendance at the 1–2 Oct Warsaw matchmaking workshop; watch the NCC reply and act on the registration route when available.
 2. Qualify coordinator + SME end-user + MSSP/AppSec partner candidates before the workshop and map each to a concrete role in the recovery work package.
-3. Continue n8n and other qualified commercial conversations in parallel; convert routing signals into a bounded design-partner/pilot discussion.
+3. Continue n8n and other qualified commercial conversations in parallel; convert routing signals into a bounded design-partner/pilot discussion. Prepare a compact, low-stress qualification script for the proposed Kyvvu phone call and a separate, deeper TechEx integration scenario; do not over-expand the pre-event conversation.
 4. Correct any remaining legacy `DIGITAL-ECCC-2026...` references only where they incorrectly describe the current call; preserve historical references when they are genuinely historical.
 5. Maintain `docs/FUNDING_OPPORTUNITY_TRACKER.md` as the operational funding source of truth.
 6. Keep product engineering focused on pilotability and buyer proof; funding preparation must not starve executable product work.
