@@ -14,6 +14,8 @@ def load_evidence(path: Path) -> dict[str, Any]:
         raise ValueError("unsupported pilot evidence schema")
     if value.get("authorization_effect") != "none":
         raise ValueError("pilot evidence must remain authority-free")
+    if value.get("restart_continuity_required") is not True:
+        raise ValueError("pilot evidence must require restart continuity")
     return value
 
 
