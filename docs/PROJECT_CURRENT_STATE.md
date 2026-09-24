@@ -4,21 +4,29 @@ Date: 2026-09-24
 
 ## Status
 
-Agent Recovery Platform is a **commercial-product-first** project. The closed Agents for Humans submission is historical/reusable evidence only.
+Agent Recovery Platform is a **commercial-product-first cybersecurity company/project**. Funding is a permanent parallel workstream, not the product goal.
 
-Current accepted `main`:
+Current accepted `main` at the start of this funding update:
 
-`641bb1833f6dd2b48faa8dc8ca46c610ebc84ba0`
+`2f48091e26c1d6407b44772730a51dbf84d20ab3`
 
-Latest accepted slice:
+Latest accepted commercial signal:
 
-PR #165 `P6: record authorized first-wave outreach state`.
+PR #167 / commit `2f48091e...` records the first meaningful n8n routing signal: the Recoverability Assessment was understood correctly and routed to a named human contact for continuation. This is qualification/routing evidence, not yet a pilot or buyer commitment.
 
-The latest accepted change records Paweł's 2026-09-23 authorization for the bounded first outreach wave. Keep outreach low-volume, evidence-based and personalized. Legal terms, spend, production access and customer commitments remain owner-gated.
+Core lifecycle remains:
+
+**incident -> containment -> evidence -> recovery / compensation -> replay / regression -> verified restoration**
+
+Current wedge remains:
+
+> **Verified recovery for autonomous AI-agent side effects across multiple tools and systems.**
+
+Do not broaden into generic SIEM, IAM, EDR, prompt firewall or a general AI-security platform merely to fit funding language.
 
 ## Product truth now accepted
 
-The accepted product has progressed through the commercial foundation needed for buyer validation:
+The accepted product foundation includes:
 
 - framework-neutral action evidence ingestion and OTel-compatible normalization;
 - durable evidence/provenance and persistent incident/containment/recovery state across restart;
@@ -27,78 +35,141 @@ The accepted product has progressed through the commercial foundation needed for
 - read-only operator API and commercial console over canonical persisted incident state;
 - one repeatable owned multi-surface pilot with recovery, replay and restoration evidence;
 - deterministic Agent Recoverability Assessment with evidence identity, residual truth and evidence-derived remediation priorities;
-- a bounded commercial launch pack and design-partner research pipeline;
-- a source-verified ranked ten-target design-partner send list, led by Composio, n8n and LangChain/LangSmith;
-- representative Composio and synthetic n8n integration mappings tied to current Recovery Contract / owned-pilot evidence;
-- a compact technical diligence pack for first design-partner qualification;
-- a first-wave outreach package for Composio, n8n and LangChain/LangSmith, with sequencing, qualification and disqualification tracking.
+- a source-verified ranked design-partner/channel pipeline;
+- representative Composio and synthetic n8n pilot mappings;
+- a compact technical diligence pack and first-wave outreach package.
 
-Core lifecycle remains:
+Evidence discipline remains strict: synthetic benchmarks, owned sandbox results, external pilots and production evidence are different classes and must never be conflated.
 
-**incident -> containment -> evidence -> recovery / compensation -> replay / regression -> verified restoration**
+## Current execution fronts
 
-Core rules remain:
+The project now runs five permanent parallel fronts:
 
-- **No autonomous write without a validated recovery path.**
-- **Model output is never authorization.**
-- **No restored authority without current scope-bound recovery/replay evidence.**
-- Irreversible external effects remain explicit residual risk; they are never represented as undone.
+1. **Product / CTO** — ship only product work that improves pilotability, buyer proof, security correctness, integration effort or verified restoration.
+2. **Security** — preserve fail-closed authorization, evidence integrity, exact recovery binding and claim discipline.
+3. **Commercialization** — continue qualified outreach, buyer discovery, design-partner/pilot conversion and channel/strategic partnerships.
+4. **Funding / grants** — continuously research, qualify and prepare non-dilutive and accelerator opportunities without deforming the product.
+5. **Company readiness** — monitor the point at which a legal entity, IP chain, insurance, contracts or financing structure becomes necessary.
 
-## Commercial wedge
+Issue #128 remains the commercialization umbrella. Issue #144 remains the design-partner packaging/pipeline gate. Funding work must be tracked in repo alongside these fronts.
 
-Generic agent rollback/rewind is crowded prior art. The durable wedge remains cross-agent causal provenance, recovery-path integrity, framework-neutral Recovery Contracts, dependency-aware compensation with residual truth, incident-to-regression replay, verified selective restoration and accumulated Recovery Intelligence.
+## Commercial proof gates
 
-Assume observability, runtime-security, backup and agent-platform vendors will converge on tracing, policy gates, kill switches and basic rollback. Do not compete on those alone.
-
-## Current execution front
-
-The current priority is **P6 commercial validation**. Issue #144 remains the active package/pipeline gate and issue #128 remains the 14-day commercialization umbrella.
-
-The first outreach wave is authorized. Next autonomous actions are:
-
-1. execute only the bounded, personalized first wave already authorized, checking existing threads before each contact to prevent duplicates;
-2. keep five channel/strategic partner targets source-verified and owner-reviewable, promoting only targets with a concrete complementary route to market or assessment delivery;
-3. keep the demo/assessment runbook aligned with the current owned pilot, diligence questions and first-wave message claims;
-4. qualify whether the representative Composio and n8n mappings expose any buyer/pilot-blocking product gap; implement only evidence-backed gaps;
-5. record responses, disqualifications and follow-up evidence without expanding scope into legal commitments, paid services, production access or customer promises.
-
-Closed issue #126 confirms the persisted incident API/operator-console binding is completed and must not be resumed as an old front.
-
-## Commercial offer
-
-Initial offer: **Agent Recoverability Assessment** for one bounded write-capable agent workflow.
-
-Current design-partner pricing hypothesis: **EUR 1,500–3,000**. This is a willingness-to-pay test, not a published commitment.
-
-Buyer deliverable includes the write/authority map, Recovery Contract coverage, controlled incident evidence, containment/blast-radius evidence, verified recovery/compensation, replay/regression result, irreversible residual register, restoration eligibility, prioritized remediation and evidence identity.
-
-## Success gates
-
-Before broad SaaS expansion, seek evidence of demand:
+Before broad SaaS expansion, seek:
 
 - roughly 10 qualified buyer/partner conversations;
 - at least 2 concrete pilot/assessment interests;
 - at least 1 MSSP/AppSec/cloud-security/AI consultancy partner signal;
-- one realistic pilot-ready integration path;
-- evidence about whether buyers value pre-incident Recoverability Assurance, post-incident Verified Recovery, or the combined control-plane proposition.
+- one realistic pilot-ready external integration path;
+- evidence about whether buyers value pre-incident Recoverability Assurance, post-incident Verified Recovery, or the combined proposition.
 
-The bounded first outreach wave is authorized. Any expansion beyond that wave, legal terms, spend, production access or customer commitments remains owner-gated.
+Commercial outreach is authorized when it is low-volume, qualified, personalized and evidence-based. Do not wait for per-message approval.
 
-## Accepted claim boundary
+## Funding strategy — active truth
 
-The project does **not** claim universal rollback/prevention, authenticated global ledger completeness, distributed-controller consensus, arbitrary production recovery, complete causal capture when instrumentation is absent, complete production replay equivalence, production security effectiveness from the owned sandbox, restoration of irreversible effects, or safe restoration without current independent evidence.
+Funding must accelerate the commercial product and must not become a separate grant-only roadmap.
 
-## Engineering decision rule
+### Priority 1 — DIGITAL / ECCC 2027 call
 
-Do not add major backend scope merely because it is technically interesting. New engineering must unblock a design-partner assessment, materially strengthen buyer proof, reduce integration cost, improve trustworthy restoration evidence, or repair a correctness/security regression. Otherwise defer it until buyer evidence justifies expansion.
+Official current call family:
+
+`DIGITAL-ECCC-2027-DEPLOY-CYBER-11`
+
+Primary topic:
+
+`DIGITAL-ECCC-2027-DEPLOY-CYBER-11-AI4SME`
+
+Secondary topic:
+
+`DIGITAL-ECCC-2027-DEPLOY-CYBER-11-CYBERAI`
+
+Deadline: **2027-01-14, 17:00 CET**.
+
+Preferred role: **technology provider + owner of a concrete recovery work package**, not coordinator of the first large EU consortium.
+
+Immediate consortium targets:
+
+- experienced EU cybersecurity coordinator / proposal lead;
+- 2–4 SME end users operating write-capable AI/automation;
+- MSSP/AppSec/cloud-security/AI-security implementation partner;
+- optional independent research/test partner where it closes a real evaluation gap.
+
+### Urgent owner-facing event
+
+**German-Polish Cybersecurity Matchmaking & Proposal Writing Workshop — Warsaw, 1–2 October 2026.**
+
+Official event remains open for registration as of 2026-09-24.
+
+On 2026-09-24, an email was sent to `ncc@cyfra.gov.pl` asking whether a pre-incorporation founder can participate and requesting the current registration route / spot confirmation.
+
+This event is currently the highest-leverage near-term funding action because it can produce a coordinator and consortium partners before the January deadline.
+
+### EIC path
+
+- **EIC Pre-Accelerator 2027** is the preferred EIC readiness path if traction and TRL continue to improve.
+- Poland is eligible as a widening country.
+- Single SME; minimum TRL 4.
+- EUR 500k–1m grant, 70% funding.
+- Opens 2027-05-05; deadline 2027-11-18.
+
+Do not rush an EIC Accelerator 2026 full proposal. Current EIC Accelerator is targeted at TRL 6–8; the 2026 final full-proposal batching date is 2026-11-04, but a short proposal GO is required first and EIC recommends substantial lead time. Preserve application attempts until customer/TRL evidence is stronger.
+
+### NATO / dual-use
+
+DIANA 2027 challenge applications are already closed. Monitor the next annual call, expected around June/July 2027. Do not distort the roadmap toward defence unless a future challenge naturally matches resilient autonomous systems, recovery after compromise or cyber resilience.
+
+### Polish programmes
+
+PARP Start-ups Are Us — Cybersecurity 2026 is closed. Monitor future editions; do not spend time attempting a closed call.
+
+## Funding evidence to build through normal product work
+
+Prefer evidence that helps both customers and grant evaluators:
+
+- recovery-path coverage;
+- time to containment;
+- time to verified recovery;
+- false restoration attempts rejected;
+- irreversible residuals surfaced;
+- integration effort;
+- deterministic benchmark reproducibility;
+- operator usability;
+- external design-partner/pilot evidence;
+- independent security review;
+- clear IP/open-source chain.
+
+## Company / legal-entity trigger
+
+Do not create a company only because funding exists.
+
+Prepare a legal entity when one of these becomes real:
+
+- a design partner is ready to sign/pay;
+- an ECCC consortium needs us as an applicant/beneficiary;
+- an accelerator/investor requires the entity;
+- liability/IP separation becomes materially useful.
+
+Before choosing structure, compare Polish sp. z o.o./PSA and any genuinely relevant alternative with legal/tax input. Minimize founder liability and avoid unnecessary personal guarantees/co-financing risk.
 
 ## Owner-only gates
 
-- new spend or paid model/provider calls;
-- credentials, secrets, login/MFA and cloud account changes;
-- customer/private production data or serious real pilot access;
-- destructive real-world actions;
-- legal terms and contracts;
-- outreach beyond the specifically authorized first wave, publication or customer commitments.
+Stop only for:
 
-Repo-only product work, zero-cost research, branch/PR/CI/review/merge, sandbox implementation, demo preparation, assessment templates and prospect research remain autonomous.
+- legally binding terms/contracts/NDA where substantive obligations arise;
+- payment or new spend;
+- company formation / ownership changes;
+- IP transfer or exclusive licensing;
+- material co-financing or budget commitments;
+- customer production credentials/data or destructive actions;
+- binding final grant/investment submission requiring declarations/signature.
+
+Autonomous actions include research, qualified outreach, partner search, branch/PR/CI work, grant/application drafting, consortium concepts, budget drafts, work packages, trackers, one-pagers and non-binding event/program inquiries.
+
+## Immediate next actions
+
+1. Secure/confirm attendance at the 1–2 Oct Warsaw matchmaking workshop.
+2. Prepare the workshop pack: one-pager, 90-second demo narrative, architecture/claim boundary, pilot KPI sheet and consortium role matrix.
+3. Qualify coordinator + SME end-user + MSSP/AppSec partner candidates before the workshop.
+4. Continue n8n and other commercial conversations in parallel.
+5. Correct all legacy references from `DIGITAL-ECCC-2026...` to the official `DIGITAL-ECCC-2027...` call identifiers.
+6. Maintain `docs/FUNDING_OPPORTUNITY_TRACKER.md` as the operational funding source of truth.
