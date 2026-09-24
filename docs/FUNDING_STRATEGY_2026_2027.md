@@ -5,6 +5,8 @@ Date: 2026-09-24
 
 ## Decision
 
+Funding is a **permanent parallel workstream** of the project. Research, qualification, proposal preparation, partner search, trackers and deadline management should continue alongside product development, pilots and commercialization without waiting for a separate funding discussion.
+
 Do not create a new "cybersecurity startup" just to chase grants.
 
 Use **Agent Recovery Platform** as the lead cybersecurity product and build the company around a defensible category:
@@ -40,7 +42,7 @@ This maps naturally to defensive cybersecurity for AI-enabled businesses without
 
 ## Active 2026 EU calls
 
-### Primary — DIGITAL-ECCC-2026-DEPLOY-CYBER-11-AI4SME
+### Primary — DIGITAL-ECCC-2027-DEPLOY-CYBER-11-AI4SME
 
 Official topic budget: EUR 20m.
 
@@ -59,7 +61,7 @@ Strong fit when positioned as an deployable cybersecurity capability for SMEs op
 
 Target is not a solo MVP grant. Treat this as a **consortium deployment programme** requiring market credibility, end users and measurable SME deployments.
 
-### Secondary — DIGITAL-ECCC-2026-DEPLOY-CYBER-11-CYBERAI
+### Secondary — DIGITAL-ECCC-2027-DEPLOY-CYBER-11-CYBERAI
 
 Official topic budget: EUR 15m.
 Typical funding rate: 50%.
@@ -218,11 +220,21 @@ Use the next months to build the evidence that makes this credible rather than w
 
 ### EIC Accelerator
 
-Revisit only once the product is substantially more mature and the commercial/TRL case is defensible.
+Do **not** rush the 2026 full-proposal path merely because the final batching date is 2026-11-04.
+
+Official current parameters:
+- target maturity: TRL 6–8;
+- grant component: below EUR 2.5m;
+- investment component: EUR 1m–10m;
+- short proposal is required before a full proposal unless a certified Fast Track / Plug-In route applies;
+- EIC advises submitting a short proposal well ahead of the intended full-proposal batch;
+- failed applications are limited across the Horizon Europe programme.
+
+Current decision: preserve application attempts until commercial evidence, team/entity readiness and TRL are stronger. Build the evidence now; do not burn an attempt for grant theatre.
 
 ## NATO DIANA
 
-Maintain as an opportunity watch, not a current core plan.
+DIANA's 2027 challenge applications are closed. Maintain as an opportunity watch, not a current core plan. DIANA states that its annual challenge call normally launches around June/July; monitor the next cycle rather than trying to enter a closed call.
 
 Relevant product framing:
 - resilient autonomous systems;
@@ -284,3 +296,33 @@ Do not spend months grant-writing if:
 - grant obligations would slow the commercial product more than the funding helps.
 
 Funding is leverage, not the product.
+
+
+## Live opportunity tracker discipline
+
+Operational funding truth belongs in `docs/FUNDING_OPPORTUNITY_TRACKER.md`.
+
+For each opportunity maintain:
+- official source and last verification date;
+- status: pursue / prepare / monitor / reject / closed;
+- deadline and any earlier matchmaking/application milestones;
+- eligibility and entity requirement;
+- TRL/maturity expectation;
+- funding rate and likely co-financing exposure;
+- consortium requirement or preferred consortium shape;
+- IP/security/geographic restrictions;
+- realistic application effort;
+- next autonomous action;
+- exact owner gate, if any.
+
+If a call closes, becomes a poor fit, or would distort the product, downgrade or reject it explicitly instead of letting stale opportunity language persist.
+
+## Immediate 2026-09-24 funding actions
+
+- Warsaw German-Polish Cybersecurity Matchmaking & Proposal Writing Workshop is in **7 days** (1–2 October 2026) and registration is currently advertised as open.
+- A non-binding eligibility/registration inquiry was sent to `ncc@cyfra.gov.pl` on 2026-09-24 because Agent Recovery is currently pre-incorporation.
+- Prepare the workshop pack now rather than waiting for the reply: ECCC one-pager, 90-second demo narrative, consortium role matrix, pilot KPI sheet, claim boundary and founder/entity-status note.
+- ECCC's official 2026 call publication uses the call family `DIGITAL-ECCC-2027-DEPLOY-CYBER-11`; legacy `...2026...` identifiers are stale and must not be used in new materials.
+- AI4SME remains the preferred topic: EUR 20m topic budget; 75% funding for SMEs / 50% for other beneficiaries; approximately 36-month projects.
+- CYBERAI remains secondary: EUR 15m topic budget; 50% funding; use only with an appropriate incident-recovery/trustworthy-AI consortium rather than broadening the product into generic AI security.
+- Article 12(5) security restrictions apply to these ECCC topics.
