@@ -6,10 +6,7 @@ from pathlib import Path
 from typing import Any
 
 
-def load_evidence(path: Path) -> dict[str, Any]:
-    value = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(value, dict):
-        raise TypeError("pilot evidence must be an object")
+def validate_evidence(value: dict[str, Any]) -> dict[str, Any]:
     if value.get("schema_version") != "owned-multisurface-pilot/v1":
         raise ValueError("unsupported pilot evidence schema")
     if value.get("authorization_effect") != "none":
@@ -19,7 +16,18 @@ def load_evidence(path: Path) -> dict[str, Any]:
     return value
 
 
+def load_evidence(path: Path) -> dict[str, Any]:
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(value, dict):
+        raise TypeError("pilot evidence must be an object")
+    return validate_evidence(value)
+
+
 def render_summary(evidence: dict[str, Any]) -> str:
+    # Keep the reusable renderer fail-closed too. Callers must not be able to
+    # bypass the loader and turn untrusted/canonical-looking data into a
+    # buyer-facing claim surface.
+    validate_evidence(evidence)
     controlled = evidence["controlled_incident"]
     containment = evidence["containment"]
     recovery = evidence["recovery"]
