@@ -13,6 +13,25 @@ def validate_evidence(value: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("pilot evidence must remain authority-free")
     if value.get("restart_continuity_required") is not True:
         raise ValueError("pilot evidence must require restart continuity")
+    controlled = value.get("controlled_incident")
+    recovery = value.get("recovery")
+    surfaces = value.get("surfaces")
+    if not isinstance(controlled, dict) or not isinstance(recovery, dict):
+        raise TypeError("pilot lifecycle sections must be objects")
+    if not isinstance(surfaces, list) or not surfaces:
+        raise ValueError("pilot surfaces must be a non-empty list")
+    expected = controlled.get("expected_actions")
+    detected = controlled.get("detected_actions")
+    verified = recovery.get("verified_recoveries")
+    residuals = recovery.get("platform_residual_effects")
+    if not all(isinstance(v, int) and not isinstance(v, bool) and v >= 0 for v in (expected, detected, verified, residuals)):
+        raise ValueError("pilot counts must be non-negative integers")
+    if expected == 0 or detected > expected or verified > expected:
+        raise ValueError("pilot counts are internally inconsistent")
+    recall = controlled.get("blast_radius_recall")
+    precision = controlled.get("blast_radius_precision")
+    if not all(isinstance(v, (int, float)) and not isinstance(v, bool) and 0 <= v <= 1 for v in (recall, precision)):
+        raise ValueError("pilot blast-radius metrics must be within [0, 1]")
     return value
 
 
