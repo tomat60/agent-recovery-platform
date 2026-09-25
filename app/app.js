@@ -80,8 +80,36 @@ async function load() {
   bindNavigation();
   try {
     const state = await loadOperatorState();
-    if (state.mode !== "fixture") {
-      throw new Error("Persisted API transport is connected but canonical console projection is not yet available");
+    if (state.mode === "api") {
+      const incident = state.detail.incident;
+      const status = incident.status;
+      text("metric-recoverability", "n/a");
+      text("metric-verification", human(status.verification_status));
+      text("metric-containment", status.containment_active ? "Active" : "Released");
+      text("metric-residuals", status.irreversible_residual_count);
+      text("incident-name", incident.incident_id);
+      text("incident-state", status.containment_active ? "Contained" : "Released");
+      text("next-action", human(incident.next_action.action));
+      text("readiness-total", "n/a");
+      text("readiness-recoverable", incident.recovery_candidates.length);
+      text("readiness-missing", "n/a");
+      text("readiness-restoration", human(status.restoration_status));
+      qs("readiness-fill").style.width = "0%";
+      renderLifecycle({ incident });
+      qs("candidate-list").innerHTML = incident.recovery_candidates.map((item) => candidateRow(human(item.action_type), item.status, `${human(item.recovery_class)} | recovery evidence: ${item.recovery_evidence_event_id ? "present" : "missing"} | verification evidence: ${item.verification_evidence_event_id ? "present" : "missing"}`)).join("");
+      qs("side-effect-list").innerHTML = incident.side_effects.map((item) => candidateRow(human(item.action_type), item.recovery_class, `${human(item.recovery_class)} | resources: ${(item.resource_keys || []).join(", ") || "none"}`)).join("");
+      text("state-crm-before", "not exposed");
+      text("state-crm-after", "not exposed");
+      text("state-memory", "not exposed");
+      text("state-messages", "not exposed");
+      text("assessment-sha", "not exposed by incident API");
+      text("evidence-short", "Persisted evidence");
+      text("assessment-env", "canonical persisted state");
+      text("assessment-scenario", "incident response");
+      text("assessment-incident", incident.incident_id);
+      qs("remediation-list").innerHTML = candidateRow("Assessment projection unavailable", "neutral", "This API exposes incident evidence only. No assessment claim is inferred in the browser.");
+      qs("claim-list").innerHTML = '<span class="claim">incident evidence only</span><span class="claim">non-authorizing</span>';
+      return;
     }
     const data = state.fixture;
     renderOverview(data); renderIncident(data); renderAssessment(data);
