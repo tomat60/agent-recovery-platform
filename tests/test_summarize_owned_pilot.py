@@ -76,3 +76,28 @@ def test_renderer_rejects_direct_restart_continuity_bypass() -> None:
     value["restart_continuity_required"] = False
     with pytest.raises(ValueError, match="restart continuity"):
         MODULE.render_summary(value)
+
+
+def test_renderer_rejects_impossible_action_counts() -> None:
+    sample = evidence()
+    controlled = sample["controlled_incident"]
+    assert isinstance(controlled, dict)
+    controlled["detected_actions"] = 3
+    with pytest.raises(ValueError, match="internally inconsistent"):
+        MODULE.render_summary(sample)
+
+
+def test_renderer_rejects_more_verified_recoveries_than_expected_actions() -> None:
+    sample = evidence()
+    recovery = sample["recovery"]
+    assert isinstance(recovery, dict)
+    recovery["verified_recoveries"] = 3
+    with pytest.raises(ValueError, match="internally inconsistent"):
+        MODULE.render_summary(sample)
+
+
+def test_renderer_rejects_empty_surface_evidence() -> None:
+    sample = evidence()
+    sample["surfaces"] = []
+    with pytest.raises(ValueError, match="non-empty"):
+        MODULE.render_summary(sample)
