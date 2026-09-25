@@ -19,8 +19,7 @@ function pill(status) {
 function candidateRow(title, status, detail) {
   return `<div class="candidate"><div class="candidate-top"><strong>${title}</strong><span class="pill ${pill(status)}">${human(status)}</span></div><p>${detail}</p></div>`;
 }
-function renderLifecycle(data) {
-  const status = data.incident.status;
+function renderLifecycleStatus(status) {
   const steps = [
     ["Incident", "Recorded", "done"],
     ["Containment", status.containment_active ? "Active" : "Released", status.containment_active ? "warn" : "done"],
@@ -30,6 +29,7 @@ function renderLifecycle(data) {
   ];
   qs("lifecycle").innerHTML = steps.map(([name, detail, state]) => `<div class="lifecycle-step ${state}"><strong>${name}</strong><span>${detail}</span></div>`).join("");
 }
+function renderLifecycle(data) { renderLifecycleStatus(data.incident.status); }
 function renderOverview(data) {
   const o = data.overview;
   text("metric-recoverability", `${Math.round(o.recoverability_fraction * 100)}%`);
@@ -66,6 +66,43 @@ function renderAssessment(data) {
   qs("remediation-list").innerHTML = a.remediation.length ? a.remediation.map((item) => candidateRow(`${item.priority} ${human(item.kind)}`, item.priority, human(item.evidence))).join("") : candidateRow("No derived remediation", "verified", "Current evidence has no remediation blockers.");
   qs("claim-list").innerHTML = a.claim_limits.map((item) => `<span class="claim">${human(item)}</span>`).join("");
 }
+function renderPersistedApi(detailEnvelope) {
+  const incident = detailEnvelope.incident;
+  const status = incident.status;
+  text("metric-recoverability", "not exposed");
+  text("metric-verification", human(status.verification_status));
+  text("metric-containment", status.containment_active ? "Active" : "Released");
+  text("metric-residuals", status.irreversible_residual_count);
+  text("incident-name", incident.incident_id);
+  text("incident-state", status.containment_active ? "Contained" : "Released");
+  text("next-action", human(incident.next_action.action));
+  text("readiness-total", "not exposed");
+  text("readiness-recoverable", "not exposed");
+  text("readiness-missing", "not exposed");
+  text("readiness-restoration", "not exposed");
+  qs("readiness-fill").style.width = "0%";
+  renderLifecycleStatus(status);
+
+  qs("candidate-list").innerHTML = incident.recovery_candidates.map((item) =>
+    candidateRow(human(item.action_type), item.status, `${human(item.recovery_class)} | recovery evidence: ${item.recovery_evidence_event_id ? "present" : "missing"} | verification evidence: ${item.verification_evidence_event_id ? "present" : "missing"}`)
+  ).join("");
+  qs("side-effect-list").innerHTML = incident.side_effects.map((item) =>
+    candidateRow(human(item.action_type), item.recovery_class, `${human(item.recovery_class)} | resources: ${(item.resource_keys || []).join(", ") || "none"}`)
+  ).join("");
+  text("state-crm-before", "not exposed");
+  text("state-crm-after", "not exposed");
+  text("state-memory", "not exposed");
+  text("state-messages", "not exposed");
+
+  text("assessment-sha", "not exposed by incident API");
+  text("evidence-short", "Persisted evidence");
+  text("assessment-env", "not exposed");
+  text("assessment-scenario", "not exposed");
+  text("assessment-incident", incident.incident_id);
+  qs("remediation-list").innerHTML = candidateRow("Assessment unavailable", "neutral", "The persisted incident API does not expose assessment or readiness evidence. No claim is inferred.");
+  qs("claim-list").innerHTML = '<span class="claim">Incident evidence only; assessment and readiness are not inferred.</span>';
+}
+
 function bindNavigation() {
   document.querySelectorAll(".nav-item").forEach((button) => button.addEventListener("click", () => {
     document.querySelectorAll(".nav-item").forEach((item) => item.classList.remove("active"));
@@ -80,8 +117,9 @@ async function load() {
   bindNavigation();
   try {
     const state = await loadOperatorState();
-    if (state.mode !== "fixture") {
-      throw new Error("Persisted API transport is connected but canonical console projection is not yet available");
+    if (state.mode === "api") {
+      renderPersistedApi(state.detail);
+      return;
     }
     const data = state.fixture;
     renderOverview(data); renderIncident(data); renderAssessment(data);
