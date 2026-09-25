@@ -80,8 +80,46 @@ async function load() {
   bindNavigation();
   try {
     const state = await loadOperatorState();
-    if (state.mode !== "fixture") {
-      throw new Error("Persisted API transport is connected but canonical console projection is not yet available");
+    if (state.mode === "api") {
+      const detail = state.detail.incident;
+      const status = detail.status;
+      text("metric-recoverability", "Assessment required");
+      text("metric-verification", human(status.verification_status));
+      text("metric-containment", status.containment_active ? "Active" : "Released");
+      text("metric-residuals", status.irreversible_residual_count);
+      text("incident-name", detail.incident_id);
+      text("incident-state", status.containment_active ? "Contained" : "Released");
+      text("next-action", human(detail.next_action.action));
+      text("readiness-total", "Not exposed");
+      text("readiness-recoverable", "Not exposed");
+      text("readiness-missing", "Not exposed");
+      text("readiness-restoration", human(status.restoration_status));
+      qs("readiness-fill").style.width = "0%";
+      renderLifecycle({ incident: { status } });
+      qs("candidate-list").innerHTML = detail.recovery_candidates.map((item) =>
+        candidateRow(human(item.action_type), item.status, human(item.recovery_class))
+      ).join("");
+      qs("side-effect-list").innerHTML = candidateRow(
+        "Persisted incident evidence",
+        "verified",
+        "Simulation-only side-effect state is not reconstructed in the browser."
+      );
+      text("state-crm-before", "Not exposed by persisted API");
+      text("state-crm-after", "Not exposed by persisted API");
+      text("state-memory", "Not exposed by persisted API");
+      text("state-messages", "Not exposed by persisted API");
+      text("assessment-sha", "Run assessment for readiness evidence");
+      text("evidence-short", "Persisted evidence");
+      text("assessment-env", "Persisted incident API");
+      text("assessment-scenario", "Recoverability Assurance is separate");
+      text("assessment-incident", detail.incident_id);
+      qs("remediation-list").innerHTML = candidateRow(
+        "Assessment not loaded",
+        "neutral",
+        "Verified Recovery incident evidence does not imply pre-incident readiness coverage."
+      );
+      qs("claim-list").innerHTML = ["No readiness score inferred from incident evidence", "Read-only browser surface", "No restoration capability exposed"].map((item) => `<span class="claim">${item}</span>`).join("");
+      return;
     }
     const data = state.fixture;
     renderOverview(data); renderIncident(data); renderAssessment(data);
