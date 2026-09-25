@@ -76,3 +76,38 @@ def test_renderer_rejects_direct_restart_continuity_bypass() -> None:
     value["restart_continuity_required"] = False
     with pytest.raises(ValueError, match="restart continuity"):
         MODULE.render_summary(value)
+
+
+def test_renderer_rejects_incomplete_action_detection() -> None:
+    value = evidence()
+    value["controlled_incident"]["detected_actions"] = 1
+    with pytest.raises(ValueError, match="complete action detection"):
+        MODULE.render_summary(value)
+
+
+def test_renderer_rejects_unverified_recovery_claim() -> None:
+    value = evidence()
+    value["recovery"]["verified_recoveries"] = 1
+    with pytest.raises(ValueError, match="verified recovery"):
+        MODULE.render_summary(value)
+
+
+def test_renderer_rejects_failed_replay_claim() -> None:
+    value = evidence()
+    value["replay"]["verified"] = False
+    with pytest.raises(ValueError, match="verified replay"):
+        MODULE.render_summary(value)
+
+
+def test_renderer_rejects_unsafe_recovery_execution_claim() -> None:
+    value = evidence()
+    value["replay"]["unsafe_recovery_executions"] = 1
+    with pytest.raises(ValueError, match="zero unsafe"):
+        MODULE.render_summary(value)
+
+
+def test_renderer_rejects_compromised_root_restoration_claim() -> None:
+    value = evidence()
+    value["restoration"]["root_authority_restored"] = True
+    with pytest.raises(ValueError, match="must not restore"):
+        MODULE.render_summary(value)
