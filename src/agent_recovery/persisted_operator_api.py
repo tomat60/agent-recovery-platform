@@ -13,6 +13,7 @@ def _incident_summary(detail: dict[str, Any]) -> dict[str, Any]:
     return {
         "incident_id": detail["incident_id"],
         "status": detail["status"],
+        "next_action": detail["next_action"],
         "recovery_candidate_count": len(detail["recovery_candidates"]),
     }
 
