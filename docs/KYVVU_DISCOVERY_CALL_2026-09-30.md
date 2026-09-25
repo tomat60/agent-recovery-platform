@@ -1,4 +1,4 @@
-# Kyvvu discovery call — 2026-09-30 11:30
+# Kyvvu discovery call - 2026-09-30 11:30
 
 Purpose: keep the pre-TechEx call light, useful and low-stress. This is a qualification / relationship-building call, not a technical diligence session and not a sales pitch.
 
@@ -12,7 +12,7 @@ Leave the call with:
 
 ## 20-minute shape
 
-### 0–3 min — easy opening
+### 0-3 min - easy opening
 
 - Thank Jeroen for making time while travelling.
 - Ask one simple opener about his route / TechEx preparation.
@@ -22,7 +22,7 @@ Suggested opening:
 
 > Hi Jeroen, thanks for fitting this in while you're on the road. I’ll keep it light. I mainly wanted to get to know each other a bit before Amsterdam and make sure we’re looking at the overlap in the right way.
 
-### 3–7 min — Kyvvu first
+### 3-7 min - Kyvvu first
 
 Ask him to explain Kyvvu in his own words:
 - What kind of agent workflows are they seeing most often?
@@ -36,7 +36,7 @@ Do not interrupt to prove similarity. Listen for:
 - customer incidents or recovery gaps;
 - integration surfaces.
 
-### 7–11 min — Agent Recovery in plain language
+### 7-11 min - Agent Recovery in plain language
 
 Use only this level unless Jeroen asks deeper questions:
 
@@ -48,7 +48,7 @@ Then:
 
 Avoid feature dumping. Avoid claiming production effectiveness beyond current evidence.
 
-### 11–16 min — qualify the overlap
+### 11-16 min - qualify the overlap
 
 Questions:
 1. Do Kyvvu customers already ask what happens after an allowed-but-wrong action?
@@ -61,7 +61,7 @@ If he raises roadmap overlap, answer openly:
 - the purpose is to identify complementary boundaries early;
 - no need to force a partnership if the products converge.
 
-### 16–20 min — close
+### 16-20 min - close
 
 Aim for:
 
@@ -91,7 +91,7 @@ Use this bridge:
 ## Current verified facts to remember
 
 - Kyvvu: Jeroen Ghijsen, Co-founder & CEO.
-- TechEx Europe: 19–20 Oct 2026, RAI Amsterdam.
+- TechEx Europe: 19-20 Oct 2026, RAI Amsterdam.
 - Kyvvu booth: T64.
 - Jeroen explicitly proposed this regular phone call before a deeper technical discussion.
 - Agent Recovery current wedge: verified recovery for autonomous AI-agent side effects across multiple tools and systems.
