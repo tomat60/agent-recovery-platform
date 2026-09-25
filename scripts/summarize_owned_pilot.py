@@ -13,6 +13,46 @@ def validate_evidence(value: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("pilot evidence must remain authority-free")
     if value.get("restart_continuity_required") is not True:
         raise ValueError("pilot evidence must require restart continuity")
+
+    controlled = value.get("controlled_incident")
+    containment = value.get("containment")
+    recovery = value.get("recovery")
+    replay = value.get("replay")
+    restoration = value.get("restoration")
+    if not all(isinstance(section, dict) for section in (controlled, containment, recovery, replay, restoration)):
+        raise TypeError("pilot lifecycle sections must be objects")
+
+    expected = controlled.get("expected_actions")
+    detected = controlled.get("detected_actions")
+    if not isinstance(expected, int) or isinstance(expected, bool) or expected < 2:
+        raise ValueError("pilot summary requires multiple consequential actions")
+    if not isinstance(detected, int) or isinstance(detected, bool) or detected != expected:
+        raise ValueError("pilot summary requires complete action detection")
+    for name in ("blast_radius_recall", "blast_radius_precision"):
+        metric = controlled.get(name)
+        if not isinstance(metric, (int, float)) or isinstance(metric, bool) or metric != 1.0:
+            raise ValueError(f"pilot summary requires complete {name}")
+    if containment.get("root_agent_remains_contained") is not True:
+        raise ValueError("pilot summary requires compromised root containment")
+
+    verified = recovery.get("verified_recoveries")
+    residuals = recovery.get("platform_residual_effects")
+    if not isinstance(verified, int) or isinstance(verified, bool) or verified != expected:
+        raise ValueError("pilot summary requires verified recovery for every consequential action")
+    if not isinstance(residuals, int) or isinstance(residuals, bool) or residuals < 0:
+        raise ValueError("pilot summary residual count must be a non-negative integer")
+
+    if replay.get("verified") is not True:
+        raise ValueError("pilot summary requires verified replay")
+    unsafe = replay.get("unsafe_recovery_executions")
+    if not isinstance(unsafe, int) or isinstance(unsafe, bool) or unsafe != 0:
+        raise ValueError("pilot summary requires zero unsafe recovery executions")
+
+    if restoration.get("root_authority_restored") is not False:
+        raise ValueError("pilot summary must not restore compromised root authority")
+    restored = restoration.get("restored_downstream_authorities")
+    if not isinstance(restored, int) or isinstance(restored, bool) or not 1 <= restored <= expected:
+        raise ValueError("pilot summary requires bounded downstream restoration")
     return value
 
 
