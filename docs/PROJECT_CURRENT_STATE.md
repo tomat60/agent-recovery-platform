@@ -53,11 +53,11 @@ Evidence discipline remains strict: synthetic benchmarks, owned sandbox results,
 
 The project now runs five permanent parallel fronts:
 
-1. **Product / CTO** — ship only product work that improves pilotability, buyer proof, security correctness, integration effort or verified restoration.
-2. **Security** — preserve fail-closed authorization, evidence integrity, exact recovery binding and claim discipline.
-3. **Commercialization** — continue qualified outreach, buyer discovery, design-partner/pilot conversion and channel/strategic partnerships.
-4. **Funding / grants** — continuously research, qualify and prepare non-dilutive and accelerator opportunities without deforming the product.
-5. **Company readiness** — monitor the point at which a legal entity, IP chain, insurance, contracts or financing structure becomes necessary.
+1. **Product / CTO** - ship only product work that improves pilotability, buyer proof, security correctness, integration effort or verified restoration.
+2. **Security** - preserve fail-closed authorization, evidence integrity, exact recovery binding and claim discipline.
+3. **Commercialization** - continue qualified outreach, buyer discovery, design-partner/pilot conversion and channel/strategic partnerships.
+4. **Funding / grants** - continuously research, qualify and prepare non-dilutive and accelerator opportunities without deforming the product.
+5. **Company readiness** - monitor the point at which a legal entity, IP chain, insurance, contracts or financing structure becomes necessary.
 
 Issue #128 remains the commercialization umbrella. Issue #144 remains the design-partner packaging/pipeline gate. Issue #169 is the active ECCC/funding execution gate.
 
@@ -75,11 +75,11 @@ Commercial outreach is authorized when it is low-volume, qualified, personalized
 
 For founder-facing synchronous discovery, prefer the lowest-friction format that still advances the deal: async/email or the already-planned in-person TechEx meeting by default; use a short pre-event call only where a concrete high-value counterpart requests or materially benefits from it. Keep any such call tightly scripted around qualification and a concrete next step.
 
-## Funding strategy — active truth
+## Funding strategy - active truth
 
 Funding must accelerate the commercial product and must not become a separate grant-only roadmap.
 
-### Priority 1 — DIGITAL / ECCC 2027 call
+### Priority 1 - DIGITAL / ECCC 2027 call
 
 Official current call family:
 
@@ -100,13 +100,13 @@ Preferred role: **technology provider + owner of a concrete recovery work packag
 Immediate consortium targets:
 
 - experienced EU cybersecurity coordinator / proposal lead;
-- 2–4 SME end users operating write-capable AI/automation;
+- 2-4 SME end users operating write-capable AI/automation;
 - MSSP/AppSec/cloud-security/AI-security implementation partner;
 - optional independent research/test partner where it closes a real evaluation gap.
 
 ### Urgent owner-facing event
 
-**German-Polish Cybersecurity Matchmaking & Proposal Writing Workshop — Warsaw, 1–2 October 2026.**
+**German-Polish Cybersecurity Matchmaking & Proposal Writing Workshop - Warsaw, 1-2 October 2026.**
 
 Official event remains open for registration as of 2026-09-24.
 
@@ -119,10 +119,10 @@ The repo now contains `docs/ECCC_MATCHMAKING_WORKSHOP_PACK.md` with the 90-secon
 - **EIC Pre-Accelerator 2027** is the preferred EIC readiness path if traction and TRL continue to improve.
 - Poland is eligible as a widening country.
 - Single SME; minimum TRL 4.
-- EUR 500k–1m grant, 70% funding.
+- EUR 500k-1m grant, 70% funding.
 - Opens 2027-05-05; deadline 2027-11-18.
 
-Do not rush an EIC Accelerator 2026 full proposal. Current EIC Accelerator is targeted at TRL 6–8; the 2026 final full-proposal batching date is 2026-11-04, but a short proposal GO is required first and EIC recommends substantial lead time. Preserve application attempts until customer/TRL evidence is stronger.
+Do not rush an EIC Accelerator 2026 full proposal. Current EIC Accelerator is targeted at TRL 6-8; the 2026 final full-proposal batching date is 2026-11-04, but a short proposal GO is required first and EIC recommends substantial lead time. Preserve application attempts until customer/TRL evidence is stronger.
 
 ### NATO / dual-use
 
@@ -130,7 +130,7 @@ DIANA 2027 challenge applications are already closed. Monitor the next annual ca
 
 ### Polish programmes
 
-PARP Start-ups Are Us — Cybersecurity 2026 is closed. Monitor future editions; do not spend time attempting a closed call.
+PARP Start-ups Are Us - Cybersecurity 2026 is closed. Monitor future editions; do not spend time attempting a closed call.
 
 ## Funding evidence to build through normal product work
 
@@ -177,7 +177,7 @@ Autonomous actions include research, qualified outreach, partner search, branch/
 
 ## Immediate next actions
 
-1. Secure/confirm attendance at the 1–2 Oct Warsaw matchmaking workshop; watch the NCC reply and act on the registration route when available.
+1. Secure/confirm attendance at the 1-2 Oct Warsaw matchmaking workshop; watch the NCC reply and act on the registration route when available.
 2. Qualify coordinator + SME end-user + MSSP/AppSec partner candidates before the workshop and map each to a concrete role in the recovery work package.
 3. Continue n8n and other qualified commercial conversations in parallel; convert routing signals into a bounded design-partner/pilot discussion. Prepare a compact, low-stress qualification script for the proposed Kyvvu phone call and a separate, deeper TechEx integration scenario; do not over-expand the pre-event conversation.
 4. Correct any remaining legacy `DIGITAL-ECCC-2026...` references only where they incorrectly describe the current call; preserve historical references when they are genuinely historical.
