@@ -127,7 +127,6 @@ def build_assessment(evidence: dict[str, Any] | None = None) -> dict[str, Any]:
     }
 
 
-
 def _markdown_text(value: object) -> str:
     return str(value).replace("\\", "\\\\").replace("|", "\\|").replace("\n", " ")
 
@@ -187,7 +186,10 @@ def render_assessment(assessment: dict[str, Any]) -> str:
             "- Restored downstream authorities: "
             f"{restoration['restored_downstream_authorities']}"
         ),
-        f"- Compromised root authority restored: {str(restoration['root_authority_restored']).lower()}",
+        (
+            "- Compromised root authority restored: "
+            f"{str(restoration['root_authority_restored']).lower()}"
+        ),
         (
             "- Compromised root authority remains contained: "
             f"{str(assessment['residual_risk']['root_authority_remains_contained']).lower()}"
@@ -224,6 +226,7 @@ def render_assessment(assessment: dict[str, Any]) -> str:
         ]
     )
     return "\n".join(lines)
+
 
 def validate_assessment(assessment: dict[str, Any]) -> None:
     if assessment.get("schema_version") != SCHEMA_VERSION:
