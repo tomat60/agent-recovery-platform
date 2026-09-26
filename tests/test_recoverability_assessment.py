@@ -175,9 +175,18 @@ def test_buyer_markdown_separates_detection_from_verified_recovery() -> None:
     rendered = module.render_assessment(assessment)
     evidence_sha = assessment["source_evidence_identity"]["sha256"]
 
+    detection = assessment["coverage_dimensions"]["incident_detection"]
+    outcomes = assessment["coverage_dimensions"]["verified_recovery_outcomes"]
+
     assert "# Agent Recoverability Assessment" in rendered
-    assert "| Incident detection | 3/3 | 100% | true |" in rendered
-    assert "| Verified recovery outcomes | 3/3 | 100% | true |" in rendered
+    assert (
+        f"| Incident detection | {detection['detected_actions']}/"
+        f"{detection['consequential_actions']} | 100% | true |"
+    ) in rendered
+    assert (
+        f"| Verified recovery outcomes | {outcomes['verified_recoveries']}/"
+        f"{outcomes['consequential_actions']} | 100% | true |"
+    ) in rendered
     assert "Detection coverage is not represented as recovery coverage." in rendered
     assert f"Evidence SHA-256: `{evidence_sha}`" in rendered
     assert "Compromised root authority restored: false" in rendered
