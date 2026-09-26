@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import importlib.util
+import json
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -286,3 +287,36 @@ def test_assessment_rejects_source_evidence_contradictions(
 
     with pytest.raises(ValueError, match=message):
         module.validate_assessment(assessment)
+
+
+
+def test_reproduce_assesses_supplied_evidence_file(tmp_path: Path) -> None:
+    evidence = module.build_pilot_evidence()
+    evidence_path = tmp_path / "owned-pilot-evidence.json"
+    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+    output_path = tmp_path / "assessment.json"
+
+    loaded = module.load_evidence(evidence_path)
+    assessment = module.reproduce(output_path, evidence=loaded)
+
+    assert assessment["source_evidence_identity"]["sha256"] == module.evidence_identity(evidence)
+    assert assessment["scenario"] == evidence["scenario"]
+    assert json.loads(output_path.read_text(encoding="utf-8")) == assessment
+
+
+def test_evidence_input_rejects_non_object_json(tmp_path: Path) -> None:
+    evidence_path = tmp_path / "invalid-evidence.json"
+    evidence_path.write_text("[]", encoding="utf-8")
+
+    with pytest.raises(TypeError, match="evidence input must be an object"):
+        module.load_evidence(evidence_path)
+
+
+def test_evidence_input_fails_closed_before_assessment(tmp_path: Path) -> None:
+    evidence = module.build_pilot_evidence()
+    evidence["controlled_incident"]["detected_actions"] -= 1
+    evidence_path = tmp_path / "contradictory-evidence.json"
+    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="complete blast-radius detection"):
+        module.load_evidence(evidence_path)
