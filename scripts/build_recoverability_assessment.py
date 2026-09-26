@@ -197,7 +197,14 @@ def validate_assessment(assessment: dict[str, Any]) -> None:
             raise ValueError(
                 "recoverability coverage must match the verified recovery outcome dimension"
             )
-    if abs(coverage.get("ratio", -1.0) - verified_dimension["ratio"]) > 1e-12:
+    summary_ratio = coverage.get("ratio")
+    if (
+        not isinstance(summary_ratio, (int, float))
+        or isinstance(summary_ratio, bool)
+        or not 0 <= summary_ratio <= 1
+    ):
+        raise ValueError("recoverability coverage ratio must be numeric in [0, 1]")
+    if abs(summary_ratio - verified_dimension["ratio"]) > 1e-12:
         raise ValueError(
             "recoverability coverage ratio must match the verified recovery outcome dimension"
         )
