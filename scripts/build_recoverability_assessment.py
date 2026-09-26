@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -8,6 +9,11 @@ from typing import Any
 from run_owned_multisurface_pilot import build_pilot_evidence, validate_pilot_evidence
 
 SCHEMA_VERSION = "agent-recoverability-assessment/v1"
+
+
+def evidence_identity(evidence: dict[str, Any]) -> str:
+    canonical = json.dumps(evidence, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 def _build_remediation_plan(evidence: dict[str, Any]) -> list[dict[str, str]]:
@@ -51,8 +57,8 @@ def _build_remediation_plan(evidence: dict[str, Any]) -> list[dict[str, str]]:
     return priorities
 
 
-def build_assessment() -> dict[str, Any]:
-    evidence = build_pilot_evidence()
+def build_assessment(evidence: dict[str, Any] | None = None) -> dict[str, Any]:
+    evidence = build_pilot_evidence() if evidence is None else evidence
     validate_pilot_evidence(evidence)
 
     controlled = evidence["controlled_incident"]
@@ -69,6 +75,10 @@ def build_assessment() -> dict[str, Any]:
         "authorization_effect": "none",
         "assessment_mode": "owned_sandbox_evidence",
         "scenario": evidence["scenario"],
+        "source_evidence_identity": {
+            "schema_version": evidence["schema_version"],
+            "sha256": evidence_identity(evidence),
+        },
         "tool_authority_map": {
             "surfaces": list(evidence["surfaces"]),
             "consequential_actions": expected,
@@ -108,10 +118,22 @@ def validate_assessment(assessment: dict[str, Any]) -> None:
     if assessment.get("assessment_mode") != "owned_sandbox_evidence":
         raise ValueError("assessment must remain scoped to owned sandbox evidence")
     coverage = assessment.get("recoverability_coverage")
+    source_identity = assessment.get("source_evidence_identity")
     decision = assessment.get("decision")
     remediation = assessment.get("prioritized_remediation")
     if not isinstance(coverage, dict) or not isinstance(decision, dict):
         raise TypeError("assessment coverage and decision must be objects")
+    if not isinstance(source_identity, dict):
+        raise TypeError("assessment source evidence identity must be an object")
+    if source_identity.get("schema_version") != "owned-multisurface-pilot/v1":
+        raise ValueError("assessment source evidence schema must match the owned pilot")
+    source_sha = source_identity.get("sha256")
+    if (
+        not isinstance(source_sha, str)
+        or len(source_sha) != 64
+        or any(char not in "0123456789abcdef" for char in source_sha)
+    ):
+        raise ValueError("assessment source evidence identity must be a lowercase SHA-256 digest")
     if not isinstance(remediation, list) or not remediation:
         raise ValueError("assessment must include prioritized remediation")
     for item in remediation:
