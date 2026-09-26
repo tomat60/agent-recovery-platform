@@ -1,6 +1,6 @@
 # Project Current State
 
-Date: 2026-09-24
+Date: 2026-09-26
 
 ## Status
 
@@ -8,7 +8,7 @@ Agent Recovery Platform is a **commercial-product-first cybersecurity company/pr
 
 Current accepted `main`:
 
-`6acd8e956e0a3f90fae7d7a0930df21b5269549e`
+`a9c1d5735b1ff743a40581894851f6a66639c345`
 
 Latest accepted commercial signals:
 
@@ -18,7 +18,7 @@ Latest accepted commercial signals:
 Latest accepted product/security and funding movement:
 
 - PR #172 / commit `4e7f8758...` adds a buyer-readable owned-pilot evidence summary and fail-closed restart-continuity validation.
-- PR #173 / commit `6acd8e95...` closes the direct-renderer evidence-validation bypass so reusable rendering cannot turn unvalidated canonical-looking input into buyer-facing claims. Exact-head `main` CI run `36025345119` completed successfully on 2026-09-24.
+- PRs #178–#185 connect the commercial console to canonical persisted incident state and mature the first buyer-facing Agent Recoverability Assessment. The assessment now has deterministic evidence identity, separate detection/recovery/replay dimensions, fail-closed consistency checks, buyer-readable Markdown, visible authority and controlled-incident evidence, and a validated `--evidence-input` path for supplied owned-pilot evidence. PR #185 merged as commit `a9c1d573...`; post-merge exact-head CI is the acceptance authority.
 - PR #170 / commit `fffe3119...` makes funding a permanent parallel workstream, corrects the ECCC call identifiers to the 2027 call family, adds the live funding tracker and prepares the Warsaw matchmaking pack.
 
 Core lifecycle remains:
@@ -177,7 +177,7 @@ Autonomous actions include research, qualified outreach, partner search, branch/
 
 ## Immediate next actions
 
-1. Secure/confirm attendance at the 1-2 Oct Warsaw matchmaking workshop; watch the NCC reply and act on the registration route when available.
+1. Treat the 1-2 Oct German-Polish matchmaking workshop as closed because NCC confirmed no seats remain; continue ECCC partner qualification through direct channels without implying attendance.
 2. Qualify coordinator + SME end-user + MSSP/AppSec partner candidates before the workshop and map each to a concrete role in the recovery work package.
 3. Continue n8n and other qualified commercial conversations in parallel; convert routing signals into a bounded design-partner/pilot discussion. Prepare a compact, low-stress qualification script for the proposed Kyvvu phone call and a separate, deeper TechEx integration scenario; do not over-expand the pre-event conversation.
 4. Correct any remaining legacy `DIGITAL-ECCC-2026...` references only where they incorrectly describe the current call; preserve historical references when they are genuinely historical.
