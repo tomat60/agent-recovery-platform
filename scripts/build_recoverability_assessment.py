@@ -9,11 +9,64 @@ from typing import Any
 from run_owned_multisurface_pilot import build_pilot_evidence, validate_pilot_evidence
 
 SCHEMA_VERSION = "agent-recoverability-assessment/v1"
+MANIFEST_SCHEMA_VERSION = "agent-recoverability-assessment-manifest/v1"
 
 
 def evidence_identity(evidence: dict[str, Any]) -> str:
     canonical = json.dumps(evidence, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def _artifact_digest(content: str) -> str:
+    return hashlib.sha256(content.encode("utf-8")).hexdigest()
+
+
+def build_artifact_manifest(
+    assessment: dict[str, Any],
+    assessment_json: str,
+    buyer_markdown: str,
+) -> dict[str, Any]:
+    validate_assessment(assessment)
+    return {
+        "schema_version": MANIFEST_SCHEMA_VERSION,
+        "authorization_effect": "none",
+        "source_evidence_identity": dict(assessment["source_evidence_identity"]),
+        "artifacts": {
+            "assessment_json": {"sha256": _artifact_digest(assessment_json)},
+            "buyer_markdown": {"sha256": _artifact_digest(buyer_markdown)},
+        },
+    }
+
+
+def validate_artifact_manifest(
+    manifest: dict[str, Any],
+    assessment: dict[str, Any],
+    assessment_json: str,
+    buyer_markdown: str,
+) -> None:
+    validate_assessment(assessment)
+    if manifest.get("schema_version") != MANIFEST_SCHEMA_VERSION:
+        raise ValueError("unsupported assessment artifact manifest schema")
+    if manifest.get("authorization_effect") != "none":
+        raise ValueError("assessment artifact manifest must not grant authority")
+    if manifest.get("source_evidence_identity") != assessment["source_evidence_identity"]:
+        raise ValueError("assessment artifact manifest must match source evidence identity")
+
+    artifacts = manifest.get("artifacts")
+    if not isinstance(artifacts, dict) or set(artifacts) != {
+        "assessment_json",
+        "buyer_markdown",
+    }:
+        raise ValueError("assessment artifact manifest must bind the complete artifact set")
+
+    expected = {
+        "assessment_json": _artifact_digest(assessment_json),
+        "buyer_markdown": _artifact_digest(buyer_markdown),
+    }
+    for name, digest in expected.items():
+        entry = artifacts.get(name)
+        if not isinstance(entry, dict) or entry.get("sha256") != digest:
+            raise ValueError(f"assessment artifact manifest digest mismatch for {name}")
 
 
 def _build_remediation_plan(evidence: dict[str, Any]) -> list[dict[str, str]]:
@@ -448,16 +501,40 @@ def reproduce(
     output_path: Path,
     markdown_output_path: Path | None = None,
     evidence: dict[str, Any] | None = None,
+    manifest_output_path: Path | None = None,
 ) -> dict[str, Any]:
+    if manifest_output_path is not None and markdown_output_path is None:
+        raise ValueError("artifact manifest requires a buyer Markdown output")
+
     assessment = build_assessment(evidence)
     validate_assessment(assessment)
+    assessment_json = json.dumps(assessment, indent=2, sort_keys=True) + "\n"
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(assessment, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    output_path.write_text(assessment_json, encoding="utf-8")
     reloaded = json.loads(output_path.read_text(encoding="utf-8"))
     validate_assessment(reloaded)
+
+    buyer_markdown = render_assessment(reloaded)
     if markdown_output_path is not None:
         markdown_output_path.parent.mkdir(parents=True, exist_ok=True)
-        markdown_output_path.write_text(render_assessment(reloaded), encoding="utf-8")
+        markdown_output_path.write_text(buyer_markdown, encoding="utf-8")
+
+    if manifest_output_path is not None:
+        manifest = build_artifact_manifest(reloaded, assessment_json, buyer_markdown)
+        validate_artifact_manifest(manifest, reloaded, assessment_json, buyer_markdown)
+        manifest_output_path.parent.mkdir(parents=True, exist_ok=True)
+        manifest_output_path.write_text(
+            json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        reloaded_manifest = json.loads(manifest_output_path.read_text(encoding="utf-8"))
+        validate_artifact_manifest(
+            reloaded_manifest,
+            reloaded,
+            output_path.read_text(encoding="utf-8"),
+            markdown_output_path.read_text(encoding="utf-8"),
+        )
     return reloaded
 
 
@@ -468,6 +545,11 @@ def main() -> None:
     parser.add_argument("output_path", type=Path)
     parser.add_argument("--markdown-output", type=Path)
     parser.add_argument(
+        "--manifest-output",
+        type=Path,
+        help="Optional integrity manifest binding the exact JSON and buyer Markdown artifacts.",
+    )
+    parser.add_argument(
         "--evidence-input",
         type=Path,
         help="Validated owned-pilot evidence JSON to assess instead of the canonical fixture.",
@@ -476,7 +558,12 @@ def main() -> None:
     evidence = load_evidence(args.evidence_input) if args.evidence_input is not None else None
     print(
         json.dumps(
-            reproduce(args.output_path, args.markdown_output, evidence),
+            reproduce(
+                args.output_path,
+                args.markdown_output,
+                evidence,
+                args.manifest_output,
+            ),
             indent=2,
             sort_keys=True,
         )
