@@ -436,11 +436,20 @@ def validate_assessment(assessment: dict[str, Any]) -> None:
         raise ValueError("assessment must not claim production security effectiveness")
 
 
+def load_evidence(evidence_path: Path) -> dict[str, Any]:
+    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    if not isinstance(evidence, dict):
+        raise TypeError("recoverability assessment evidence input must be an object")
+    validate_pilot_evidence(evidence)
+    return evidence
+
+
 def reproduce(
     output_path: Path,
     markdown_output_path: Path | None = None,
+    evidence: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    assessment = build_assessment()
+    assessment = build_assessment(evidence)
     validate_assessment(assessment)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(assessment, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -458,10 +467,16 @@ def main() -> None:
     )
     parser.add_argument("output_path", type=Path)
     parser.add_argument("--markdown-output", type=Path)
+    parser.add_argument(
+        "--evidence-input",
+        type=Path,
+        help="Validated owned-pilot evidence JSON to assess instead of the canonical fixture.",
+    )
     args = parser.parse_args()
+    evidence = load_evidence(args.evidence_input) if args.evidence_input is not None else None
     print(
         json.dumps(
-            reproduce(args.output_path, args.markdown_output),
+            reproduce(args.output_path, args.markdown_output, evidence),
             indent=2,
             sort_keys=True,
         )
