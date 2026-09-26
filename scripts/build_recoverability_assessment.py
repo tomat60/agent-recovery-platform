@@ -398,7 +398,10 @@ def validate_assessment(assessment: dict[str, Any]) -> None:
             or not 0 <= value <= 1
         ):
             raise ValueError(f"controlled incident {metric} must be numeric in [0, 1]")
-    if recovery.get("verified_recoveries") != dimensions["verified_recovery_outcomes"]["verified_recoveries"]:
+    if (
+        recovery.get("verified_recoveries")
+        != dimensions["verified_recovery_outcomes"]["verified_recoveries"]
+    ):
         raise ValueError("recovery evidence must match verified recovery outcome coverage")
     if replay.get("verified") is not dimensions["replay_regression_verified"]:
         raise ValueError("replay evidence must match replay regression coverage")
