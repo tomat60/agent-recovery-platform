@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -21,6 +22,11 @@ def load_evidence(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise TypeError("pilot evidence must be an object")
     return validate_evidence(value)
+
+
+def evidence_identity(evidence: dict[str, Any]) -> str:
+    canonical = json.dumps(evidence, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 def render_summary(evidence: dict[str, Any]) -> str:
@@ -46,6 +52,8 @@ def render_summary(evidence: dict[str, Any]) -> str:
         "# Owned multi-surface recovery pilot — evidence summary",
         "",
         f"Scenario: `{evidence['scenario']}`",
+        f"Evidence schema: `{evidence['schema_version']}`",
+        f"Evidence identity (SHA-256): `{evidence_identity(evidence)}`",
         "",
         "## What this proves in the owned sandbox",
         "",
