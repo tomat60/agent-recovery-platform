@@ -124,3 +124,47 @@ def test_assessment_rejects_boolean_dimension_ratio() -> None:
     assessment["coverage_dimensions"]["verified_recovery_outcomes"]["ratio"] = True
     with pytest.raises(ValueError, match="coverage dimension verified_recovery_outcomes"):
         module.validate_assessment(assessment)
+
+
+@pytest.mark.parametrize(
+    ("dimension_name", "field", "value", "message"),
+    [
+        (
+            "incident_detection",
+            "ratio",
+            0.5,
+            "ratio must match its evidence counts",
+        ),
+        (
+            "verified_recovery_outcomes",
+            "complete",
+            False,
+            "complete flag must match its evidence counts",
+        ),
+        (
+            "verified_recovery_outcomes",
+            "verified_recoveries",
+            -1,
+            "counts must be bounded non-negative integers",
+        ),
+    ],
+)
+def test_assessment_rejects_internally_inconsistent_coverage_dimension(
+    dimension_name: str,
+    field: str,
+    value: object,
+    message: str,
+) -> None:
+    assessment = copy.deepcopy(module.build_assessment())
+    assessment["coverage_dimensions"][dimension_name][field] = value
+
+    with pytest.raises(ValueError, match=message):
+        module.validate_assessment(assessment)
+
+
+def test_assessment_rejects_summary_that_disagrees_with_verified_outcomes() -> None:
+    assessment = copy.deepcopy(module.build_assessment())
+    assessment["recoverability_coverage"]["verified_recoveries"] -= 1
+
+    with pytest.raises(ValueError, match="must match the verified recovery outcome dimension"):
+        module.validate_assessment(assessment)

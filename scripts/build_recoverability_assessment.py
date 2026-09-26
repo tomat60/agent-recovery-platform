@@ -160,6 +160,54 @@ def validate_assessment(assessment: dict[str, Any]) -> None:
             raise TypeError(f"assessment coverage dimension {name} complete flag must be boolean")
     if not isinstance(dimensions.get("replay_regression_verified"), bool):
         raise TypeError("assessment replay regression coverage flag must be boolean")
+
+    dimension_contracts = (
+        ("incident_detection", "detected_actions"),
+        ("verified_recovery_outcomes", "verified_recoveries"),
+    )
+    for name, numerator_name in dimension_contracts:
+        dimension = dimensions[name]
+        numerator = dimension.get(numerator_name)
+        denominator = dimension.get("consequential_actions")
+        if (
+            not isinstance(numerator, int)
+            or isinstance(numerator, bool)
+            or not isinstance(denominator, int)
+            or isinstance(denominator, bool)
+            or numerator < 0
+            or denominator < 0
+            or numerator > denominator
+        ):
+            raise ValueError(
+                f"assessment coverage dimension {name} counts must be bounded non-negative integers"
+            )
+        expected_ratio = numerator / denominator if denominator else 0.0
+        if abs(dimension["ratio"] - expected_ratio) > 1e-12:
+            raise ValueError(
+                f"assessment coverage dimension {name} ratio must match its evidence counts"
+            )
+        if dimension["complete"] is not (numerator == denominator):
+            raise ValueError(
+                f"assessment coverage dimension {name} complete flag must match its evidence counts"
+            )
+
+    verified_dimension = dimensions["verified_recovery_outcomes"]
+    for field in ("verified_recoveries", "consequential_actions"):
+        if coverage.get(field) != verified_dimension[field]:
+            raise ValueError(
+                "recoverability coverage must match the verified recovery outcome dimension"
+            )
+    summary_ratio = coverage.get("ratio")
+    if (
+        not isinstance(summary_ratio, (int, float))
+        or isinstance(summary_ratio, bool)
+        or not 0 <= summary_ratio <= 1
+    ):
+        raise ValueError("recoverability coverage ratio must be numeric in [0, 1]")
+    if abs(summary_ratio - verified_dimension["ratio"]) > 1e-12:
+        raise ValueError(
+            "recoverability coverage ratio must match the verified recovery outcome dimension"
+        )
     if source_identity.get("schema_version") != "owned-multisurface-pilot/v1":
         raise ValueError("assessment source evidence schema must match the owned pilot")
     source_sha = source_identity.get("sha256")
