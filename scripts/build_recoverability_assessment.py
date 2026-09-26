@@ -176,7 +176,44 @@ def render_assessment(assessment: dict[str, Any]) -> str:
         "",
         "Detection coverage is not represented as recovery coverage.",
         "",
-        "## Restoration decision",
+        "## Affected authority surfaces",
+        "",
+    ]
+    lines.extend(
+        f"- {_markdown_text(surface)}"
+        for surface in assessment["tool_authority_map"]["surfaces"]
+    )
+    lines.extend(
+        [
+            "",
+            "## Controlled incident evidence",
+            "",
+            (
+                "- Consequential actions: "
+                f"{assessment['controlled_incident']['expected_actions']}"
+            ),
+            (
+                "- Detected actions: "
+                f"{assessment['controlled_incident']['detected_actions']}"
+            ),
+            (
+                "- Blast-radius recall: "
+                f"{assessment['controlled_incident']['blast_radius_recall']:.0%}"
+            ),
+            (
+                "- Blast-radius precision: "
+                f"{assessment['controlled_incident']['blast_radius_precision']:.0%}"
+            ),
+            (
+                "- Verified recovery outcomes: "
+                f"{assessment['recovery']['verified_recoveries']}"
+            ),
+            (
+                "- Unsafe recovery executions during replay: "
+                f"{assessment['replay_regression']['unsafe_recovery_executions']}"
+            ),
+            "",
+            "## Restoration decision",
         "",
         (
             "- Bounded downstream restoration verified: "
@@ -198,7 +235,8 @@ def render_assessment(assessment: dict[str, Any]) -> str:
         "",
         "## Residual risk",
         "",
-    ]
+        ]
+    )
     if residuals:
         lines.extend(f"- {_markdown_text(effect)}" for effect in residuals)
     else:
@@ -240,6 +278,13 @@ def validate_assessment(assessment: dict[str, Any]) -> None:
     dimensions = assessment.get("coverage_dimensions")
     decision = assessment.get("decision")
     remediation = assessment.get("prioritized_remediation")
+    authority_map = assessment.get("tool_authority_map")
+    controlled = assessment.get("controlled_incident")
+    containment = assessment.get("containment")
+    recovery = assessment.get("recovery")
+    replay = assessment.get("replay_regression")
+    restoration = assessment.get("restoration")
+    residual = assessment.get("residual_risk")
     if not isinstance(coverage, dict) or not isinstance(decision, dict):
         raise TypeError("assessment coverage and decision must be objects")
     if not isinstance(source_identity, dict):
@@ -318,6 +363,58 @@ def validate_assessment(assessment: dict[str, Any]) -> None:
         or any(char not in "0123456789abcdef" for char in source_sha)
     ):
         raise ValueError("assessment source evidence identity must be a lowercase SHA-256 digest")
+    evidence_sections = {
+        "tool_authority_map": authority_map,
+        "controlled_incident": controlled,
+        "containment": containment,
+        "recovery": recovery,
+        "replay_regression": replay,
+        "restoration": restoration,
+        "residual_risk": residual,
+    }
+    for name, section in evidence_sections.items():
+        if not isinstance(section, dict):
+            raise TypeError(f"assessment {name} must be an object")
+
+    surfaces = authority_map.get("surfaces")
+    if (
+        not isinstance(surfaces, list)
+        or not surfaces
+        or any(not isinstance(surface, str) or not surface.strip() for surface in surfaces)
+        or len(surfaces) != len(set(surfaces))
+    ):
+        raise ValueError("assessment authority surfaces must be unique non-empty strings")
+    if authority_map.get("consequential_actions") != controlled.get("expected_actions"):
+        raise ValueError("assessment authority map must match controlled incident action count")
+    if controlled.get("expected_actions") != dimensions["incident_detection"]["consequential_actions"]:
+        raise ValueError("controlled incident action count must match coverage evidence")
+    if controlled.get("detected_actions") != dimensions["incident_detection"]["detected_actions"]:
+        raise ValueError("controlled incident detections must match coverage evidence")
+    for metric in ("blast_radius_recall", "blast_radius_precision"):
+        value = controlled.get(metric)
+        if (
+            not isinstance(value, (int, float))
+            or isinstance(value, bool)
+            or not 0 <= value <= 1
+        ):
+            raise ValueError(f"controlled incident {metric} must be numeric in [0, 1]")
+    if recovery.get("verified_recoveries") != dimensions["verified_recovery_outcomes"]["verified_recoveries"]:
+        raise ValueError("recovery evidence must match verified recovery outcome coverage")
+    if replay.get("verified") is not dimensions["replay_regression_verified"]:
+        raise ValueError("replay evidence must match replay regression coverage")
+    unsafe_executions = replay.get("unsafe_recovery_executions")
+    if (
+        not isinstance(unsafe_executions, int)
+        or isinstance(unsafe_executions, bool)
+        or unsafe_executions < 0
+    ):
+        raise ValueError("unsafe recovery execution count must be a non-negative integer")
+    if containment.get("root_agent_remains_contained") is not residual.get(
+        "root_authority_remains_contained"
+    ):
+        raise ValueError("containment evidence must match residual root-authority truth")
+    if recovery.get("platform_residual_effects") != residual.get("platform_residual_effects"):
+        raise ValueError("recovery residuals must match the residual-risk register")
     if not isinstance(remediation, list) or not remediation:
         raise ValueError("assessment must include prioritized remediation")
     for item in remediation:
