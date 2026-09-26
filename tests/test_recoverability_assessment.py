@@ -217,3 +217,66 @@ def test_reproduce_optionally_writes_buyer_markdown(tmp_path: Path) -> None:
     assert assessment["source_evidence_identity"]["sha256"] in markdown_path.read_text(
         encoding="utf-8"
     )
+
+
+
+def test_buyer_markdown_exposes_authority_and_controlled_incident_evidence() -> None:
+    assessment = module.build_assessment()
+    rendered = module.render_assessment(assessment)
+
+    for surface in assessment["tool_authority_map"]["surfaces"]:
+        assert f"- {surface}" in rendered
+    controlled = assessment["controlled_incident"]
+    recovery = assessment["recovery"]
+    replay = assessment["replay_regression"]
+    assert f"- Consequential actions: {controlled['expected_actions']}" in rendered
+    assert f"- Detected actions: {controlled['detected_actions']}" in rendered
+    assert f"- Blast-radius recall: {controlled['blast_radius_recall']:.0%}" in rendered
+    assert f"- Blast-radius precision: {controlled['blast_radius_precision']:.0%}" in rendered
+    assert f"- Verified recovery outcomes: {recovery['verified_recoveries']}" in rendered
+    assert (
+        "- Unsafe recovery executions during replay: "
+        f"{replay['unsafe_recovery_executions']}"
+    ) in rendered
+
+
+@pytest.mark.parametrize(
+    ("section", "field", "mutate", "message"),
+    [
+        (
+            "tool_authority_map",
+            "surfaces",
+            lambda value: [*value, value[0]],
+            "authority surfaces",
+        ),
+        (
+            "controlled_incident",
+            "detected_actions",
+            lambda value: value - 1,
+            "controlled incident detections",
+        ),
+        (
+            "replay_regression",
+            "verified",
+            lambda value: not value,
+            "replay evidence",
+        ),
+        (
+            "residual_risk",
+            "platform_residual_effects",
+            lambda value: [*value, "mutated-effect"],
+            "recovery residuals",
+        ),
+    ],
+)
+def test_assessment_rejects_source_evidence_contradictions(
+    section: str,
+    field: str,
+    mutate: object,
+    message: str,
+) -> None:
+    assessment = copy.deepcopy(module.build_assessment())
+    assessment[section][field] = mutate(assessment[section][field])
+
+    with pytest.raises(ValueError, match=message):
+        module.validate_assessment(assessment)
