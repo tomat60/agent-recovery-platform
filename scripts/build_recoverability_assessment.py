@@ -140,7 +140,7 @@ def render_assessment(assessment: dict[str, Any]) -> str:
     outcomes = dimensions["verified_recovery_outcomes"]
     source_identity = assessment["source_evidence_identity"]
     restoration = assessment["restoration"]
-    residuals = assessment["residual_risk"]["platform_residual_effects"]
+    residual_effect_count = assessment["residual_risk"]["platform_residual_effects"]
 
     lines = [
         "# Agent Recoverability Assessment",
@@ -237,10 +237,7 @@ def render_assessment(assessment: dict[str, Any]) -> str:
         "",
         ]
     )
-    if residuals:
-        lines.extend(f"- {_markdown_text(effect)}" for effect in residuals)
-    else:
-        lines.append("- No platform residual effects recorded in this bounded evidence package.")
+    lines.append(f"- Platform residual effects recorded: {residual_effect_count}")
 
     lines.extend(["", "## Prioritized remediation", ""])
     for item in assessment["prioritized_remediation"]:
@@ -416,7 +413,14 @@ def validate_assessment(assessment: dict[str, Any]) -> None:
         "root_authority_remains_contained"
     ):
         raise ValueError("containment evidence must match residual root-authority truth")
-    if recovery.get("platform_residual_effects") != residual.get("platform_residual_effects"):
+    residual_effect_count = residual.get("platform_residual_effects")
+    if (
+        not isinstance(residual_effect_count, int)
+        or isinstance(residual_effect_count, bool)
+        or residual_effect_count < 0
+    ):
+        raise ValueError("platform residual effect count must be a non-negative integer")
+    if recovery.get("platform_residual_effects") != residual_effect_count:
         raise ValueError("recovery residuals must match the residual-risk register")
     if not isinstance(remediation, list) or not remediation:
         raise ValueError("assessment must include prioritized remediation")
