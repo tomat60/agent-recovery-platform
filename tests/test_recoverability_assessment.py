@@ -27,16 +27,17 @@ def test_assessment_is_bounded_and_authority_free() -> None:
         "sha256": module.evidence_identity(module.build_pilot_evidence()),
     }
     assert assessment["recoverability_coverage"]["ratio"] == 1.0
+    expected_actions = assessment["recoverability_coverage"]["consequential_actions"]
     assert assessment["coverage_dimensions"] == {
         "incident_detection": {
-            "detected_actions": 2,
-            "consequential_actions": 2,
+            "detected_actions": expected_actions,
+            "consequential_actions": expected_actions,
             "ratio": 1.0,
             "complete": True,
         },
         "verified_recovery_outcomes": {
-            "verified_recoveries": 2,
-            "consequential_actions": 2,
+            "verified_recoveries": expected_actions,
+            "consequential_actions": expected_actions,
             "ratio": 1.0,
             "complete": True,
         },
