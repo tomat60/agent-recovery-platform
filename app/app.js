@@ -55,6 +55,17 @@ function renderIncident(data) {
   text("state-memory", data.incident.after_recovery.memory["sales:last_instruction"] ?? "cleared");
   text("state-messages", data.incident.after_recovery.messages.length);
 }
+function renderPersistedIncident(detail) {
+  const incident = detail.incident;
+  qs("candidate-list").innerHTML = incident.recovery_candidates.map((item) => candidateRow(human(item.action_type), item.status, `${human(item.recovery_class)} | recovery evidence: ${item.recovery_evidence_event_id ? "present" : "missing"} | verification evidence: ${item.verification_evidence_event_id ? "present" : "missing"}`)).join("");
+  qs("side-effect-list").innerHTML = incident.side_effects.map((item) => candidateRow(human(item.action_type), item.recovery_class, `${human(item.recovery_class)} | resources: ${(item.resource_keys || []).join(", ") || "none"}`)).join("");
+  text("state-crm-before", "not exposed");
+  text("state-crm-after", "not exposed");
+  text("state-memory", "not exposed");
+  text("state-messages", "not exposed");
+  document.querySelector('[data-view="incident"]').click();
+  text("page-subtitle", `Persisted evidence for incident ${incident.incident_id}.`);
+}
 function renderAssessment(data) {
   const a = data.assessment;
   const identity = a.evidence_identity;
@@ -80,8 +91,9 @@ async function load() {
   bindNavigation();
   try {
     const state = await loadOperatorState();
-    if (state.mode !== "fixture") {
-      throw new Error("Persisted API transport is connected but canonical console projection is not yet available");
+    if (state.mode === "api") {
+      renderPersistedIncident(state.detail);
+      return;
     }
     const data = state.fixture;
     renderOverview(data); renderIncident(data); renderAssessment(data);
