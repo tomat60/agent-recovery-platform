@@ -3,7 +3,9 @@ from __future__ import annotations
 import copy
 import importlib.util
 import sys
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -272,7 +274,7 @@ def test_buyer_markdown_exposes_authority_and_controlled_incident_evidence() -> 
 def test_assessment_rejects_source_evidence_contradictions(
     section: str,
     field: str,
-    mutate: object,
+    mutate: Callable[[Any], Any],
     message: str,
 ) -> None:
     assessment = copy.deepcopy(module.build_assessment())
