@@ -266,7 +266,7 @@ def test_buyer_markdown_exposes_authority_and_controlled_incident_evidence() -> 
         (
             "residual_risk",
             "platform_residual_effects",
-            lambda value: [*value, "mutated-effect"],
+            lambda value: value + 1,
             "recovery residuals",
         ),
     ],
