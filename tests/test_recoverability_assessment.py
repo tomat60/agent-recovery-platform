@@ -318,5 +318,5 @@ def test_evidence_input_fails_closed_before_assessment(tmp_path: Path) -> None:
     evidence_path = tmp_path / "contradictory-evidence.json"
     evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
 
-    with pytest.raises(ValueError, match="detected actions"):
+    with pytest.raises(ValueError, match="complete blast-radius detection"):
         module.load_evidence(evidence_path)
