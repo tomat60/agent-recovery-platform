@@ -320,3 +320,61 @@ def test_evidence_input_fails_closed_before_assessment(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match="complete blast-radius detection"):
         module.load_evidence(evidence_path)
+
+
+
+def test_reproduce_writes_content_bound_artifact_manifest(tmp_path: Path) -> None:
+    json_path = tmp_path / "assessment.json"
+    markdown_path = tmp_path / "assessment.md"
+    manifest_path = tmp_path / "assessment.manifest.json"
+
+    assessment = module.reproduce(
+        json_path,
+        markdown_path,
+        manifest_output_path=manifest_path,
+    )
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assessment_json = json_path.read_text(encoding="utf-8")
+    buyer_markdown = markdown_path.read_text(encoding="utf-8")
+
+    assert manifest["schema_version"] == module.MANIFEST_SCHEMA_VERSION
+    assert manifest["authorization_effect"] == "none"
+    assert manifest["source_evidence_identity"] == assessment["source_evidence_identity"]
+    assert manifest["artifacts"] == {
+        "assessment_json": {"sha256": module._artifact_digest(assessment_json)},
+        "buyer_markdown": {"sha256": module._artifact_digest(buyer_markdown)},
+    }
+    module.validate_artifact_manifest(
+        manifest,
+        assessment,
+        assessment_json,
+        buyer_markdown,
+    )
+
+
+def test_artifact_manifest_rejects_changed_buyer_report(tmp_path: Path) -> None:
+    json_path = tmp_path / "assessment.json"
+    markdown_path = tmp_path / "assessment.md"
+    manifest_path = tmp_path / "assessment.manifest.json"
+    assessment = module.reproduce(
+        json_path,
+        markdown_path,
+        manifest_output_path=manifest_path,
+    )
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+    with pytest.raises(ValueError, match="digest mismatch for buyer_markdown"):
+        module.validate_artifact_manifest(
+            manifest,
+            assessment,
+            json_path.read_text(encoding="utf-8"),
+            markdown_path.read_text(encoding="utf-8") + "tampered",
+        )
+
+
+def test_artifact_manifest_requires_buyer_markdown(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="requires a buyer Markdown output"):
+        module.reproduce(
+            tmp_path / "assessment.json",
+            manifest_output_path=tmp_path / "assessment.manifest.json",
+        )
