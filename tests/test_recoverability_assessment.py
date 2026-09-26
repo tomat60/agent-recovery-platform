@@ -240,6 +240,10 @@ def test_buyer_markdown_exposes_authority_and_controlled_incident_evidence() -> 
         "- Unsafe recovery executions during replay: "
         f"{replay['unsafe_recovery_executions']}"
     ) in rendered
+    assert (
+        "- Platform residual effects recorded: "
+        f"{assessment['residual_risk']['platform_residual_effects']}"
+    ) in rendered
 
 
 @pytest.mark.parametrize(
