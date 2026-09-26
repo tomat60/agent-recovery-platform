@@ -32,6 +32,13 @@ def test_app_static_assets_keep_security_logic_out_of_frontend():
     assert 'data-view="incident"' in html
     assert 'data-view="assessment"' in html
     assert 'loadOperatorState()' in javascript
+    assert 'state.mode === "api"' in javascript
+    assert "renderPersistedIncident(state.detail)" in javascript
+    assert "canonical console projection is not yet available" not in javascript
+    assert "function escapeHtml(value)" in javascript
+    assert '${escapeHtml(title)}' in javascript
+    assert '${escapeHtml(detail)}' in javascript
+    assert 'replaceAll("<", "&lt;")' in javascript
     assert 'DEFAULT_FIXTURE_URL = "./data/sample.json"' in transport
     assert 'payload?.authority !== "none"' in transport
     assert "RecoveryEngine" not in javascript
