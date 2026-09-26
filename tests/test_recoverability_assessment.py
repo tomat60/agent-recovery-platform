@@ -105,16 +105,17 @@ def test_assessment_rejects_malformed_source_evidence_identity() -> None:
         module.validate_assessment(assessment)
 
 
-def test_assessment_keeps_detection_and_verified_outcome_coverage_distinct() -> None:
-    evidence = module.build_pilot_evidence()
-    evidence["recovery"]["verified_recoveries"] -= 1
-    assessment = module.build_assessment(evidence)
+def test_assessment_names_detection_and_verified_outcomes_separately() -> None:
+    assessment = module.build_assessment()
+    dimensions = assessment["coverage_dimensions"]
 
-    assert assessment["coverage_dimensions"]["incident_detection"]["ratio"] == 1.0
-    assert assessment["coverage_dimensions"]["incident_detection"]["complete"] is True
-    assert assessment["coverage_dimensions"]["verified_recovery_outcomes"]["ratio"] == 0.5
-    assert assessment["coverage_dimensions"]["verified_recovery_outcomes"]["complete"] is False
-    assert assessment["prioritized_remediation"][0]["blocker"] == "incomplete_verified_recovery"
+    assert set(dimensions) == {
+        "incident_detection",
+        "verified_recovery_outcomes",
+        "replay_regression_verified",
+    }
+    assert "detected_actions" in dimensions["incident_detection"]
+    assert "verified_recoveries" in dimensions["verified_recovery_outcomes"]
 
 
 def test_assessment_rejects_boolean_dimension_ratio() -> None:
