@@ -181,11 +181,13 @@ def test_buyer_markdown_separates_detection_from_verified_recovery() -> None:
     assert "# Agent Recoverability Assessment" in rendered
     assert (
         f"| Incident detection | {detection['detected_actions']}/"
-        f"{detection['consequential_actions']} | 100% | true |"
+        f"{detection['consequential_actions']} | {detection['ratio']:.0%} | "
+        f"{str(detection['complete']).lower()} |"
     ) in rendered
     assert (
         f"| Verified recovery outcomes | {outcomes['verified_recoveries']}/"
-        f"{outcomes['consequential_actions']} | 100% | true |"
+        f"{outcomes['consequential_actions']} | {outcomes['ratio']:.0%} | "
+        f"{str(outcomes['complete']).lower()} |"
     ) in rendered
     assert "Detection coverage is not represented as recovery coverage." in rendered
     assert f"Evidence SHA-256: `{evidence_sha}`" in rendered
