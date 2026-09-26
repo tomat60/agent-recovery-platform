@@ -322,7 +322,6 @@ def test_evidence_input_fails_closed_before_assessment(tmp_path: Path) -> None:
         module.load_evidence(evidence_path)
 
 
-
 def test_reproduce_writes_content_bound_artifact_manifest(tmp_path: Path) -> None:
     json_path = tmp_path / "assessment.json"
     markdown_path = tmp_path / "assessment.md"
