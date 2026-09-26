@@ -39,6 +39,8 @@ def test_summary_preserves_claim_boundary_and_residual_truth() -> None:
     assert "Verified recoveries: 2/2" in summary
     assert "Platform residual effects: none recorded" in summary
     assert "Owned deterministic sandbox evidence only." in summary
+    assert "Evidence schema: `owned-multisurface-pilot/v1`" in summary
+    assert f"Evidence identity (SHA-256): `{MODULE.evidence_identity(evidence())}`" in summary
     assert "not a production-security claim" in summary
 
 
@@ -76,3 +78,13 @@ def test_renderer_rejects_direct_restart_continuity_bypass() -> None:
     value["restart_continuity_required"] = False
     with pytest.raises(ValueError, match="restart continuity"):
         MODULE.render_summary(value)
+
+
+def test_evidence_identity_is_order_independent_and_content_bound() -> None:
+    value = evidence()
+    reordered = dict(reversed(list(value.items())))
+    assert MODULE.evidence_identity(value) == MODULE.evidence_identity(reordered)
+
+    changed = evidence()
+    changed["scenario"] = "different-owned-test"
+    assert MODULE.evidence_identity(value) != MODULE.evidence_identity(changed)
