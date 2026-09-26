@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 import json
 import sys
 from pathlib import Path
@@ -10,8 +11,8 @@ SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
-import build_recoverability_assessment as builder
-import verify_recoverability_assessment_package as verifier
+builder = importlib.import_module("build_recoverability_assessment")
+verifier = importlib.import_module("verify_recoverability_assessment_package")
 
 
 def _package(tmp_path: Path) -> tuple[Path, Path, Path]:
