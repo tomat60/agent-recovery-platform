@@ -127,6 +127,104 @@ def build_assessment(evidence: dict[str, Any] | None = None) -> dict[str, Any]:
     }
 
 
+
+def _markdown_text(value: object) -> str:
+    return str(value).replace("\\", "\\\\").replace("|", "\\|").replace("\n", " ")
+
+
+def render_assessment(assessment: dict[str, Any]) -> str:
+    """Render a deterministic buyer-readable view without granting authority."""
+
+    validate_assessment(assessment)
+    dimensions = assessment["coverage_dimensions"]
+    detection = dimensions["incident_detection"]
+    outcomes = dimensions["verified_recovery_outcomes"]
+    source_identity = assessment["source_evidence_identity"]
+    restoration = assessment["restoration"]
+    residuals = assessment["residual_risk"]["platform_residual_effects"]
+
+    lines = [
+        "# Agent Recoverability Assessment",
+        "",
+        "## Scope and evidence identity",
+        "",
+        f"- Scenario: {_markdown_text(assessment['scenario'])}",
+        f"- Assessment schema: {_markdown_text(assessment['schema_version'])}",
+        f"- Evidence schema: {_markdown_text(source_identity['schema_version'])}",
+        f"- Evidence SHA-256: `{source_identity['sha256']}`",
+        "- Environment: owned synthetic sandbox",
+        "- Authorization effect: none",
+        "",
+        "## Measured coverage",
+        "",
+        "| Dimension | Evidence | Coverage | Complete |",
+        "| --- | ---: | ---: | --- |",
+        (
+            "| Incident detection | "
+            f"{detection['detected_actions']}/{detection['consequential_actions']} | "
+            f"{detection['ratio']:.0%} | {str(detection['complete']).lower()} |"
+        ),
+        (
+            "| Verified recovery outcomes | "
+            f"{outcomes['verified_recoveries']}/{outcomes['consequential_actions']} | "
+            f"{outcomes['ratio']:.0%} | {str(outcomes['complete']).lower()} |"
+        ),
+        (
+            "| Replay and regression | current bounded replay | "
+            f"{'verified' if dimensions['replay_regression_verified'] else 'not verified'} | "
+            f"{str(dimensions['replay_regression_verified']).lower()} |"
+        ),
+        "",
+        "Detection coverage is not represented as recovery coverage.",
+        "",
+        "## Restoration decision",
+        "",
+        (
+            "- Bounded downstream restoration verified: "
+            f"{str(assessment['decision']['bounded_downstream_restoration_verified']).lower()}"
+        ),
+        (
+            "- Restored downstream authorities: "
+            f"{restoration['restored_downstream_authorities']}"
+        ),
+        f"- Compromised root authority restored: {str(restoration['root_authority_restored']).lower()}",
+        (
+            "- Compromised root authority remains contained: "
+            f"{str(assessment['residual_risk']['root_authority_remains_contained']).lower()}"
+        ),
+        "- Production security effectiveness claim: false",
+        "",
+        "## Residual risk",
+        "",
+    ]
+    if residuals:
+        lines.extend(f"- {_markdown_text(effect)}" for effect in residuals)
+    else:
+        lines.append("- No platform residual effects recorded in this bounded evidence package.")
+
+    lines.extend(["", "## Prioritized remediation", ""])
+    for item in assessment["prioritized_remediation"]:
+        lines.append(
+            f"- {item['priority']} {_markdown_text(item['blocker'])}: "
+            f"{_markdown_text(item['action'])}"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Claim boundary",
+            "",
+            _markdown_text(assessment["claim_boundary"]),
+            "",
+            (
+                "This document summarizes deterministic owned-sandbox evidence. "
+                "It does not authorize any write or claim production security effectiveness."
+            ),
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
 def validate_assessment(assessment: dict[str, Any]) -> None:
     if assessment.get("schema_version") != SCHEMA_VERSION:
         raise ValueError("unsupported recoverability assessment schema")
@@ -231,21 +329,36 @@ def validate_assessment(assessment: dict[str, Any]) -> None:
         raise ValueError("assessment must not claim production security effectiveness")
 
 
-def reproduce(output_path: Path) -> dict[str, Any]:
+def reproduce(
+    output_path: Path,
+    markdown_output_path: Path | None = None,
+) -> dict[str, Any]:
     assessment = build_assessment()
     validate_assessment(assessment)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(assessment, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     reloaded = json.loads(output_path.read_text(encoding="utf-8"))
     validate_assessment(reloaded)
+    if markdown_output_path is not None:
+        markdown_output_path.parent.mkdir(parents=True, exist_ok=True)
+        markdown_output_path.write_text(render_assessment(reloaded), encoding="utf-8")
     return reloaded
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Build a bounded Agent Recoverability Assessment artifact.")
+    parser = argparse.ArgumentParser(
+        description="Build a bounded Agent Recoverability Assessment artifact."
+    )
     parser.add_argument("output_path", type=Path)
+    parser.add_argument("--markdown-output", type=Path)
     args = parser.parse_args()
-    print(json.dumps(reproduce(args.output_path), indent=2, sort_keys=True))
+    print(
+        json.dumps(
+            reproduce(args.output_path, args.markdown_output),
+            indent=2,
+            sort_keys=True,
+        )
+    )
 
 
 if __name__ == "__main__":
