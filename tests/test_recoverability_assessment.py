@@ -22,6 +22,10 @@ def test_assessment_is_bounded_and_authority_free() -> None:
     module.validate_assessment(assessment)
     assert assessment["authorization_effect"] == "none"
     assert assessment["assessment_mode"] == "owned_sandbox_evidence"
+    assert assessment["source_evidence_identity"] == {
+        "schema_version": "owned-multisurface-pilot/v1",
+        "sha256": module.evidence_identity(module.build_pilot_evidence()),
+    }
     assert assessment["recoverability_coverage"]["ratio"] == 1.0
     assert assessment["decision"]["bounded_downstream_restoration_verified"] is True
     assert assessment["decision"]["production_security_claim"] is False
@@ -66,4 +70,21 @@ def test_assessment_rejects_missing_remediation() -> None:
     assessment = copy.deepcopy(module.build_assessment())
     assessment["prioritized_remediation"] = []
     with pytest.raises(ValueError, match="prioritized remediation"):
+        module.validate_assessment(assessment)
+
+
+def test_source_evidence_identity_is_order_independent_and_content_bound() -> None:
+    evidence = module.build_pilot_evidence()
+    reordered = dict(reversed(list(evidence.items())))
+    assert module.evidence_identity(evidence) == module.evidence_identity(reordered)
+
+    changed = copy.deepcopy(evidence)
+    changed["claim_boundary"] = f'{changed["claim_boundary"]} Additional bounded note.'
+    assert module.evidence_identity(evidence) != module.evidence_identity(changed)
+
+
+def test_assessment_rejects_malformed_source_evidence_identity() -> None:
+    assessment = copy.deepcopy(module.build_assessment())
+    assessment["source_evidence_identity"]["sha256"] = "not-a-digest"
+    with pytest.raises(ValueError, match="source evidence identity"):
         module.validate_assessment(assessment)
