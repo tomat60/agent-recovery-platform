@@ -45,6 +45,8 @@ def validate_artifact_manifest(
     buyer_markdown: str,
 ) -> None:
     validate_assessment(assessment)
+    if not isinstance(manifest, dict):
+        raise TypeError("assessment artifact manifest must be an object")
     if manifest.get("schema_version") != MANIFEST_SCHEMA_VERSION:
         raise ValueError("unsupported assessment artifact manifest schema")
     if manifest.get("authorization_effect") != "none":
