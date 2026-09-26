@@ -168,3 +168,41 @@ def test_assessment_rejects_summary_that_disagrees_with_verified_outcomes() -> N
 
     with pytest.raises(ValueError, match="must match the verified recovery outcome dimension"):
         module.validate_assessment(assessment)
+
+
+def test_buyer_markdown_separates_detection_from_verified_recovery() -> None:
+    assessment = module.build_assessment()
+    rendered = module.render_assessment(assessment)
+    evidence_sha = assessment["source_evidence_identity"]["sha256"]
+
+    assert "# Agent Recoverability Assessment" in rendered
+    assert "| Incident detection | 3/3 | 100% | true |" in rendered
+    assert "| Verified recovery outcomes | 3/3 | 100% | true |" in rendered
+    assert "Detection coverage is not represented as recovery coverage." in rendered
+    assert f"Evidence SHA-256: `{evidence_sha}`" in rendered
+    assert "Compromised root authority restored: false" in rendered
+    assert "Production security effectiveness claim: false" in rendered
+    assert "Authorization effect: none" in rendered
+
+
+def test_buyer_markdown_escapes_evidence_derived_layout_characters() -> None:
+    assessment = copy.deepcopy(module.build_assessment())
+    assessment["prioritized_remediation"][0]["action"] = "first | second\nthird"
+
+    rendered = module.render_assessment(assessment)
+
+    assert "first \\| second third" in rendered
+    assert "second\nthird" not in rendered
+
+
+def test_reproduce_optionally_writes_buyer_markdown(tmp_path: Path) -> None:
+    json_path = tmp_path / "assessment.json"
+    markdown_path = tmp_path / "assessment.md"
+
+    assessment = module.reproduce(json_path, markdown_path)
+
+    assert json_path.exists()
+    assert markdown_path.exists()
+    assert assessment["source_evidence_identity"]["sha256"] in markdown_path.read_text(
+        encoding="utf-8"
+    )
