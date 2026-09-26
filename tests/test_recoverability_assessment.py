@@ -27,6 +27,22 @@ def test_assessment_is_bounded_and_authority_free() -> None:
         "sha256": module.evidence_identity(module.build_pilot_evidence()),
     }
     assert assessment["recoverability_coverage"]["ratio"] == 1.0
+    expected_actions = assessment["recoverability_coverage"]["consequential_actions"]
+    assert assessment["coverage_dimensions"] == {
+        "incident_detection": {
+            "detected_actions": expected_actions,
+            "consequential_actions": expected_actions,
+            "ratio": 1.0,
+            "complete": True,
+        },
+        "verified_recovery_outcomes": {
+            "verified_recoveries": expected_actions,
+            "consequential_actions": expected_actions,
+            "ratio": 1.0,
+            "complete": True,
+        },
+        "replay_regression_verified": True,
+    }
     assert assessment["decision"]["bounded_downstream_restoration_verified"] is True
     assert assessment["decision"]["production_security_claim"] is False
     assert assessment["residual_risk"]["root_authority_remains_contained"] is True
@@ -87,4 +103,24 @@ def test_assessment_rejects_malformed_source_evidence_identity() -> None:
     assessment = copy.deepcopy(module.build_assessment())
     assessment["source_evidence_identity"]["sha256"] = "not-a-digest"
     with pytest.raises(ValueError, match="source evidence identity"):
+        module.validate_assessment(assessment)
+
+
+def test_assessment_names_detection_and_verified_outcomes_separately() -> None:
+    assessment = module.build_assessment()
+    dimensions = assessment["coverage_dimensions"]
+
+    assert set(dimensions) == {
+        "incident_detection",
+        "verified_recovery_outcomes",
+        "replay_regression_verified",
+    }
+    assert "detected_actions" in dimensions["incident_detection"]
+    assert "verified_recoveries" in dimensions["verified_recovery_outcomes"]
+
+
+def test_assessment_rejects_boolean_dimension_ratio() -> None:
+    assessment = copy.deepcopy(module.build_assessment())
+    assessment["coverage_dimensions"]["verified_recovery_outcomes"]["ratio"] = True
+    with pytest.raises(ValueError, match="coverage dimension verified_recovery_outcomes"):
         module.validate_assessment(assessment)

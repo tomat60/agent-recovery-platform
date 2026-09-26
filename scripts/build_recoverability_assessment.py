@@ -67,7 +67,9 @@ def build_assessment(evidence: dict[str, Any] | None = None) -> dict[str, Any]:
     restoration = evidence["restoration"]
 
     expected = controlled["expected_actions"]
+    detected = controlled["detected_actions"]
     verified = recovery["verified_recoveries"]
+    detected_coverage = detected / expected if expected else 0.0
     coverage = verified / expected if expected else 0.0
 
     return {
@@ -87,6 +89,21 @@ def build_assessment(evidence: dict[str, Any] | None = None) -> dict[str, Any]:
             "verified_recoveries": verified,
             "consequential_actions": expected,
             "ratio": coverage,
+        },
+        "coverage_dimensions": {
+            "incident_detection": {
+                "detected_actions": detected,
+                "consequential_actions": expected,
+                "ratio": detected_coverage,
+                "complete": detected == expected,
+            },
+            "verified_recovery_outcomes": {
+                "verified_recoveries": verified,
+                "consequential_actions": expected,
+                "ratio": coverage,
+                "complete": verified == expected,
+            },
+            "replay_regression_verified": replay["verified"] is True,
         },
         "controlled_incident": controlled,
         "containment": evidence["containment"],
@@ -119,12 +136,30 @@ def validate_assessment(assessment: dict[str, Any]) -> None:
         raise ValueError("assessment must remain scoped to owned sandbox evidence")
     coverage = assessment.get("recoverability_coverage")
     source_identity = assessment.get("source_evidence_identity")
+    dimensions = assessment.get("coverage_dimensions")
     decision = assessment.get("decision")
     remediation = assessment.get("prioritized_remediation")
     if not isinstance(coverage, dict) or not isinstance(decision, dict):
         raise TypeError("assessment coverage and decision must be objects")
     if not isinstance(source_identity, dict):
         raise TypeError("assessment source evidence identity must be an object")
+    if not isinstance(dimensions, dict):
+        raise TypeError("assessment coverage dimensions must be an object")
+    for name in ("incident_detection", "verified_recovery_outcomes"):
+        dimension = dimensions.get(name)
+        if not isinstance(dimension, dict):
+            raise TypeError(f"assessment coverage dimension {name} must be an object")
+        dimension_ratio = dimension.get("ratio")
+        if (
+            not isinstance(dimension_ratio, (int, float))
+            or isinstance(dimension_ratio, bool)
+            or not 0 <= dimension_ratio <= 1
+        ):
+            raise ValueError(f"assessment coverage dimension {name} ratio must be numeric in [0, 1]")
+        if not isinstance(dimension.get("complete"), bool):
+            raise TypeError(f"assessment coverage dimension {name} complete flag must be boolean")
+    if not isinstance(dimensions.get("replay_regression_verified"), bool):
+        raise TypeError("assessment replay regression coverage flag must be boolean")
     if source_identity.get("schema_version") != "owned-multisurface-pilot/v1":
         raise ValueError("assessment source evidence schema must match the owned pilot")
     source_sha = source_identity.get("sha256")
