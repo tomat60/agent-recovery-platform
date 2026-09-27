@@ -143,6 +143,23 @@ The first target is an AI-native SaaS, fintech, devtools or security company alr
 
 The first commercial offer is a bounded **Agent Recoverability Assessment** for one workflow, not a large enterprise-platform contract. It maps the workflow, classifies recovery paths, exercises controlled incidents, measures recovery coverage, verifies containment/compensation behavior and produces a remediation report.
 
+### Assessment package verification
+
+A recipient can verify the delivered assessment JSON, buyer Markdown and manifest without runtime authority:
+
+```bash
+python scripts/verify_recoverability_assessment_package.py assessment.json assessment.md assessment.manifest.json
+```
+
+For a trusted handoff, pin the exact manifest digest obtained through an independent channel:
+
+```bash
+python scripts/verify_recoverability_assessment_package.py assessment.json assessment.md assessment.manifest.json \\
+  --expected-manifest-sha256 <trusted-64-character-sha256>
+```
+
+The pin fails closed if the delivered manifest changed. Without a pin, verification proves package consistency only; it does not authenticate the issuer or grant recovery authority.
+
 ## Safety and explicit limits
 
 All adversarial development and demos use owned or synthetic environments. The project is defensive.
