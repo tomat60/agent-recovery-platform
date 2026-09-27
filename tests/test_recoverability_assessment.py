@@ -316,7 +316,8 @@ def test_evidence_input_accepts_independently_obtained_identity(
         expected_evidence_sha256=module.evidence_identity(evidence).upper(),
     )
 
-    assert loaded == evidence
+    assert module.evidence_identity(loaded) == module.evidence_identity(evidence)
+    assert loaded["surfaces"] == list(evidence["surfaces"])
 
 
 def test_evidence_input_rejects_changed_payload_against_prior_identity(
