@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import importlib
 import json
 import sys
@@ -40,9 +41,58 @@ def test_verifies_delivered_assessment_package(tmp_path: Path) -> None:
     assert result == {
         "ok": True,
         "authorization_effect": "none",
+        "manifest_sha256": hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
+        "manifest_pin_verified": False,
         "source_evidence_identity": assessment["source_evidence_identity"],
         "verified_artifacts": ["assessment_json", "buyer_markdown"],
     }
+
+
+def test_verifies_package_against_out_of_band_manifest_pin(tmp_path: Path) -> None:
+    assessment_path, markdown_path, manifest_path = _package(tmp_path)
+    manifest_sha256 = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+
+    result = verifier.verify_assessment_package(
+        assessment_path,
+        markdown_path,
+        manifest_path,
+        manifest_sha256.upper(),
+    )
+
+    assert result["manifest_sha256"] == manifest_sha256
+    assert result["manifest_pin_verified"] is True
+
+
+def test_rejects_changed_manifest_against_out_of_band_pin(tmp_path: Path) -> None:
+    assessment_path, markdown_path, manifest_path = _package(tmp_path)
+    manifest_sha256 = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["artifacts"]["buyer_markdown"]["sha256"] = "0" * 64
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="manifest digest mismatch"):
+        verifier.verify_assessment_package(
+            assessment_path,
+            markdown_path,
+            manifest_path,
+            manifest_sha256,
+        )
+
+
+@pytest.mark.parametrize("expected", ["abc", "z" * 64])
+def test_rejects_malformed_manifest_pin(tmp_path: Path, expected: str) -> None:
+    assessment_path, markdown_path, manifest_path = _package(tmp_path)
+
+    with pytest.raises(ValueError, match="64 hexadecimal characters"):
+        verifier.verify_assessment_package(
+            assessment_path,
+            markdown_path,
+            manifest_path,
+            expected,
+        )
 
 
 @pytest.mark.parametrize("artifact", ["assessment_json", "buyer_markdown"])
