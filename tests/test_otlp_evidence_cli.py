@@ -119,3 +119,14 @@ def test_verify_evidence_rejects_count_and_identity_drift() -> None:
     evidence["observations"][0]["observation_id"] = "otel:wrong:identity"
     with pytest.raises(ValueError, match="observation_id does not match"):
         module.verify_evidence(evidence)
+
+def test_verify_evidence_rejects_malformed_otlp_identity() -> None:
+    evidence = deepcopy(module.build_evidence(_payload()))
+    evidence["observations"][0]["trace_id"] = "z" * 32
+    evidence["observations"][0]["observation_id"] = (
+        "otel:" + "z" * 32 + ":eee19b7ec3c1b174"
+    )
+
+    with pytest.raises(ValueError, match="trace_id must be"):
+        module.verify_evidence(evidence)
+
