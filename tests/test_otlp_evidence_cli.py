@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 from copy import deepcopy
+from hashlib import sha256
 from pathlib import Path
 
 import pytest
@@ -78,6 +79,49 @@ def test_reproduce_writes_the_exact_evidence_artifact(tmp_path: Path) -> None:
 
     assert json.loads(output.read_text(encoding="utf-8")) == evidence
     assert module.verify_artifact(output) == evidence
+
+
+def test_verify_artifact_accepts_independently_obtained_digest(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "trace.json"
+    output = tmp_path / "evidence.json"
+    source.write_text(json.dumps(_payload()), encoding="utf-8")
+    evidence = module.reproduce(source, output)
+    artifact_digest = sha256(output.read_bytes()).hexdigest()
+
+    assert module.verify_artifact(
+        output, expected_artifact_sha256=artifact_digest.upper()
+    ) == evidence
+
+
+def test_verify_artifact_rejects_changed_file_against_prior_digest(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "trace.json"
+    output = tmp_path / "evidence.json"
+    source.write_text(json.dumps(_payload()), encoding="utf-8")
+    module.reproduce(source, output)
+    artifact_digest = sha256(output.read_bytes()).hexdigest()
+    output.write_text(output.read_text(encoding="utf-8") + " ", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="OTLP evidence artifact digest mismatch"):
+        module.verify_artifact(
+            output, expected_artifact_sha256=artifact_digest
+        )
+
+
+@pytest.mark.parametrize("artifact_digest", ["abc", "z" * 64])
+def test_verify_artifact_rejects_malformed_expected_digest(
+    tmp_path: Path, artifact_digest: str
+) -> None:
+    output = tmp_path / "evidence.json"
+    output.write_text("{}", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="64 hexadecimal characters"):
+        module.verify_artifact(
+            output, expected_artifact_sha256=artifact_digest
+        )
 
 
 def test_build_evidence_fails_closed_on_malformed_recovery_span() -> None:
