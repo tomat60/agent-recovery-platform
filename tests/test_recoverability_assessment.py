@@ -304,6 +304,51 @@ def test_reproduce_assesses_supplied_evidence_file(tmp_path: Path) -> None:
     assert json.loads(output_path.read_text(encoding="utf-8")) == assessment
 
 
+def test_evidence_input_accepts_independently_obtained_identity(
+    tmp_path: Path,
+) -> None:
+    evidence = module.build_pilot_evidence()
+    evidence_path = tmp_path / "owned-pilot-evidence.json"
+    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+
+    loaded = module.load_evidence(
+        evidence_path,
+        expected_evidence_sha256=module.evidence_identity(evidence).upper(),
+    )
+
+    assert loaded == evidence
+
+
+def test_evidence_input_rejects_changed_payload_against_prior_identity(
+    tmp_path: Path,
+) -> None:
+    evidence = module.build_pilot_evidence()
+    expected_digest = module.evidence_identity(evidence)
+    evidence["scenario"] = "changed-owned-pilot"
+    evidence_path = tmp_path / "owned-pilot-evidence.json"
+    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="evidence identity mismatch"):
+        module.load_evidence(
+            evidence_path,
+            expected_evidence_sha256=expected_digest,
+        )
+
+
+@pytest.mark.parametrize("evidence_digest", ["abc", "z" * 64])
+def test_evidence_input_rejects_malformed_expected_identity(
+    tmp_path: Path, evidence_digest: str
+) -> None:
+    evidence_path = tmp_path / "owned-pilot-evidence.json"
+    evidence_path.write_text(json.dumps(module.build_pilot_evidence()), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="64 hexadecimal characters"):
+        module.load_evidence(
+            evidence_path,
+            expected_evidence_sha256=evidence_digest,
+        )
+
+
 def test_evidence_input_rejects_non_object_json(tmp_path: Path) -> None:
     evidence_path = tmp_path / "invalid-evidence.json"
     evidence_path.write_text("[]", encoding="utf-8")
