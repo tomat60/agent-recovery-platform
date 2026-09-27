@@ -6,9 +6,7 @@ Date: 2026-09-26
 
 Agent Recovery Platform is a **commercial-product-first cybersecurity company/project**. Funding is a permanent parallel workstream, not the product goal.
 
-Current accepted `main`:
-
-`a9c1d5735b1ff743a40581894851f6a66639c345`
+Engineering state reconciled through PR #189 / commit `afaf746e...`.
 
 Latest accepted commercial signals:
 
@@ -18,7 +16,7 @@ Latest accepted commercial signals:
 Latest accepted product/security and funding movement:
 
 - PR #172 / commit `4e7f8758...` adds a buyer-readable owned-pilot evidence summary and fail-closed restart-continuity validation.
-- PRs #178–#185 connect the commercial console to canonical persisted incident state and mature the first buyer-facing Agent Recoverability Assessment. The assessment now has deterministic evidence identity, separate detection/recovery/replay dimensions, fail-closed consistency checks, buyer-readable Markdown, visible authority and controlled-incident evidence, and a validated `--evidence-input` path for supplied owned-pilot evidence. PR #185 merged as commit `a9c1d573...`; post-merge exact-head CI is the acceptance authority.
+- PRs #178-#185 connect the commercial console to canonical persisted incident state and mature the first buyer-facing Agent Recoverability Assessment. The assessment now has deterministic evidence identity, separate detection/recovery/replay dimensions, fail-closed consistency checks, buyer-readable Markdown, visible authority and controlled-incident evidence, and a validated `--evidence-input` path for supplied owned-pilot evidence. PR #185 merged as commit `a9c1d573...`; post-merge exact-head CI is the acceptance authority.
 - PR #170 / commit `fffe3119...` makes funding a permanent parallel workstream, corrects the ECCC call identifiers to the 2027 call family, adds the live funding tracker and prepares the Warsaw matchmaking pack.
 
 Core lifecycle remains:
@@ -104,15 +102,19 @@ Immediate consortium targets:
 - MSSP/AppSec/cloud-security/AI-security implementation partner;
 - optional independent research/test partner where it closes a real evaluation gap.
 
-### Urgent owner-facing event
+### Warsaw workshop status
 
-**German-Polish Cybersecurity Matchmaking & Proposal Writing Workshop - Warsaw, 1-2 October 2026.**
+The German-Polish Cybersecurity Matchmaking & Proposal Writing Workshop in Warsaw on 1-2 October 2026 is closed as an attendance path for us.
 
-Official event remains open for registration as of 2026-09-24.
+NCC confirmed on 2026-09-25 that no places remain.
 
-On 2026-09-24, an email was sent to `ncc@cyfra.gov.pl` asking whether a pre-incorporation founder can participate and requesting the current registration route / spot confirmation.
+Do not ask organizers or companies for a ticket. If a high-fit company is independently confirmed to be in Warsaw for the event, an outside-programme meeting nearby can be proposed without implying attendance or asking for event access.
 
-The repo now contains `docs/ECCC_MATCHMAKING_WORKSHOP_PACK.md` with the 90-second introduction, recovery work-package scope, pilot KPIs, partner qualification questions and meeting close. This event remains the highest-leverage near-term funding action because it can produce a coordinator and consortium partners before the January deadline.
+Replacement consortium search channels:
+- DEP4ALL matchmaking;
+- KPK DEP Partner Search Form;
+- EU Funding & Tenders partner search;
+- direct qualified outreach to coordinators, SME end users, MSSP/AppSec/cloud-security partners and research/test partners.
 
 ### EIC path
 
@@ -177,9 +179,9 @@ Autonomous actions include research, qualified outreach, partner search, branch/
 
 ## Immediate next actions
 
-1. Treat the 1-2 Oct German-Polish matchmaking workshop as closed because NCC confirmed no seats remain; continue ECCC partner qualification through direct channels without implying attendance.
-2. Qualify coordinator + SME end-user + MSSP/AppSec partner candidates before the workshop and map each to a concrete role in the recovery work package.
-3. Continue n8n and other qualified commercial conversations in parallel; convert routing signals into a bounded design-partner/pilot discussion. Prepare a compact, low-stress qualification script for the proposed Kyvvu phone call and a separate, deeper TechEx integration scenario; do not over-expand the pre-event conversation.
-4. Correct any remaining legacy `DIGITAL-ECCC-2026...` references only where they incorrectly describe the current call; preserve historical references when they are genuinely historical.
-5. Maintain `docs/FUNDING_OPPORTUNITY_TRACKER.md` as the operational funding source of truth.
-6. Keep product engineering focused on pilotability and buyer proof; funding preparation must not starve executable product work.
+1. Keep product engineering focused on external pilotability and buyer proof. The current assessment package is now strong enough to support design-partner conversations without inflating evidence claims.
+2. Convert Kyvvu, n8n and TechEx outreach into concrete meetings, design-partner discussions or bounded integration tests.
+3. Kyvvu phone call is scheduled for 2026-09-30 at 11:30. Keep it conversational and qualification-first, then use Amsterdam for the deeper integration scenario.
+4. First-wave TechEx outreach is out to Lumina Studio Marketing, RisingPoint.io, Tines and Parloa. Second-wave outreach is now out to Veeam, Datadog and EverWorker. Do not spam; follow up only where fit remains strong.
+5. Continue ECCC AI4SME consortium search through direct channels now that the Warsaw workshop is closed.
+6. Maintain strict evidence class separation and fail-closed delivery verification. Do not turn synthetic or owned-pilot evidence into claims about external production use.
