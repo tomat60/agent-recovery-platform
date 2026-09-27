@@ -157,7 +157,14 @@ A recipient can independently verify schema, observation identity, count, non-au
 python scripts/normalize_otlp_trace_export.py --verify-only otlp-evidence.json
 ```
 
-This verification proves internal artifact consistency only. It does not authenticate the issuer, prove capture completeness or grant execution, recovery or restoration authority.
+For a trusted handoff, pin the exact evidence artifact digest obtained through an independent channel:
+
+```bash
+python scripts/normalize_otlp_trace_export.py --verify-only otlp-evidence.json \
+  --expected-artifact-sha256 <trusted-64-character-sha256>
+```
+
+The pin fails closed if the delivered file changed. Without a pin, verification proves internal artifact consistency only. Neither mode proves capture completeness or grants execution, recovery or restoration authority.
 
 ### Assessment package verification
 
