@@ -104,33 +104,53 @@ Fit:
 
 Do not duplicate immediately. Follow up closer to event if still silent.
 
-## Second-wave targets
+## Second-wave outreach sent 27 September
 
-Prioritize only if first-wave response rate is weak or a target is exceptionally relevant.
+### Veeam
+Email: VeeamIntegrated@veeam.com
+TechEx: stand 140.
+Status: targeted alliance / architecture meeting request sent.
 
-1. Veeam, stand 140
-   - recovery / resilience / AI trust adjacency;
-   - strategic ecosystem fit, but larger company and slower routing.
+Fit:
+- data and AI trust;
+- explicit recovery positioning for rogue agents;
+- strong boundary between Veeam data resilience and Agent Recovery action-level evidence, compensation and verified restoration.
 
-2. Okta
+### Datadog
+Email: partner-enablement@datadoghq.com
+TechEx: stand 300.
+Status: targeted technology-partner / architecture meeting request sent.
+
+Fit:
+- traces, logs, security signals and automated workflows;
+- strong evidence-source and verification adjacency;
+- potential technology integration rather than overlapping product scope.
+
+### EverWorker
+Email: support@everworker.ai
+TechEx: stand 241.
+Status: targeted product / engineering / partnerships meeting request sent.
+
+Fit:
+- autonomous AI workers connected to business systems;
+- direct write-capable workflow surface;
+- strong candidate for one concrete recoverability scenario.
+
+## Remaining second-wave targets
+
+1. Okta
    - identity for AI agents;
    - strong complement to authority restoration after recovery.
 
-3. Glean
+2. Glean
    - enterprise Work AI and workflow automation;
    - potential write-capable agent surface.
 
-4. Datadog, stand 300
-   - observability and security telemetry;
-   - useful evidence ingestion / verification adjacency.
-
-5. EverWorker, stand 241
-   - agentic workforce and autonomous workflows;
-   - potentially strong design-partner surface.
-
-6. BloxWeaver, stand T4
-   - enterprise agents, tool orchestration, adaptive planning;
+3. BloxWeaver, stand T4
+   - enterprise agents, tool orchestration and adaptive planning;
    - potential external pilot / integration surface.
+
+Do not expand the list merely to increase volume. Quality of fit is the gate.
 
 ## Warsaw 1-2 October
 
