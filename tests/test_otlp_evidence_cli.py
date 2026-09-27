@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
@@ -76,6 +77,7 @@ def test_reproduce_writes_the_exact_evidence_artifact(tmp_path: Path) -> None:
     evidence = module.reproduce(source, output)
 
     assert json.loads(output.read_text(encoding="utf-8")) == evidence
+    assert module.verify_artifact(output) == evidence
 
 
 def test_build_evidence_fails_closed_on_malformed_recovery_span() -> None:
@@ -89,3 +91,42 @@ def test_build_evidence_fails_closed_on_malformed_recovery_span() -> None:
 
     with pytest.raises(IngestionError, match="contract_version"):
         module.build_evidence(payload)
+
+
+def test_verify_evidence_rejects_payload_tampering() -> None:
+    evidence = deepcopy(module.build_evidence(_payload()))
+    evidence["observations"][0]["params"]["contact_id"] = "c-8"
+
+    with pytest.raises(ValueError, match="provenance_digest mismatch"):
+        module.verify_evidence(evidence)
+
+
+def test_verify_evidence_rejects_authorization_claim() -> None:
+    evidence = deepcopy(module.build_evidence(_payload()))
+    evidence["observations"][0]["authorization_effect"] = "restore"
+
+    with pytest.raises(ValueError, match="authorization_effect must be none"):
+        module.verify_evidence(evidence)
+
+
+def test_verify_evidence_rejects_count_and_identity_drift() -> None:
+    evidence = deepcopy(module.build_evidence(_payload()))
+    evidence["observation_count"] = 2
+    with pytest.raises(ValueError, match="observation_count does not match"):
+        module.verify_evidence(evidence)
+
+    evidence = deepcopy(module.build_evidence(_payload()))
+    evidence["observations"][0]["observation_id"] = "otel:wrong:identity"
+    with pytest.raises(ValueError, match="observation_id does not match"):
+        module.verify_evidence(evidence)
+
+def test_verify_evidence_rejects_malformed_otlp_identity() -> None:
+    evidence = deepcopy(module.build_evidence(_payload()))
+    evidence["observations"][0]["trace_id"] = "z" * 32
+    evidence["observations"][0]["observation_id"] = (
+        "otel:" + "z" * 32 + ":eee19b7ec3c1b174"
+    )
+
+    with pytest.raises(ValueError, match="trace_id must be"):
+        module.verify_evidence(evidence)
+

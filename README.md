@@ -143,6 +143,22 @@ The first target is an AI-native SaaS, fintech, devtools or security company alr
 
 The first commercial offer is a bounded **Agent Recoverability Assessment** for one workflow, not a large enterprise-platform contract. It maps the workflow, classifies recovery paths, exercises controlled incidents, measures recovery coverage, verifies containment/compensation behavior and produces a remediation report.
 
+### OTLP recovery evidence
+
+Normalize an OTLP/HTTP JSON trace export into deterministic, non-authorizing evidence:
+
+```bash
+python scripts/normalize_otlp_trace_export.py trace-export.json otlp-evidence.json
+```
+
+A recipient can independently verify schema, observation identity, count, non-authorizing status and every provenance digest:
+
+```bash
+python scripts/normalize_otlp_trace_export.py --verify-only otlp-evidence.json
+```
+
+This verification proves internal artifact consistency only. It does not authenticate the issuer, prove capture completeness or grant execution, recovery or restoration authority.
+
 ### Assessment package verification
 
 A recipient can verify the delivered assessment JSON, buyer Markdown and manifest without runtime authority:
