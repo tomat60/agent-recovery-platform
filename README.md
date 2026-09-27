@@ -166,7 +166,19 @@ python scripts/normalize_otlp_trace_export.py --verify-only otlp-evidence.json \
 
 The pin fails closed if the delivered file changed. Without a pin, verification proves internal artifact consistency only. Neither mode proves capture completeness or grants execution, recovery or restoration authority.
 
-### Assessment package verification
+### Assessment source and package verification
+
+Generate an assessment from supplied owned-pilot evidence while binding it to a canonical evidence identity obtained through an independent channel:
+
+```bash
+python scripts/build_recoverability_assessment.py assessment.json \
+  --markdown-output assessment.md \
+  --manifest-output assessment.manifest.json \
+  --evidence-input owned-pilot-evidence.json \
+  --expected-evidence-sha256 <trusted-canonical-evidence-sha256>
+```
+
+The source pin rejects semantically changed evidence before assessment generation. It does not prove capture completeness or grant recovery authority.
 
 A recipient can verify the delivered assessment JSON, buyer Markdown and manifest without runtime authority:
 
