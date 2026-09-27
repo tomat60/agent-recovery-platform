@@ -14,11 +14,16 @@ def build_evidence(payload: dict[str, Any]) -> dict[str, Any]:
     """Normalize an OTLP trace export into deterministic, non-authorizing evidence."""
 
     observations = normalize_otlp_json_trace_export(payload)
+    evidence_payloads = []
+    for observation in observations:
+        evidence_payload = observation.payload()
+        evidence_payload["resource_keys"] = list(evidence_payload["resource_keys"])
+        evidence_payloads.append(evidence_payload)
     return {
         "schema_version": SCHEMA_VERSION,
         "authorization_effect": "none",
         "observation_count": len(observations),
-        "observations": [observation.payload() for observation in observations],
+        "observations": evidence_payloads,
     }
 
 
