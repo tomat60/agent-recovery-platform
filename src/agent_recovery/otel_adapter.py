@@ -39,7 +39,7 @@ _OTLP_ANY_VALUE_KEYS = {
 
 
 def _otlp_sequence(value: Any, label: str) -> Sequence[Any]:
-    if isinstance(value, str) or not isinstance(value, Sequence):
+    if isinstance(value, (str, bytes, bytearray)) or not isinstance(value, Sequence):
         raise IngestionError(f"{label} must be a sequence")
     return value
 
@@ -90,14 +90,14 @@ def _decode_otlp_any_value(value: Mapping[str, Any], label: str) -> Any:
     if key == "arrayValue":
         if not isinstance(raw, Mapping):
             raise IngestionError(f"{label} arrayValue must be a mapping")
-        return [
-            _decode_otlp_any_value(item, f"{label} array item")
-            if isinstance(item, Mapping)
-            else (_ for _ in ()).throw(
-                IngestionError(f"{label} array items must be OTLP AnyValue mappings")
-            )
-            for item in _otlp_sequence(raw.get("values", ()), f"{label} array values")
-        ]
+        result = []
+        for item in _otlp_sequence(raw.get("values", ()), f"{label} array values"):
+            if not isinstance(item, Mapping):
+                raise IngestionError(
+                    f"{label} array items must be OTLP AnyValue mappings"
+                )
+            result.append(_decode_otlp_any_value(item, f"{label} array item"))
+        return result
     if key == "kvlistValue":
         if not isinstance(raw, Mapping):
             raise IngestionError(f"{label} kvlistValue must be a mapping")
@@ -112,6 +112,7 @@ def _otlp_hex_id(value: Any, label: str, length: int) -> str:
         not isinstance(value, str)
         or len(value) != length
         or any(character not in "0123456789abcdefABCDEF" for character in value)
+        or set(value) == {"0"}
     ):
         raise IngestionError(f"OTLP {label} must be a {length}-character hexadecimal string")
     return value.lower()
