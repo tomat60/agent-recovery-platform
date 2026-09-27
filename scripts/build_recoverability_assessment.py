@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import hmac
 import json
 from pathlib import Path
 from typing import Any
@@ -491,11 +492,24 @@ def validate_assessment(assessment: dict[str, Any]) -> None:
         raise ValueError("assessment must not claim production security effectiveness")
 
 
-def load_evidence(evidence_path: Path) -> dict[str, Any]:
+def load_evidence(
+    evidence_path: Path,
+    expected_evidence_sha256: str | None = None,
+) -> dict[str, Any]:
     evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
     if not isinstance(evidence, dict):
         raise TypeError("recoverability assessment evidence input must be an object")
     validate_pilot_evidence(evidence)
+    if expected_evidence_sha256 is not None:
+        expected_digest = expected_evidence_sha256.strip().lower()
+        if len(expected_digest) != 64 or any(
+            character not in "0123456789abcdef" for character in expected_digest
+        ):
+            raise ValueError(
+                "expected assessment evidence SHA-256 must be 64 hexadecimal characters"
+            )
+        if not hmac.compare_digest(evidence_identity(evidence), expected_digest):
+            raise ValueError("recoverability assessment evidence identity mismatch")
     return evidence
 
 
@@ -556,8 +570,24 @@ def main() -> None:
         type=Path,
         help="Validated owned-pilot evidence JSON to assess instead of the canonical fixture.",
     )
+    parser.add_argument(
+        "--expected-evidence-sha256",
+        help=(
+            "Fail closed unless --evidence-input has this independently obtained "
+            "canonical SHA-256 identity."
+        ),
+    )
     args = parser.parse_args()
-    evidence = load_evidence(args.evidence_input) if args.evidence_input is not None else None
+    if args.expected_evidence_sha256 is not None and args.evidence_input is None:
+        parser.error("--expected-evidence-sha256 requires --evidence-input")
+    evidence = (
+        load_evidence(
+            args.evidence_input,
+            expected_evidence_sha256=args.expected_evidence_sha256,
+        )
+        if args.evidence_input is not None
+        else None
+    )
     print(
         json.dumps(
             reproduce(
