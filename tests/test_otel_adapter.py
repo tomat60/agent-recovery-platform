@@ -4,7 +4,11 @@ import pytest
 
 from agent_recovery.ingestion import IngestionError, ingest_action_observation
 from agent_recovery.ledger import ActionLedger
-from agent_recovery.otel_adapter import normalize_otel_action_observation
+from agent_recovery.otel_adapter import (
+    normalize_otel_action_observation,
+    normalize_otlp_json_action_observation,
+    normalize_otlp_json_trace_export,
+)
 
 
 def span(**overrides: object) -> dict[str, object]:
@@ -130,3 +134,122 @@ def test_otel_adapter_requires_a_deterministic_observed_time() -> None:
 
     with pytest.raises(IngestionError, match="start_time_unix_nano"):
         normalize_otel_action_observation(raw)
+
+
+def _otlp_string(key: str, value: str) -> dict[str, object]:
+    return {"key": key, "value": {"stringValue": value}}
+
+
+def otlp_json_span(**overrides: object) -> dict[str, object]:
+    value: dict[str, object] = {
+        "traceId": "5B8EFFF798038103D269B633813FC60C",
+        "spanId": "EEE19B7EC3C1B174",
+        "startTimeUnixNano": "0",
+        "attributes": [
+            _otlp_string("agent.recovery.incident_id", "inc-otlp"),
+            _otlp_string("agent.recovery.tool_id", "crm.contacts"),
+            _otlp_string("agent.recovery.action_type", "contact.update"),
+            _otlp_string("agent.recovery.contract_version", "1"),
+            _otlp_string("agent.recovery.agent_id", "sales-agent"),
+            {
+                "key": "agent.recovery.params",
+                "value": {
+                    "kvlistValue": {
+                        "values": [
+                            _otlp_string("contact_id", "c-7"),
+                            _otlp_string("status", "qualified"),
+                        ]
+                    }
+                },
+            },
+            {
+                "key": "agent.recovery.resource_keys",
+                "value": {
+                    "arrayValue": {
+                        "values": [{"stringValue": "crm:contact:c-7"}]
+                    }
+                },
+            },
+            _otlp_string("unrelated.attribute", "ignored"),
+        ],
+    }
+    value.update(overrides)
+    return value
+
+
+def test_standard_otlp_json_span_normalizes_without_authority() -> None:
+    observation = normalize_otlp_json_action_observation(otlp_json_span())
+
+    assert observation.incident_id == "inc-otlp"
+    assert observation.trace_id == "5b8efff798038103d269b633813fc60c"
+    assert observation.span_id == "eee19b7ec3c1b174"
+    assert observation.params == {"contact_id": "c-7", "status": "qualified"}
+    assert observation.resource_keys == ("crm:contact:c-7",)
+    assert observation.payload()["authorization_effect"] == "none"
+
+
+def test_standard_otlp_trace_export_extracts_only_recovery_spans() -> None:
+    payload = {
+        "resourceSpans": [
+            {
+                "scopeSpans": [
+                    {
+                        "spans": [
+                            {
+                                "traceId": "0" * 32,
+                                "spanId": "0" * 16,
+                                "attributes": [_otlp_string("http.request.method", "GET")],
+                            },
+                            otlp_json_span(),
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+
+    observations = normalize_otlp_json_trace_export(payload)
+
+    assert len(observations) == 1
+    assert observations[0].observation_id == (
+        "otel:5b8efff798038103d269b633813fc60c:eee19b7ec3c1b174"
+    )
+
+
+def test_standard_otlp_trace_export_rejects_duplicate_action_identity() -> None:
+    action_span = otlp_json_span()
+    payload = {
+        "resourceSpans": [
+            {"scopeSpans": [{"spans": [action_span, action_span]}]}
+        ]
+    }
+
+    with pytest.raises(IngestionError, match="duplicate OTLP action observation"):
+        normalize_otlp_json_trace_export(payload)
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("traceId", "not-hex", "traceId"),
+        ("spanId", "not-hex", "spanId"),
+        ("startTimeUnixNano", "-1", "startTimeUnixNano"),
+    ],
+)
+def test_standard_otlp_json_rejects_malformed_wire_fields(
+    field: str,
+    value: object,
+    message: str,
+) -> None:
+    with pytest.raises(IngestionError, match=message):
+        normalize_otlp_json_action_observation(otlp_json_span(**{field: value}))
+
+
+def test_standard_otlp_json_rejects_duplicate_recovery_attributes() -> None:
+    raw = otlp_json_span()
+    attributes = list(raw["attributes"])  # type: ignore[arg-type]
+    attributes.append(_otlp_string("agent.recovery.incident_id", "replacement"))
+    raw["attributes"] = attributes
+
+    with pytest.raises(IngestionError, match="must be unique"):
+        normalize_otlp_json_action_observation(raw)
