@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hmac
 import json
 from hashlib import sha256
 from pathlib import Path
@@ -131,8 +132,22 @@ def verify_evidence(evidence: Any) -> dict[str, Any]:
     return evidence
 
 
-def verify_artifact(path: Path) -> dict[str, Any]:
-    return verify_evidence(json.loads(path.read_text(encoding="utf-8")))
+def verify_artifact(
+    path: Path, expected_artifact_sha256: str | None = None
+) -> dict[str, Any]:
+    artifact_bytes = path.read_bytes()
+    if expected_artifact_sha256 is not None:
+        expected_digest = expected_artifact_sha256.strip().lower()
+        if len(expected_digest) != 64 or any(
+            character not in "0123456789abcdef" for character in expected_digest
+        ):
+            raise ValueError(
+                "expected OTLP evidence artifact SHA-256 must be 64 hexadecimal characters"
+            )
+        artifact_digest = sha256(artifact_bytes).hexdigest()
+        if not hmac.compare_digest(artifact_digest, expected_digest):
+            raise ValueError("OTLP evidence artifact digest mismatch")
+    return verify_evidence(json.loads(artifact_bytes.decode("utf-8")))
 
 
 def reproduce(input_path: Path, output_path: Path) -> dict[str, Any]:
@@ -159,12 +174,24 @@ def main() -> None:
         type=Path,
         help="Verify one previously generated evidence artifact without granting authority.",
     )
+    parser.add_argument(
+        "--expected-artifact-sha256",
+        help=(
+            "Fail closed unless --verify-only reads the exact artifact identified by "
+            "this independently obtained SHA-256 digest."
+        ),
+    )
     args = parser.parse_args()
     if args.verify_only is not None:
         if args.input_path is not None or args.output_path is not None:
             parser.error("--verify-only cannot be combined with input or output paths")
-        evidence = verify_artifact(args.verify_only)
+        evidence = verify_artifact(
+            args.verify_only,
+            expected_artifact_sha256=args.expected_artifact_sha256,
+        )
     else:
+        if args.expected_artifact_sha256 is not None:
+            parser.error("--expected-artifact-sha256 requires --verify-only")
         if args.input_path is None or args.output_path is None:
             parser.error("input_path and output_path are required unless --verify-only is used")
         evidence = reproduce(args.input_path, args.output_path)
