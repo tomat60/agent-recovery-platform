@@ -46,6 +46,16 @@ def _required_text(payload: dict[str, Any], key: str, label: str) -> str:
     return value
 
 
+def _hex_id(value: str, length: int, label: str) -> str:
+    if (
+        len(value) != length
+        or any(character not in "0123456789abcdef" for character in value)
+        or set(value) == {"0"}
+    ):
+        raise ValueError(f"{label} must be a non-zero lowercase hexadecimal identifier")
+    return value
+
+
 def _verify_observation(observation: Any, index: int) -> str:
     label = f"observation[{index}]"
     if not isinstance(observation, dict):
@@ -70,8 +80,8 @@ def _verify_observation(observation: Any, index: int) -> str:
     if len(set(normalized_keys)) != len(normalized_keys):
         raise ValueError(f"{label} resource_keys must be unique")
 
-    trace_id = observation["trace_id"]
-    span_id = observation["span_id"]
+    trace_id = _hex_id(observation["trace_id"], 32, f"{label} trace_id")
+    span_id = _hex_id(observation["span_id"], 16, f"{label} span_id")
     expected_id = f"otel:{trace_id}:{span_id}"
     if observation["observation_id"] != expected_id:
         raise ValueError(f"{label} observation_id does not match trace/span identity")
