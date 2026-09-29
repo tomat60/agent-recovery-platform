@@ -182,9 +182,9 @@ Autonomous actions include research, qualified outreach, partner search, branch/
 ## Immediate next actions
 
 1. Keep product engineering focused on external pilotability and buyer proof. The current assessment and OTLP evidence handoff are now strong enough to support real design-partner conversations without inflating evidence claims.
-2. Convert Kyvvu, n8n and TechEx outreach into concrete meetings, design-partner discussions or bounded integration tests.
+2. Convert Kyvvu, n8n and TechEx outreach into concrete meetings, design-partner discussions or bounded integration tests. n8n received a concise follow-up on 2026-09-29 reflecting the newer OTLP and trusted-evidence path.
 3. Kyvvu phone call remains scheduled for 2026-09-30 at 11:30. Keep it conversational and qualification-first, then use Amsterdam for the deeper integration scenario.
-4. First-wave TechEx outreach is out to Lumina Studio Marketing, RisingPoint.io, Tines and Parloa. Second-wave outreach is out to Veeam, Datadog and EverWorker. Veeam created ticket VR-3844, which is a routing acknowledgement only, not yet a human commercial signal.
+4. First-wave TechEx outreach is out to Lumina Studio Marketing, RisingPoint.io, Tines and Parloa. Follow-ups were sent on 2026-09-29. The Agentics also received a follow-up on 2026-09-29. Second-wave outreach is out to Veeam, Datadog and EverWorker. Veeam created ticket VR-3844, which is a routing acknowledgement only, not yet a human commercial signal.
 5. Follow up on silent TechEx targets only after a reasonable interval. Do not increase outreach volume merely to create activity.
 6. Continue ECCC AI4SME consortium search through direct channels now that the Warsaw workshop is closed.
 7. Evaluate Cloudflare Agents only where it can remove infrastructure work or become a realistic recovery integration target. Do not let research displace commercial execution.
