@@ -37,7 +37,7 @@ Fit:
 Contact: Anna Valenti, founder.
 Email: anna@luminastudiomarketing.com
 TechEx: stand T1.
-Status: meeting request sent.
+Status: meeting request sent. Follow-up sent 29 September.
 
 Fit:
 - multi-agent systems and event-driven automation;
@@ -65,7 +65,7 @@ Requested outcome:
 ### Tines
 Email: hello@tines.com
 TechEx: stand 144.
-Status: routing / meeting request sent.
+Status: routing / meeting request sent. Follow-up sent 29 September.
 
 Fit:
 - intelligent security workflows;
@@ -94,7 +94,7 @@ Requested outcome:
 
 ### The Agentics
 TechEx: stand 194.
-Status: outreach sent 23 September, no reply yet.
+Status: outreach sent 23 September. Follow-up sent 29 September. No reply yet.
 
 Fit:
 - enterprise multi-agent platform;
