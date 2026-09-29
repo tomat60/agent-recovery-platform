@@ -198,3 +198,37 @@ No employee hiring is required for MVP, benchmark, competition build, or custome
 Before a serious external pilot, obtain a limited independent review from a senior AppSec/cloud/AI-security practitioner. Pay from pilot revenue, grant money, prize money, or use a narrow advisory/revenue-share structure if necessary.
 
 Before regulated production, expect to need stronger security engineering, legal/compliance review, insurance, and formal controls. Do not pretend the founding team alone can responsibly secure high-consequence infrastructure at scale.
+
+
+## 2026-09-29 market decision
+
+The market has accelerated around agent discovery, identity, authorization, runtime enforcement, red teaming and certification.
+
+Recent signals include NVIDIA Open Agent Safety Platform and OpenShell, Zenity's expansion and financing, Noma's agent control plane, Outerlimit's action-layer authorization, Eve Security's runtime-security expansion and AIUC's certification / insurance growth.
+
+This reinforces, rather than weakens, the core strategy.
+
+Do not compete for generic "AI agent security" ownership.
+
+Position Agent Recovery as the independent recovery and restoration layer that can sit downstream of:
+- policy engines;
+- zero-trust agent authorization;
+- runtime security;
+- observability;
+- red-team findings;
+- workflow engines;
+- agent platforms.
+
+The integration contract should remain:
+
+**upstream decision and action evidence -> Agent Recovery containment / recovery / compensation / replay -> non-authorizing recovery-state evidence -> external policy decides whether authority can resume**
+
+Product priorities from this market review:
+
+1. keep OTLP / OTel as a primary interoperability surface;
+2. add a bounded OCSF evidence adapter for security-runtime sources such as NVIDIA OpenShell;
+3. map assessment evidence to relevant public assurance controls without claiming certification;
+4. prioritize third-party workflow proof over broader internal feature count;
+5. continue commercial outreach outside events across agent platforms, workflow engines, runtime-security vendors, consultancies and assurance ecosystems.
+
+The detailed market review is in `docs/MARKET_INTELLIGENCE_2026-09-29.md`.
