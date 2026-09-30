@@ -1,12 +1,12 @@
 # Project Current State
 
-Date: 2026-09-26
+Date: 2026-09-30
 
 ## Status
 
 Agent Recovery Platform is a **commercial-product-first cybersecurity company/project**. Funding is a permanent parallel workstream, not the product goal.
 
-Engineering state reconciled through PR #202 / commit `e9106664...`.
+Engineering state accepted through PR #204 / commit `f986ac24...`. Draft PR #205 is the active implementation front.
 
 Latest accepted commercial signals:
 
@@ -18,7 +18,7 @@ Latest accepted product/security and funding movement:
 - PR #172 / commit `4e7f8758...` adds a buyer-readable owned-pilot evidence summary and fail-closed restart-continuity validation.
 - PRs #178 to #189 mature the buyer-facing Agent Recoverability Assessment into a delivery-grade evidence package with deterministic source identity, separate detection/recovery/replay dimensions, contradiction checks, buyer-readable output, bound delivery manifest, authority-free verification and trusted manifest pinning.
 - PRs #191 to #196 productize standard OTLP JSON as a real evidence handoff path. The platform can ingest canonical OTLP action spans, export provenance-bound recovery evidence artifacts, verify received artifacts fail closed, pin OTLP evidence to an out-of-band digest, and pin supplied assessment evidence to a trusted source identity.
-- PR #202 adds a bounded OCSF runtime-evidence adapter for security-runtime sources such as NVIDIA OpenShell. OCSF policy outcomes remain non-authorizing evidence, source identity is preserved, duplicate source events fail closed, and promotion into canonical recovery evidence requires explicit recovery identity.
+- PR #202 adds a bounded OCSF runtime-evidence adapter for security-runtime sources such as NVIDIA OpenShell. OCSF policy outcomes remain non-authorizing evidence, source identity is preserved, duplicate source events fail closed, and promotion into canonical recovery evidence requires explicit recovery identity.\n- PR #204 adds deterministic OCSF evidence export and receiver verification, including raw-event binding, fail-closed provenance checks and an optional out-of-band exact-artifact SHA-256 pin.\n- Draft PR #205 is implementing an exact one-to-one recovery-mapping manifest with independent source-evidence and mapping digests so runtime policy evidence can enter a pilot workflow without becoming authority.
 - PR #170 / commit `fffe3119...` makes funding a permanent parallel workstream, corrects the ECCC call identifiers to the 2027 call family, adds the live funding tracker and prepares the Warsaw matchmaking pack.
 - Issue #194 is a bounded research intake for Cloudflare Agents. Evaluate BORROW / ADAPT / REJECT and one small provider-free proof only if it can delete work or strengthen a real integration target. No migration or spend is authorized.
 
@@ -182,7 +182,7 @@ Autonomous actions include research, qualified outreach, partner search, branch/
 
 ## Immediate next actions
 
-1. Keep product engineering focused on external pilotability and buyer proof. The current assessment and OTLP evidence handoff are now strong enough to support real design-partner conversations without inflating evidence claims.
+1. Keep product engineering focused on external pilotability and buyer proof. The current assessment plus OTLP and OCSF evidence handoffs are now strong enough to support real design-partner conversations without inflating evidence claims.
 2. Shift commercial emphasis from event-led partner discovery toward continuous direct buyer validation. Kyvvu validated that the problem is understandable and complementary, but not that current partner customers are demanding it. Prioritize teams already operating write-capable agents and ask for one concrete workflow, failure mode and recovery gap.
 3. Keep Kyvvu warm as a reciprocal referral and future integration relationship. Do not count it as a formal partnership or pilot. A concise post-call follow-up was sent on 2026-09-30.
 4. TechEx outreach remains open, but Amsterdam travel is deferred unless new evidence creates a clear reason to go, such as multiple high-value meetings, a concrete pilot discussion or a strong partner invitation. Do not spend on travel merely for general networking.
