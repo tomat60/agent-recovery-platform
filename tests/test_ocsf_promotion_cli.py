@@ -164,3 +164,27 @@ def test_build_promotion_artifact_rejects_nondeterministic_manifest() -> None:
             {"openshell-event-42": mapping},
             source_evidence_artifact_sha256="2" * 64,
         )
+
+
+@pytest.mark.parametrize("digest", ["abc", "Z" * 64])
+def test_build_promotion_artifact_rejects_malformed_source_digest(
+    digest: str,
+) -> None:
+    with pytest.raises(ValueError, match="source_evidence_artifact_sha256"):
+        module.build_promotion_artifact(
+            normalize.build_evidence([_event()]),
+            {"openshell-event-42": _mapping()},
+            source_evidence_artifact_sha256=digest,
+        )
+
+
+def test_build_promotion_artifact_rejects_ambiguous_manifest_wrapper() -> None:
+    with pytest.raises(ValueError, match="may only contain recovery_mappings"):
+        module.build_promotion_artifact(
+            normalize.build_evidence([_event()]),
+            {
+                "recovery_mappings": {"openshell-event-42": _mapping()},
+                "unbound_context": {"approved": True},
+            },
+            source_evidence_artifact_sha256="3" * 64,
+        )
