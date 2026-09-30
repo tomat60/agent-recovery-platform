@@ -21,7 +21,8 @@ Latest accepted product/security and funding movement:
 - PR #202 adds a bounded OCSF runtime-evidence adapter for security-runtime sources such as NVIDIA OpenShell. OCSF policy outcomes remain non-authorizing evidence, source identity is preserved, duplicate source events fail closed, and promotion into canonical recovery evidence requires explicit recovery identity.
 - PR #204 adds deterministic OCSF evidence export and receiver verification, including raw-event binding, fail-closed provenance checks and an optional out-of-band exact-artifact SHA-256 pin.
 - PR #205 adds an exact one-to-one recovery-mapping manifest with independent source-evidence and mapping digests so runtime policy evidence can enter a pilot workflow without becoming authority.
-- PR #206 adds a deterministic CLI handoff from a verified, optionally out-of-band-pinned OCSF evidence artifact plus exact recovery mappings to a non-authorizing promotion artifact.\n- Draft PR #208 adds receiver-side fail-closed verification and optional exact-artifact pinning for that promotion handoff.
+- PR #206 adds a deterministic CLI handoff from a verified, optionally out-of-band-pinned OCSF evidence artifact plus exact recovery mappings to a non-authorizing promotion artifact.
+- Draft PR #208 adds receiver-side fail-closed verification and optional exact-artifact pinning for that promotion handoff.
 - PR #170 / commit `fffe3119...` makes funding a permanent parallel workstream, corrects the ECCC call identifiers to the 2027 call family, adds the live funding tracker and prepares the Warsaw matchmaking pack.
 - Issue #194 is a bounded research intake for Cloudflare Agents. Evaluate BORROW / ADAPT / REJECT and one small provider-free proof only if it can delete work or strengthen a real integration target. No migration or spend is authorized.
 
