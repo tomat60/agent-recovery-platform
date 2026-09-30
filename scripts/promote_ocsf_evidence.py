@@ -66,6 +66,12 @@ def build_promotion_artifact(
     mappings = _mapping_manifest(mapping_manifest)
     raw_events = [event["raw_event"] for event in verified["events"]]
     promotions = promote_ocsf_evidence_batch(raw_events, mappings)
+    promotion_payloads = json.loads(
+        json.dumps(
+            [promotion.payload() for promotion in promotions],
+            sort_keys=True,
+        )
+    )
     return {
         "schema_version": SCHEMA_VERSION,
         "authorization_effect": "none",
@@ -73,7 +79,7 @@ def build_promotion_artifact(
         "source_evidence_artifact_sha256": source_digest,
         "recovery_mapping_manifest_sha256": _canonical_digest(mappings),
         "promotion_count": len(promotions),
-        "promotions": [promotion.payload() for promotion in promotions],
+        "promotions": promotion_payloads,
     }
 
 
