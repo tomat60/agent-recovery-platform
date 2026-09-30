@@ -93,7 +93,7 @@ def _required_object(value: Any, label: str) -> dict[str, Any]:
 def _required_text(value: Any, label: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"{label} must be a non-empty string")
-    return value
+    return value.strip()
 
 
 def _verify_observation(
@@ -140,8 +140,13 @@ def _verify_observation(
         "contract_version",
         "agent_id",
     )
-    for field in required_mapping_fields:
-        _required_text(recovery_mapping.get(field), f"{label} recovery_mapping.{field}")
+    normalized_text = {
+        field: _required_text(
+            recovery_mapping.get(field),
+            f"{label} recovery_mapping.{field}",
+        )
+        for field in required_mapping_fields
+    }
     if not isinstance(recovery_mapping.get("params"), dict):
         raise ValueError(f"{label} recovery_mapping.params must be an object")
     resource_keys = recovery_mapping.get("resource_keys", [])
@@ -149,28 +154,42 @@ def _verify_observation(
         isinstance(resource_keys, (str, bytes, bytearray))
         or not isinstance(resource_keys, list)
         or any(not isinstance(key, str) or not key.strip() for key in resource_keys)
-        or len(set(resource_keys)) != len(resource_keys)
     ):
         raise ValueError(
             f"{label} recovery_mapping.resource_keys must be unique non-empty strings"
         )
+    normalized_resource_keys = [key.strip() for key in resource_keys]
+    if len(set(normalized_resource_keys)) != len(normalized_resource_keys):
+        raise ValueError(
+            f"{label} recovery_mapping.resource_keys must be unique non-empty strings"
+        )
 
-    for field in ("tool_id", "action_type", "contract_version", "agent_id", "params"):
-        if item[field] != recovery_mapping[field]:
+    for field in ("tool_id", "action_type", "contract_version", "agent_id"):
+        if item[field] != normalized_text[field]:
             raise ValueError(f"{label} {field} does not match recovery_mapping")
-    if item["resource_keys"] != sorted(resource_keys):
+    if item["params"] != recovery_mapping["params"]:
+        raise ValueError(f"{label} params does not match recovery_mapping")
+    if item["resource_keys"] != sorted(normalized_resource_keys):
         raise ValueError(f"{label} resource_keys do not match recovery_mapping")
     for field in ("trace_id", "span_id", "authority_scope"):
         expected = recovery_mapping.get(field)
         if expected is None:
             if field in item:
                 raise ValueError(f"{label} unexpected {field}")
-        elif item.get(field) != expected:
-            raise ValueError(f"{label} {field} does not match recovery_mapping")
-    if "observed_at" in recovery_mapping and (
-        item["observed_at"] != recovery_mapping["observed_at"]
-    ):
-        raise ValueError(f"{label} observed_at does not match recovery_mapping")
+        else:
+            normalized_expected = _required_text(
+                expected,
+                f"{label} recovery_mapping.{field}",
+            )
+            if item.get(field) != normalized_expected:
+                raise ValueError(f"{label} {field} does not match recovery_mapping")
+    if "observed_at" in recovery_mapping:
+        normalized_observed_at = _required_text(
+            recovery_mapping["observed_at"],
+            f"{label} recovery_mapping.observed_at",
+        )
+        if item["observed_at"] != normalized_observed_at:
+            raise ValueError(f"{label} observed_at does not match recovery_mapping")
 
     supplied_digest = _required_sha256(
         item["provenance_digest"],
