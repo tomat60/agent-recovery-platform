@@ -274,3 +274,24 @@ def test_receiver_rejects_manifest_identity_drift() -> None:
 
     with pytest.raises(ValueError, match="recovery_mapping_manifest_sha256 mismatch"):
         module.verify_promotion_artifact(artifact)
+
+
+def test_receiver_matches_producer_text_normalization() -> None:
+    mapping = _mapping()
+    for field in (
+        "incident_id",
+        "tool_id",
+        "action_type",
+        "contract_version",
+        "agent_id",
+        "authority_scope",
+    ):
+        mapping[field] = f"  {mapping[field]}  "
+    mapping["resource_keys"] = ["  crm:contact:c-1  "]
+    artifact = module.build_promotion_artifact(
+        normalize.build_evidence([_event()]),
+        {"openshell-event-42": mapping},
+        source_evidence_artifact_sha256="9" * 64,
+    )
+
+    assert module.verify_promotion_artifact(artifact) == artifact
