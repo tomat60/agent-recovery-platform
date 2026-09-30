@@ -22,6 +22,7 @@ class OCSFRecoveryPromotion:
     source_event_id: str
     source_provenance_digest: str
     recovery_mapping_digest: str
+    recovery_mapping: Mapping[str, Any]
     observation: ActionObservation
 
     def validate(self) -> None:
@@ -32,6 +33,8 @@ class OCSFRecoveryPromotion:
             raise IngestionError(
                 "OCSF promotion observation does not match source event identity"
             )
+        if not isinstance(self.recovery_mapping, Mapping):
+            raise IngestionError("OCSF promotion recovery_mapping must be a mapping")
         for name, value in (
             ("source_provenance_digest", self.source_provenance_digest),
             ("recovery_mapping_digest", self.recovery_mapping_digest),
@@ -42,6 +45,10 @@ class OCSFRecoveryPromotion:
                 or any(character not in "0123456789abcdef" for character in value)
             ):
                 raise IngestionError(f"OCSF promotion {name} must be lowercase SHA-256")
+        if recovery_mapping_digest(self.recovery_mapping) != (
+            self.recovery_mapping_digest
+        ):
+            raise IngestionError("OCSF promotion recovery_mapping_digest mismatch")
 
     def payload(self) -> dict[str, Any]:
         self.validate()
@@ -50,6 +57,7 @@ class OCSFRecoveryPromotion:
             "source_event_id": self.source_event_id,
             "source_provenance_digest": self.source_provenance_digest,
             "recovery_mapping_digest": self.recovery_mapping_digest,
+            "recovery_mapping": deepcopy(dict(self.recovery_mapping)),
             "observation": deepcopy(self.observation.payload()),
             "authorization_effect": "none",
         }
@@ -71,11 +79,13 @@ def _promotion(
     envelope: OCSFEvidenceEnvelope,
     mapping: Mapping[str, Any],
 ) -> OCSFRecoveryPromotion:
-    observation = promote_ocsf_action_observation(envelope, mapping)
+    mapping_snapshot = deepcopy(dict(mapping))
+    observation = promote_ocsf_action_observation(envelope, mapping_snapshot)
     promotion = OCSFRecoveryPromotion(
         source_event_id=envelope.event_uid,
         source_provenance_digest=envelope.provenance_digest(),
-        recovery_mapping_digest=recovery_mapping_digest(mapping),
+        recovery_mapping_digest=recovery_mapping_digest(mapping_snapshot),
+        recovery_mapping=mapping_snapshot,
         observation=observation,
     )
     promotion.validate()
