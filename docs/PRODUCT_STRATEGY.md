@@ -232,3 +232,52 @@ Product priorities from this market review:
 5. continue commercial outreach outside events across agent platforms, workflow engines, runtime-security vendors, consultancies and assurance ecosystems.
 
 The detailed market review is in `docs/MARKET_INTELLIGENCE_2026-09-29.md`.
+
+
+## 2026-09-30 GTM decision after Kyvvu discovery
+
+The Kyvvu founder conversation produced useful but limited validation.
+
+Signal:
+- the verified-recovery problem was understood and considered sensible;
+- the pre-action authorization and post-action recovery boundary was credible;
+- Kyvvu does not currently see customers actively asking for this recovery capability;
+- the immediate relationship is a soft reciprocal referral possibility, not a formal partnership or active sales channel.
+
+Decision:
+
+Do not rely on adjacent security vendors to create demand for us.
+
+Use partner relationships as leverage, but move the primary validation effort closer to the end user.
+
+The main commercial question is now:
+
+Which teams already run write-capable agents across consequential systems and have experienced, simulated or explicitly worried about bad side effects that retries, rollback or policy controls do not fully repair?
+
+Direct buyer discovery should prioritize workflows with:
+- multiple external systems;
+- irreversible or compensatable actions;
+- customer-facing consequences;
+- money, permissions, messages, tickets, deployments or CRM state;
+- a clear operator who owns reliability or incident response.
+
+The first ask should not be "do you want an agent recovery platform?"
+
+Ask for one real workflow and test:
+1. what can the agent change;
+2. what can go wrong even when the action was allowed;
+3. what can be reversed;
+4. what needs compensation;
+5. what cannot be undone;
+6. how the team currently proves restoration;
+7. whether a Recoverability Assessment would be useful.
+
+Commercial motion now runs in parallel:
+
+1. direct end-user validation;
+2. platform and runtime integrations;
+3. consultancy, MSSP and AppSec channel;
+4. assurance and certification ecosystems;
+5. event meetings only when they create concrete pipeline.
+
+Travel and event spend remain evidence-gated. Do not attend TechEx merely for generic networking. Reconsider Amsterdam only if the pipeline develops multiple high-value meetings, a concrete pilot conversation or a strong partner invitation.
