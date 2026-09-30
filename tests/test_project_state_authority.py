@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 PROJECT_STATE = (
     Path(__file__).resolve().parents[1] / "docs" / "PROJECT_CURRENT_STATE.md"
 )
