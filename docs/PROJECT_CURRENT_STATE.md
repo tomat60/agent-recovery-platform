@@ -6,7 +6,7 @@ Date: 2026-09-30
 
 Agent Recovery Platform is a **commercial-product-first cybersecurity company/project**. Funding is a permanent parallel workstream, not the product goal.
 
-Engineering state accepted through PR #204 / commit `f986ac24...`. Draft PR #205 is the active implementation front.
+Engineering state accepted through PR #205 / commit `86148eb2...`. Draft PR #206 is the active implementation front.
 
 Latest accepted commercial signals:
 
