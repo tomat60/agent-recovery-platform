@@ -66,12 +66,16 @@ class OCSFRecoveryPromotion:
 def recovery_mapping_digest(mapping: Mapping[str, Any]) -> str:
     if not isinstance(mapping, Mapping):
         raise IngestionError("OCSF recovery mapping must be a mapping")
-    canonical = dumps(
-        dict(mapping),
-        sort_keys=True,
-        separators=(",", ":"),
-        default=str,
-    )
+    try:
+        canonical = dumps(
+            dict(mapping),
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+    except (TypeError, ValueError) as error:
+        raise IngestionError(
+            "OCSF recovery mapping must be deterministic JSON data"
+        ) from error
     return sha256(canonical.encode("utf-8")).hexdigest()
 
 
