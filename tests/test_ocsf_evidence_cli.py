@@ -118,7 +118,7 @@ def test_verify_evidence_rejects_raw_event_tampering() -> None:
         "billing.example.test"
     )
 
-    with pytest.raises(ValueError, match="normalized payload does not match raw_event"):
+    with pytest.raises(ValueError, match="provenance_digest mismatch"):
         module.verify_evidence(evidence)
 
 
