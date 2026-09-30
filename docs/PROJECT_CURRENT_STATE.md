@@ -6,7 +6,7 @@ Date: 2026-09-30
 
 Agent Recovery Platform is a **commercial-product-first cybersecurity company/project**. Funding is a permanent parallel workstream, not the product goal.
 
-Engineering state accepted through PR #205 / commit `86148eb2...`. Draft PR #206 is the active implementation front.
+Engineering state accepted through PR #206 / commit `a5b62c69...`. There is no active implementation PR.
 
 Latest accepted commercial signals:
 
@@ -18,7 +18,10 @@ Latest accepted product/security and funding movement:
 - PR #172 / commit `4e7f8758...` adds a buyer-readable owned-pilot evidence summary and fail-closed restart-continuity validation.
 - PRs #178 to #189 mature the buyer-facing Agent Recoverability Assessment into a delivery-grade evidence package with deterministic source identity, separate detection/recovery/replay dimensions, contradiction checks, buyer-readable output, bound delivery manifest, authority-free verification and trusted manifest pinning.
 - PRs #191 to #196 productize standard OTLP JSON as a real evidence handoff path. The platform can ingest canonical OTLP action spans, export provenance-bound recovery evidence artifacts, verify received artifacts fail closed, pin OTLP evidence to an out-of-band digest, and pin supplied assessment evidence to a trusted source identity.
-- PR #202 adds a bounded OCSF runtime-evidence adapter for security-runtime sources such as NVIDIA OpenShell. OCSF policy outcomes remain non-authorizing evidence, source identity is preserved, duplicate source events fail closed, and promotion into canonical recovery evidence requires explicit recovery identity.\n- PR #204 adds deterministic OCSF evidence export and receiver verification, including raw-event binding, fail-closed provenance checks and an optional out-of-band exact-artifact SHA-256 pin.\n- Draft PR #205 is implementing an exact one-to-one recovery-mapping manifest with independent source-evidence and mapping digests so runtime policy evidence can enter a pilot workflow without becoming authority.
+- PR #202 adds a bounded OCSF runtime-evidence adapter for security-runtime sources such as NVIDIA OpenShell. OCSF policy outcomes remain non-authorizing evidence, source identity is preserved, duplicate source events fail closed, and promotion into canonical recovery evidence requires explicit recovery identity.
+- PR #204 adds deterministic OCSF evidence export and receiver verification, including raw-event binding, fail-closed provenance checks and an optional out-of-band exact-artifact SHA-256 pin.
+- PR #205 adds an exact one-to-one recovery-mapping manifest with independent source-evidence and mapping digests so runtime policy evidence can enter a pilot workflow without becoming authority.
+- PR #206 adds a deterministic CLI handoff from a verified, optionally out-of-band-pinned OCSF evidence artifact plus exact recovery mappings to a non-authorizing promotion artifact.
 - PR #170 / commit `fffe3119...` makes funding a permanent parallel workstream, corrects the ECCC call identifiers to the 2027 call family, adds the live funding tracker and prepares the Warsaw matchmaking pack.
 - Issue #194 is a bounded research intake for Cloudflare Agents. Evaluate BORROW / ADAPT / REJECT and one small provider-free proof only if it can delete work or strengthen a real integration target. No migration or spend is authorized.
 
