@@ -166,6 +166,29 @@ python scripts/normalize_otlp_trace_export.py --verify-only otlp-evidence.json \
 
 The pin fails closed if the delivered file changed. Without a pin, verification proves internal artifact consistency only. Neither mode proves capture completeness or grants execution, recovery or restoration authority.
 
+### OCSF runtime evidence
+
+Normalize an OCSF JSON event array, or an object containing an `events` array, into deterministic, non-authorizing runtime evidence:
+
+```bash
+python scripts/normalize_ocsf_evidence.py ocsf-events.json ocsf-evidence.json
+```
+
+A recipient can independently verify the OCSF source identities, normalized fields, raw-event binding, event count, non-authorizing status and every provenance digest:
+
+```bash
+python scripts/normalize_ocsf_evidence.py --verify-only ocsf-evidence.json
+```
+
+For a trusted handoff, pin the exact artifact digest obtained through an independent channel:
+
+```bash
+python scripts/normalize_ocsf_evidence.py --verify-only ocsf-evidence.json \
+  --expected-artifact-sha256 <trusted-64-character-sha256>
+```
+
+The pin fails closed if the delivered file changed. OCSF policy outcomes remain evidence only: Allowed, Blocked or any other disposition never grants execution, recovery or restoration authority. Verification does not prove capture completeness or authenticate the source without a separate trusted transport or issuer boundary.
+
 ### Assessment source and package verification
 
 Generate an assessment from supplied owned-pilot evidence while binding it to a canonical evidence identity obtained through an independent channel:
