@@ -24,10 +24,27 @@ def _canonical_digest(payload: Any) -> str:
     return sha256(canonical.encode("utf-8")).hexdigest()
 
 
+def _required_sha256(value: Any, label: str) -> str:
+    if (
+        not isinstance(value, str)
+        or len(value) != 64
+        or any(character not in "0123456789abcdef" for character in value)
+    ):
+        raise ValueError(f"{label} must be lowercase SHA-256")
+    return value
+
+
 def _mapping_manifest(payload: Any) -> dict[str, dict[str, Any]]:
     if not isinstance(payload, dict):
         raise ValueError("recovery mapping manifest must be an object")
-    mappings = payload.get("recovery_mappings", payload)
+    if "recovery_mappings" in payload:
+        if set(payload) != {"recovery_mappings"}:
+            raise ValueError(
+                "wrapped recovery mapping manifest may only contain recovery_mappings"
+            )
+        mappings = payload["recovery_mappings"]
+    else:
+        mappings = payload
     if not isinstance(mappings, dict):
         raise ValueError("recovery_mappings must be an object")
     return mappings
@@ -42,6 +59,10 @@ def build_promotion_artifact(
     """Bind verified OCSF evidence to explicit recovery identity without authority."""
 
     verified = verify_evidence(evidence)
+    source_digest = _required_sha256(
+        source_evidence_artifact_sha256,
+        "source_evidence_artifact_sha256",
+    )
     mappings = _mapping_manifest(mapping_manifest)
     raw_events = [event["raw_event"] for event in verified["events"]]
     promotions = promote_ocsf_evidence_batch(raw_events, mappings)
@@ -49,7 +70,7 @@ def build_promotion_artifact(
         "schema_version": SCHEMA_VERSION,
         "authorization_effect": "none",
         "source_evidence_schema_version": verified["schema_version"],
-        "source_evidence_artifact_sha256": source_evidence_artifact_sha256,
+        "source_evidence_artifact_sha256": source_digest,
         "recovery_mapping_manifest_sha256": _canonical_digest(mappings),
         "promotion_count": len(promotions),
         "promotions": [promotion.payload() for promotion in promotions],
