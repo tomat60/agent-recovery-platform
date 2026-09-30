@@ -122,3 +122,18 @@ def test_batch_promotion_rejects_ambiguous_mapping_value() -> None:
             [_event("event-1")],
             {"event-1": "not-a-mapping"},  # type: ignore[dict-item]
         )
+
+
+def test_promotion_detaches_and_revalidates_nested_mapping_state() -> None:
+    mapping = _mapping("inc-1", "c-1")
+    promotion = promote_ocsf_evidence_batch(
+        [_event("event-1")],
+        {"event-1": mapping},
+    )[0]
+
+    mapping["params"]["contact_id"] = "external-mutation"
+    assert promotion.payload()["observation"]["params"]["contact_id"] == "c-1"
+
+    promotion.observation.params["contact_id"] = "internal-mutation"
+    with pytest.raises(IngestionError, match="recovery_mapping_digest mismatch"):
+        promotion.payload()
