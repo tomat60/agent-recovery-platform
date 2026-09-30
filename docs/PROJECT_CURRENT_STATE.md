@@ -6,18 +6,19 @@ Date: 2026-09-26
 
 Agent Recovery Platform is a **commercial-product-first cybersecurity company/project**. Funding is a permanent parallel workstream, not the product goal.
 
-Engineering state reconciled through PR #196 / commit `a24c1cac...`.
+Engineering state reconciled through PR #202 / commit `e9106664...`.
 
 Latest accepted commercial signals:
 
 - PR #167 / commit `2f48091e...` records the first meaningful n8n routing signal: the Recoverability Assessment was understood correctly and routed to a named human contact for continuation. This is qualification/routing evidence, not yet a pilot or buyer commitment.
-- Kyvvu co-founder & CEO Jeroen Ghijsen responded positively to the targeted outreach and explicitly proposed meeting at TechEx Europe 2026. After a follow-up, he proposed a short regular phone call for 2026-09-30 at 11:30 before the Amsterdam meeting. This is a real partner-discovery signal, not yet a design-partner, integration or commercial commitment.
+- Kyvvu co-founder & CEO Jeroen Ghijsen completed a short discovery call with Paweł on 2026-09-30. He found the recovery problem sensible and the products potentially complementary, but said Kyvvu does not currently have customers asking for this recovery capability. He offered a soft reciprocal referral path: Kyvvu may refer a future recovery need, and Agent Recovery may refer customers needing pre-action controls. This is useful partner validation, but it is not a formal partnership, pilot, customer signal or current distribution channel.
 
 Latest accepted product/security and funding movement:
 
 - PR #172 / commit `4e7f8758...` adds a buyer-readable owned-pilot evidence summary and fail-closed restart-continuity validation.
 - PRs #178 to #189 mature the buyer-facing Agent Recoverability Assessment into a delivery-grade evidence package with deterministic source identity, separate detection/recovery/replay dimensions, contradiction checks, buyer-readable output, bound delivery manifest, authority-free verification and trusted manifest pinning.
 - PRs #191 to #196 productize standard OTLP JSON as a real evidence handoff path. The platform can ingest canonical OTLP action spans, export provenance-bound recovery evidence artifacts, verify received artifacts fail closed, pin OTLP evidence to an out-of-band digest, and pin supplied assessment evidence to a trusted source identity.
+- PR #202 adds a bounded OCSF runtime-evidence adapter for security-runtime sources such as NVIDIA OpenShell. OCSF policy outcomes remain non-authorizing evidence, source identity is preserved, duplicate source events fail closed, and promotion into canonical recovery evidence requires explicit recovery identity.
 - PR #170 / commit `fffe3119...` makes funding a permanent parallel workstream, corrects the ECCC call identifiers to the 2027 call family, adds the live funding tracker and prepares the Warsaw matchmaking pack.
 - Issue #194 is a bounded research intake for Cloudflare Agents. Evaluate BORROW / ADAPT / REJECT and one small provider-free proof only if it can delete work or strengthen a real integration target. No migration or spend is authorized.
 
@@ -182,10 +183,10 @@ Autonomous actions include research, qualified outreach, partner search, branch/
 ## Immediate next actions
 
 1. Keep product engineering focused on external pilotability and buyer proof. The current assessment and OTLP evidence handoff are now strong enough to support real design-partner conversations without inflating evidence claims.
-2. Convert Kyvvu, n8n and TechEx outreach into concrete meetings, design-partner discussions or bounded integration tests. n8n received a concise follow-up on 2026-09-29 reflecting the newer OTLP and trusted-evidence path.
-3. Kyvvu phone call remains scheduled for 2026-09-30 at 11:30. Keep it conversational and qualification-first, then use Amsterdam for the deeper integration scenario.
-4. First-wave TechEx outreach is out to Lumina Studio Marketing, RisingPoint.io, Tines and Parloa. Follow-ups were sent on 2026-09-29. The Agentics also received a follow-up on 2026-09-29. Second-wave outreach is out to Veeam, Datadog and EverWorker. Veeam created ticket VR-3844, which is a routing acknowledgement only, not yet a human commercial signal.
-5. Follow up on silent TechEx targets only after a reasonable interval. Do not increase outreach volume merely to create activity.
+2. Shift commercial emphasis from event-led partner discovery toward continuous direct buyer validation. Kyvvu validated that the problem is understandable and complementary, but not that current partner customers are demanding it. Prioritize teams already operating write-capable agents and ask for one concrete workflow, failure mode and recovery gap.
+3. Keep Kyvvu warm as a reciprocal referral and future integration relationship. Do not count it as a formal partnership or pilot. A concise post-call follow-up was sent on 2026-09-30.
+4. TechEx outreach remains open, but Amsterdam travel is deferred unless new evidence creates a clear reason to go, such as multiple high-value meetings, a concrete pilot discussion or a strong partner invitation. Do not spend on travel merely for general networking.
+5. Continue low-volume event follow-up where fit is strong, but expand the main pipeline beyond events. Target direct buyers, agent platforms, workflow vendors, AI consultancies, runtime-security vendors and assurance ecosystems.
 6. Continue ECCC AI4SME consortium search through direct channels now that the Warsaw workshop is closed.
 7. Evaluate Cloudflare Agents only where it can remove infrastructure work or become a realistic recovery integration target. Do not let research displace commercial execution.
 8. Maintain strict evidence class separation and fail-closed delivery verification. Synthetic, owned-pilot, external-pilot and production evidence remain distinct.
