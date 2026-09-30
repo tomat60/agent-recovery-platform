@@ -137,3 +137,11 @@ def test_promotion_detaches_and_revalidates_nested_mapping_state() -> None:
     promotion.observation.params["contact_id"] = "internal-mutation"
     with pytest.raises(IngestionError, match="recovery_mapping_digest mismatch"):
         promotion.payload()
+
+
+def test_batch_promotion_rejects_nondeterministic_mapping_data() -> None:
+    mapping = _mapping("inc-1", "c-1")
+    mapping["params"] = {"contact_id": object()}
+
+    with pytest.raises(IngestionError, match="deterministic JSON data"):
+        promote_ocsf_evidence_batch([_event("event-1")], {"event-1": mapping})
