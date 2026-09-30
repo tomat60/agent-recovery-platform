@@ -188,3 +188,110 @@ def test_build_promotion_artifact_rejects_ambiguous_manifest_wrapper() -> None:
             },
             source_evidence_artifact_sha256="3" * 64,
         )
+
+
+def _write_promotion_artifact(tmp_path: Path) -> tuple[Path, dict[str, object]]:
+    evidence_path, mappings_path = _write_inputs(tmp_path)
+    output_path = tmp_path / "promotions.json"
+    artifact = module.reproduce(evidence_path, mappings_path, output_path)
+    return output_path, artifact
+
+
+def test_receiver_verifies_exact_promotion_artifact(tmp_path: Path) -> None:
+    output_path, artifact = _write_promotion_artifact(tmp_path)
+    artifact_digest = sha256(output_path.read_bytes()).hexdigest()
+
+    assert module.verify_promotion_artifact_file(
+        output_path,
+        expected_artifact_sha256=artifact_digest.upper(),
+    ) == artifact
+
+
+def test_receiver_rejects_changed_promotion_file_against_trusted_digest(
+    tmp_path: Path,
+) -> None:
+    output_path, _ = _write_promotion_artifact(tmp_path)
+    artifact_digest = sha256(output_path.read_bytes()).hexdigest()
+    output_path.write_text(
+        output_path.read_text(encoding="utf-8") + " ",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="OCSF promotion artifact digest mismatch"):
+        module.verify_promotion_artifact_file(
+            output_path,
+            expected_artifact_sha256=artifact_digest,
+        )
+
+
+def test_receiver_rejects_observation_tampering() -> None:
+    evidence = normalize.build_evidence([_event()])
+    artifact = module.build_promotion_artifact(
+        evidence,
+        {"openshell-event-42": _mapping()},
+        source_evidence_artifact_sha256="4" * 64,
+    )
+    artifact["promotions"][0]["observation"]["params"]["status"] = "tampered"
+
+    with pytest.raises(ValueError, match="params does not match recovery_mapping"):
+        module.verify_promotion_artifact(artifact)
+
+
+def test_receiver_rejects_recovery_mapping_tampering() -> None:
+    evidence = normalize.build_evidence([_event()])
+    artifact = module.build_promotion_artifact(
+        evidence,
+        {"openshell-event-42": _mapping()},
+        source_evidence_artifact_sha256="5" * 64,
+    )
+    artifact["promotions"][0]["recovery_mapping"]["params"]["status"] = "tampered"
+
+    with pytest.raises(ValueError, match="recovery_mapping_digest mismatch"):
+        module.verify_promotion_artifact(artifact)
+
+
+def test_receiver_rejects_authorization_claim() -> None:
+    evidence = normalize.build_evidence([_event()])
+    artifact = module.build_promotion_artifact(
+        evidence,
+        {"openshell-event-42": _mapping()},
+        source_evidence_artifact_sha256="6" * 64,
+    )
+    artifact["promotions"][0]["authorization_effect"] = "restore"
+
+    with pytest.raises(ValueError, match="authorization_effect must be none"):
+        module.verify_promotion_artifact(artifact)
+
+
+def test_receiver_rejects_manifest_identity_drift() -> None:
+    evidence = normalize.build_evidence([_event()])
+    artifact = module.build_promotion_artifact(
+        evidence,
+        {"openshell-event-42": _mapping()},
+        source_evidence_artifact_sha256="7" * 64,
+    )
+    artifact["recovery_mapping_manifest_sha256"] = "8" * 64
+
+    with pytest.raises(ValueError, match="recovery_mapping_manifest_sha256 mismatch"):
+        module.verify_promotion_artifact(artifact)
+
+
+def test_receiver_matches_producer_text_normalization() -> None:
+    mapping = _mapping()
+    for field in (
+        "incident_id",
+        "tool_id",
+        "action_type",
+        "contract_version",
+        "agent_id",
+        "authority_scope",
+    ):
+        mapping[field] = f"  {mapping[field]}  "
+    mapping["resource_keys"] = ["  crm:contact:c-1  "]
+    artifact = module.build_promotion_artifact(
+        normalize.build_evidence([_event()]),
+        {"openshell-event-42": mapping},
+        source_evidence_artifact_sha256="9" * 64,
+    )
+
+    assert module.verify_promotion_artifact(artifact) == artifact

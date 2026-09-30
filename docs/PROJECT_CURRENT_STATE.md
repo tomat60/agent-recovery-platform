@@ -6,7 +6,7 @@ Date: 2026-09-30
 
 Agent Recovery Platform is a **commercial-product-first cybersecurity company/project**. Funding is a permanent parallel workstream, not the product goal.
 
-Engineering state accepted through PR #206 / commit `a5b62c69...`. There is no active implementation PR.
+Engineering state accepted through PR #207 / commit `1096d5b4...`. Draft PR #208 is the active implementation front.
 
 Latest accepted commercial signals:
 
@@ -22,6 +22,7 @@ Latest accepted product/security and funding movement:
 - PR #204 adds deterministic OCSF evidence export and receiver verification, including raw-event binding, fail-closed provenance checks and an optional out-of-band exact-artifact SHA-256 pin.
 - PR #205 adds an exact one-to-one recovery-mapping manifest with independent source-evidence and mapping digests so runtime policy evidence can enter a pilot workflow without becoming authority.
 - PR #206 adds a deterministic CLI handoff from a verified, optionally out-of-band-pinned OCSF evidence artifact plus exact recovery mappings to a non-authorizing promotion artifact.
+- Draft PR #208 adds receiver-side fail-closed verification and optional exact-artifact pinning for that promotion handoff.
 - PR #170 / commit `fffe3119...` makes funding a permanent parallel workstream, corrects the ECCC call identifiers to the 2027 call family, adds the live funding tracker and prepares the Warsaw matchmaking pack.
 - Issue #194 is a bounded research intake for Cloudflare Agents. Evaluate BORROW / ADAPT / REJECT and one small provider-free proof only if it can delete work or strengthen a real integration target. No migration or spend is authorized.
 
