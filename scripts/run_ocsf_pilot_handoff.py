@@ -60,12 +60,16 @@ def run_handoff(
         )
 
         output_directory.mkdir()
-        for filename in (
-            EVIDENCE_FILENAME,
-            PROMOTIONS_FILENAME,
-            MANIFEST_FILENAME,
-        ):
-            shutil.move(str(staging / filename), output_directory / filename)
+        try:
+            for filename in (
+                EVIDENCE_FILENAME,
+                PROMOTIONS_FILENAME,
+                MANIFEST_FILENAME,
+            ):
+                shutil.move(str(staging / filename), output_directory / filename)
+        except Exception:
+            shutil.rmtree(output_directory, ignore_errors=True)
+            raise
 
     return {
         "ok": True,
