@@ -207,6 +207,14 @@ python scripts/package_ocsf_pilot_handoff.py ocsf-evidence.json ocsf-promotions.
 
 The handoff remains non-authorizing. It proves package integrity and the declared evidence-to-promotion relationship, not source authenticity or capture completeness.
 
+For a repeatable owned pilot, build and self-verify the entire delivery from raw OCSF events plus exact recovery mappings in one command:
+
+```bash
+python scripts/run_ocsf_pilot_handoff.py ocsf-events.json recovery-mappings.json ocsf-pilot-handoff/
+```
+
+The command refuses to overwrite an existing delivery directory, stages all artifacts before publication, pins its own exact manifest during self-verification and leaves the independent receiver command above as the acceptance boundary.
+
 ### Assessment source and package verification
 
 Generate an assessment from supplied owned-pilot evidence while binding it to a canonical evidence identity obtained through an independent channel:
