@@ -7,6 +7,8 @@ from pathlib import Path
 
 import pytest
 
+from agent_recovery.ingestion import IngestionError
+
 SCRIPT_DIR = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPT_DIR))
 
@@ -101,7 +103,7 @@ def test_run_fails_without_partial_output_when_mapping_is_missing(
     )
     output = tmp_path / "handoff"
 
-    with pytest.raises(Exception, match="missing OCSF recovery mappings"):
+    with pytest.raises(IngestionError, match="missing OCSF recovery mappings"):
         runner.run_handoff(events_path, mappings_path, output)
 
     assert not output.exists()
