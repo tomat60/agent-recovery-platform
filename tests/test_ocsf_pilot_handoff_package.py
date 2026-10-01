@@ -106,7 +106,7 @@ def test_package_and_verify_exact_handoff_with_manifest_pin(tmp_path: Path) -> N
 
 
 def test_package_rejects_promotion_bound_to_different_evidence(tmp_path: Path) -> None:
-    evidence_path, promotion_path = _write_handoff_inputs(tmp_path)
+    _, promotion_path = _write_handoff_inputs(tmp_path)
     changed_evidence_path = tmp_path / "other-evidence.json"
     changed_evidence_path.write_text(
         json.dumps(normalize.build_evidence([_event("openshell-event-99")])),
