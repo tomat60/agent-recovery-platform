@@ -24,7 +24,8 @@ Latest accepted product/security and funding movement:
 - PR #206 adds a deterministic CLI handoff from a verified, optionally out-of-band-pinned OCSF evidence artifact plus exact recovery mappings to a non-authorizing promotion artifact.
 - PR #208 adds receiver-side fail-closed verification and optional exact-artifact pinning for that promotion handoff.
 - PR #209 packages the exact OCSF evidence and promotion artifacts behind one fail-closed delivery manifest with optional out-of-band manifest pinning.
-- PR #210 reduces pilot setup to one deterministic command that stages, packages and self-verifies the complete OCSF handoff without overwriting prior evidence.\n- Draft PR #211 makes handoff publication fail closed if a filesystem move fails, removing any partial delivery directory.
+- PR #210 reduces pilot setup to one deterministic command that stages, packages and self-verifies the complete OCSF handoff without overwriting prior evidence.
+- Draft PR #211 makes handoff publication fail closed if a filesystem move fails, removing any partial delivery directory.
 - PR #170 / commit `fffe3119...` makes funding a permanent parallel workstream, corrects the ECCC call identifiers to the 2027 call family, adds the live funding tracker and prepares the Warsaw matchmaking pack.
 - Issue #194 is a bounded research intake for Cloudflare Agents. Evaluate BORROW / ADAPT / REJECT and one small provider-free proof only if it can delete work or strengthen a real integration target. No migration or spend is authorized.
 
