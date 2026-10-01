@@ -73,9 +73,31 @@ def test_verify_delivery_accepts_exact_pinned_directory(tmp_path: Path) -> None:
     result = verifier.verify_delivery(output, handoff["manifest_sha256"])
 
     assert result["ok"] is True
+    assert result["schema_version"] == verifier.VERIFICATION_SCHEMA_VERSION
     assert result["authorization_effect"] == "none"
     assert result["manifest_pin_verified"] is True
     assert result["verified_delivery_files"] == sorted(verifier.EXPECTED_FILENAMES)
+
+
+def test_verification_receipt_is_exact_external_and_non_overwriting(
+    tmp_path: Path,
+) -> None:
+    output, handoff = _delivery(tmp_path)
+    result = verifier.verify_delivery(output, handoff["manifest_sha256"])
+    receipt = tmp_path / "receiver-evidence" / "verification-receipt.json"
+
+    verifier.write_verification_receipt(result, receipt, output)
+
+    assert json.loads(receipt.read_text(encoding="utf-8")) == result
+    assert receipt.read_text(encoding="utf-8").endswith("\n")
+    with pytest.raises(FileExistsError, match="refusing to overwrite"):
+        verifier.write_verification_receipt(result, receipt, output)
+    with pytest.raises(ValueError, match="outside the verified delivery"):
+        verifier.write_verification_receipt(
+            result,
+            output / "verification-receipt.json",
+            output,
+        )
 
 
 def test_verify_delivery_rejects_missing_artifact(tmp_path: Path) -> None:
@@ -106,11 +128,18 @@ def test_verify_delivery_rejects_expected_name_that_is_not_a_file(
         verifier.verify_delivery(output)
 
 
-def test_verify_delivery_rejects_wrong_pin_and_non_directory(tmp_path: Path) -> None:
+def test_verify_delivery_rejects_wrong_pin_file_and_symlinked_directory(
+    tmp_path: Path,
+) -> None:
     output, _ = _delivery(tmp_path)
 
     with pytest.raises(ValueError, match="manifest digest mismatch"):
         verifier.verify_delivery(output, "0" * 64)
 
-    with pytest.raises(NotADirectoryError, match="must be a directory"):
+    with pytest.raises(NotADirectoryError, match="real directory"):
         verifier.verify_delivery(output / verifier.EVIDENCE_FILENAME)
+
+    linked_output = tmp_path / "linked-handoff"
+    linked_output.symlink_to(output, target_is_directory=True)
+    with pytest.raises(NotADirectoryError, match="not a symlink"):
+        verifier.verify_delivery(linked_output)
