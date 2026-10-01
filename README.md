@@ -219,8 +219,11 @@ A receiver can also fail closed on the exact directory contents before verifying
 
 ```bash
 python scripts/verify_ocsf_pilot_delivery.py ocsf-pilot-handoff/ \\
-  --expected-manifest-sha256 <trusted-manifest-sha256>
+  --expected-manifest-sha256 <trusted-manifest-sha256> \\
+  --receipt-output receiver-evidence/ocsf-delivery-verification.json
 ```
+
+The receipt uses a versioned schema, remains non-authorizing, is written outside the delivery directory and is never allowed to overwrite prior receiver evidence.
 
 ### Assessment source and package verification
 
