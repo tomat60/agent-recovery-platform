@@ -215,6 +215,13 @@ python scripts/run_ocsf_pilot_handoff.py ocsf-events.json recovery-mappings.json
 
 The command refuses to overwrite an existing delivery directory, stages all artifacts before publication, pins its own exact manifest during self-verification and leaves the independent receiver command above as the acceptance boundary.
 
+A receiver can also fail closed on the exact directory contents before verifying the bound artifacts. This rejects missing files, extra entries, nested directories and symlinks:
+
+```bash
+python scripts/verify_ocsf_pilot_delivery.py ocsf-pilot-handoff/ \\
+  --expected-manifest-sha256 <trusted-manifest-sha256>
+```
+
 ### Assessment source and package verification
 
 Generate an assessment from supplied owned-pilot evidence while binding it to a canonical evidence identity obtained through an independent channel:
