@@ -6,7 +6,7 @@ Date: 2026-10-01
 
 Agent Recovery Platform is a **commercial-product-first cybersecurity company/project**. Funding is a permanent parallel workstream, not the product goal.
 
-Engineering state accepted through PR #213 / commit `68b7c7ba...`. No implementation PR is active; fresh roadmap and issues govern the next bounded slice.
+Engineering state accepted through PR #215 / commit `c915bf0e...`. No implementation PR is active; fresh roadmap and issues govern the next bounded slice.
 
 Latest accepted commercial signals:
 
@@ -27,6 +27,7 @@ Latest accepted product/security and funding movement:
 - PR #210 reduces pilot setup to one deterministic command that stages, packages and self-verifies the complete OCSF handoff without overwriting prior evidence.
 - PR #211 makes handoff publication fail closed if a filesystem move fails, removing any partial delivery directory.
 - PR #213 adds a one-command receiver gate that requires exactly the three expected regular files before verifying their schemas, digests and evidence-to-promotion binding; missing, unexpected, nested and symlinked entries fail closed.
+- PR #215 adds versioned, deterministic receiver verification receipts that are stored outside the verified delivery, refuse overwrite and remain explicitly non-authorizing; pilot recipients can now retain exact acceptance evidence instead of transient terminal output.
 - PR #170 / commit `fffe3119...` makes funding a permanent parallel workstream, corrects the ECCC call identifiers to the 2027 call family, adds the live funding tracker and prepares the Warsaw matchmaking pack.
 - Issue #194 is a bounded research intake for Cloudflare Agents. Evaluate BORROW / ADAPT / REJECT and one small provider-free proof only if it can delete work or strengthen a real integration target. No migration or spend is authorized.
 
