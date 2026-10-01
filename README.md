@@ -189,6 +189,24 @@ python scripts/normalize_ocsf_evidence.py --verify-only ocsf-evidence.json \
 
 The pin fails closed if the delivered file changed. OCSF policy outcomes remain evidence only: Allowed, Blocked or any other disposition never grants execution, recovery or restoration authority. Verification does not prove capture completeness or authenticate the source without a separate trusted transport or issuer boundary.
 
+Promote verified evidence through an exact recovery-mapping manifest, then bind the exact evidence and promotion files into one pilot handoff manifest:
+
+```bash
+python scripts/promote_ocsf_evidence.py ocsf-evidence.json recovery-mappings.json ocsf-promotions.json \
+  --expected-evidence-artifact-sha256 <trusted-evidence-sha256>
+python scripts/package_ocsf_pilot_handoff.py ocsf-evidence.json ocsf-promotions.json ocsf-handoff.manifest.json
+```
+
+A recipient can verify both delivered artifacts, their byte identities and their source-evidence binding. An independently obtained manifest digest pins the entire handoff:
+
+```bash
+python scripts/package_ocsf_pilot_handoff.py ocsf-evidence.json ocsf-promotions.json ocsf-handoff.manifest.json \
+  --verify-only \
+  --expected-manifest-sha256 <trusted-manifest-sha256>
+```
+
+The handoff remains non-authorizing. It proves package integrity and the declared evidence-to-promotion relationship, not source authenticity or capture completeness.
+
 ### Assessment source and package verification
 
 Generate an assessment from supplied owned-pilot evidence while binding it to a canonical evidence identity obtained through an independent channel:
