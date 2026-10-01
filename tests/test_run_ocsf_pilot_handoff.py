@@ -109,6 +109,30 @@ def test_run_fails_without_partial_output_when_mapping_is_missing(
     assert not output.exists()
 
 
+def test_run_removes_partial_delivery_when_publication_fails(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    events_path, mappings_path = _write_inputs(tmp_path)
+    output = tmp_path / "handoff"
+    move = runner.shutil.move
+    calls = 0
+
+    def fail_second_move(source: str, destination: Path) -> None:
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            raise OSError("synthetic publication failure")
+        move(source, destination)
+
+    monkeypatch.setattr(runner.shutil, "move", fail_second_move)
+
+    with pytest.raises(OSError, match="synthetic publication failure"):
+        runner.run_handoff(events_path, mappings_path, output)
+
+    assert not output.exists()
+
+
 def test_run_refuses_to_overwrite_existing_delivery(tmp_path: Path) -> None:
     events_path, mappings_path = _write_inputs(tmp_path)
     output = tmp_path / "handoff"
