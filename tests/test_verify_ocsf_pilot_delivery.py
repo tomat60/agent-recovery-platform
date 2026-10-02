@@ -146,7 +146,6 @@ def test_verify_delivery_rejects_wrong_pin_file_and_symlinked_directory(
         verifier.verify_delivery(linked_output)
 
 
-
 def test_verify_receipt_replays_exact_current_delivery_with_pin(
     tmp_path: Path,
 ) -> None:
