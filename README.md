@@ -225,12 +225,12 @@ python scripts/verify_ocsf_pilot_delivery.py ocsf-pilot-handoff/ \\
 
 The receipt uses a versioned schema, remains non-authorizing, is written outside the delivery directory and is never allowed to overwrite prior receiver evidence. Retain its SHA-256 through an independent channel, then replay it against the current delivery before relying on the earlier verification:
 
-\`\`\`bash
+```bash
 python scripts/verify_ocsf_pilot_delivery.py ocsf-pilot-handoff/ \\
   --expected-manifest-sha256 <trusted-manifest-sha256> \\
   --verify-receipt receiver-evidence/ocsf-delivery-verification.json \\
   --expected-receipt-sha256 <trusted-receipt-sha256>
-\`\`\`
+```
 
 Replay requires the retained receipt to remain byte-for-byte canonical and to exactly equal a fresh verification of the current delivery. A changed delivery, reformatted or edited receipt, symlink, or wrong out-of-band pin fails closed; replay remains non-authorizing and does not establish source authenticity or capture completeness.
 
