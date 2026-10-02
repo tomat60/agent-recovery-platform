@@ -188,7 +188,9 @@ def test_verify_receipt_rejects_stale_delivery_and_tampered_receipt(
     with pytest.raises(ValueError, match="digest mismatch"):
         verifier.verify_verification_receipt(receipt, output)
 
-    output, handoff = _delivery(tmp_path / "fresh")
+    fresh_root = tmp_path / "fresh"
+    fresh_root.mkdir()
+    output, handoff = _delivery(fresh_root)
     verification = verifier.verify_delivery(output, handoff["manifest_sha256"])
     receipt = tmp_path / "fresh-receipt.json"
     verifier.write_verification_receipt(verification, receipt, output)
