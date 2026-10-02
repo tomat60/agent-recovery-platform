@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import json
 import sys
@@ -143,3 +144,83 @@ def test_verify_delivery_rejects_wrong_pin_file_and_symlinked_directory(
     linked_output.symlink_to(output, target_is_directory=True)
     with pytest.raises(NotADirectoryError, match="not a symlink"):
         verifier.verify_delivery(linked_output)
+
+
+def test_verify_receipt_replays_exact_current_delivery_with_pin(
+    tmp_path: Path,
+) -> None:
+    output, handoff = _delivery(tmp_path)
+    verification = verifier.verify_delivery(output, handoff["manifest_sha256"])
+    receipt = tmp_path / "receiver-evidence" / "verification-receipt.json"
+    verifier.write_verification_receipt(verification, receipt, output)
+    receipt_sha256 = hashlib.sha256(receipt.read_bytes()).hexdigest()
+
+    replay = verifier.verify_verification_receipt(
+        receipt,
+        output,
+        handoff["manifest_sha256"],
+        receipt_sha256,
+    )
+
+    assert replay["ok"] is True
+    assert replay["authorization_effect"] == "none"
+    assert replay["schema_version"] == verifier.RECEIPT_REPLAY_SCHEMA_VERSION
+    assert replay["receipt_schema_version"] == verifier.VERIFICATION_SCHEMA_VERSION
+    assert replay["receipt_sha256"] == receipt_sha256
+    assert replay["receipt_pin_verified"] is True
+    assert replay["delivery_verification"] == verification
+
+
+def test_verify_receipt_rejects_stale_delivery_and_tampered_receipt(
+    tmp_path: Path,
+) -> None:
+    output, handoff = _delivery(tmp_path)
+    verification = verifier.verify_delivery(output, handoff["manifest_sha256"])
+    receipt = tmp_path / "verification-receipt.json"
+    verifier.write_verification_receipt(verification, receipt, output)
+
+    promotions = output / verifier.PROMOTIONS_FILENAME
+    promotions.write_text(
+        promotions.read_text(encoding="utf-8") + "\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="(byte length|digest) mismatch"):
+        verifier.verify_verification_receipt(receipt, output)
+
+    fresh_root = tmp_path / "fresh"
+    fresh_root.mkdir()
+    output, handoff = _delivery(fresh_root)
+    verification = verifier.verify_delivery(output, handoff["manifest_sha256"])
+    receipt = tmp_path / "fresh-receipt.json"
+    verifier.write_verification_receipt(verification, receipt, output)
+    parsed = json.loads(receipt.read_text(encoding="utf-8"))
+    receipt.write_text(json.dumps(parsed), encoding="utf-8")
+    with pytest.raises(ValueError, match="does not exactly match"):
+        verifier.verify_verification_receipt(receipt, output)
+
+
+def test_verify_receipt_rejects_wrong_pin_symlink_and_delivery_local_path(
+    tmp_path: Path,
+) -> None:
+    output, _ = _delivery(tmp_path)
+    verification = verifier.verify_delivery(output)
+    receipt = tmp_path / "verification-receipt.json"
+    verifier.write_verification_receipt(verification, receipt, output)
+
+    with pytest.raises(ValueError, match="receipt digest mismatch"):
+        verifier.verify_verification_receipt(
+            receipt,
+            output,
+            expected_receipt_sha256="0" * 64,
+        )
+
+    linked_receipt = tmp_path / "linked-receipt.json"
+    linked_receipt.symlink_to(receipt)
+    with pytest.raises(FileNotFoundError, match="real file"):
+        verifier.verify_verification_receipt(linked_receipt, output)
+
+    with pytest.raises(ValueError, match="outside the verified delivery"):
+        verifier.verify_verification_receipt(
+            output / verifier.EVIDENCE_FILENAME,
+            output,
+        )
