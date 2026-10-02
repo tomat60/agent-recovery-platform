@@ -184,7 +184,7 @@ def test_verify_receipt_rejects_stale_delivery_and_tampered_receipt(
         promotions.read_text(encoding="utf-8") + "\n",
         encoding="utf-8",
     )
-    with pytest.raises(ValueError, match="digest mismatch"):
+    with pytest.raises(ValueError, match="(byte length|digest) mismatch"):
         verifier.verify_verification_receipt(receipt, output)
 
     fresh_root = tmp_path / "fresh"
