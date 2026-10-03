@@ -49,7 +49,6 @@ def validate_artifact_manifest(
     assessment_json: str,
     buyer_markdown: str,
 ) -> None:
-    validate_assessment(assessment)
     if not isinstance(manifest, dict):
         raise TypeError("assessment artifact manifest must be an object")
     if manifest.get("schema_version") != MANIFEST_SCHEMA_VERSION:
@@ -74,6 +73,7 @@ def validate_artifact_manifest(
         entry = artifacts.get(name)
         if not isinstance(entry, dict) or entry.get("sha256") != digest:
             raise ValueError(f"assessment artifact manifest digest mismatch for {name}")
+    validate_assessment(assessment)
 
 
 def _build_incident_regression_package(evidence: dict[str, Any]) -> dict[str, Any]:
