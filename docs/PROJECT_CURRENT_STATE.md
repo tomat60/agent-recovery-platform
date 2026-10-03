@@ -89,7 +89,7 @@ Before broad SaaS expansion, seek:
 - one realistic pilot-ready external integration path;
 - evidence about whether buyers value pre-incident Recoverability Assurance, post-incident Verified Recovery, or the combined proposition.
 
-Commercial outreach is authorized when it is low-volume, qualified, personalized and evidence-based. Do not wait for per-message approval.
+Commercial outreach is authorized when it is low-volume, qualified, personalized and evidence-based. Do not wait for per-message approval. Pipeline creation is continuous: do not pause commercial execution while waiting for replies from any single prospect or partner. Follow-ups are secondary to adding fresh, high-fit direct buyers and channel candidates.
 
 For founder-facing synchronous discovery, prefer the lowest-friction format that still advances the deal: async/email or the already-planned in-person TechEx meeting by default; use a short pre-event call only where a concrete high-value counterpart requests or materially benefits from it. Keep any such call tightly scripted around qualification and a concrete next step.
 
@@ -203,7 +203,7 @@ Autonomous actions include research, qualified outreach, partner search, branch/
 2. Shift commercial emphasis from event-led partner discovery toward continuous direct buyer validation. Kyvvu validated that the problem is understandable and complementary, but not that current partner customers are demanding it. Prioritize teams already operating write-capable agents and ask for one concrete workflow, failure mode and recovery gap.
 3. Keep Kyvvu warm as a reciprocal referral and future integration relationship. Do not count it as a formal partnership or pilot. A concise post-call follow-up was sent on 2026-09-30.
 4. TechEx outreach remains open, but Amsterdam travel is deferred unless new evidence creates a clear reason to go, such as multiple high-value meetings, a concrete pilot discussion or a strong partner invitation. Do not spend on travel merely for general networking.
-5. Continue low-volume event follow-up where fit is strong, but expand the main pipeline beyond events. Target direct buyers, agent platforms, workflow vendors, AI consultancies, runtime-security vendors and assurance ecosystems.
-6. Continue ECCC AI4SME consortium search through direct channels now that the Warsaw workshop is closed.
+5. Run continuous outbound rather than reply-dependent outreach. Keep adding fresh, evidence-backed targets while older threads remain open. Follow-ups should not become the main growth loop. Prioritize direct buyers already operating write-capable agents, then agent platforms, AI consultancies, MSSP/AppSec partners, runtime-security vendors and assurance ecosystems.
+6. Continue ECCC AI4SME consortium search through direct channels now that the Warsaw workshop is closed. Reuse the same direct-buyer search to identify SME end users that can serve both commercial validation and consortium pilot evidence.
 7. Evaluate Cloudflare Agents only where it can remove infrastructure work or become a realistic recovery integration target. Do not let research displace commercial execution.
 8. Maintain strict evidence class separation and fail-closed delivery verification. Synthetic, owned-pilot, external-pilot and production evidence remain distinct.
