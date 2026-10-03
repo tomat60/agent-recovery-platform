@@ -6,7 +6,7 @@ Date: 2026-10-03
 
 Agent Recovery Platform is a **commercial-product-first cybersecurity company/project**. Funding is a permanent parallel workstream, not the product goal.
 
-Engineering state accepted through PR #220 / commit `8ba6234c...`. No implementation PR is active; fresh roadmap and issues govern the next bounded slice.
+Engineering state accepted through PR #225 / commit `837d22f2...`. No implementation PR is active; fresh roadmap and issues govern the next bounded slice.
 
 Latest accepted commercial signals:
 
@@ -32,6 +32,10 @@ Latest accepted product/security and funding movement:
 - PR #218 packages incident evidence as portable, deterministic regression contracts binding causal dependencies, recovery obligations, residual expectations, replay inputs and restoration scopes without granting authority.
 - PR #219 embeds that portable contract in the buyer-facing Agent Recoverability Assessment and binds it to the exact owned-pilot evidence identity; artifact-integrity failures are classified before semantic validation.
 - PR #220 adds a receiver-side portable-regression verifier with optional exact-artifact SHA-256 pinning and an authority-free verification summary.
+- PR #222 exports the exact validated portable incident-regression package embedded in an assessment with optional source-assessment pinning, atomic publication and no overwrite.
+- PR #223 adds deterministic receiver verification receipts for portable regression packages and fail-closed replay against the current package, including optional package and receipt pins.
+- PR #224 prepares an internal KPK DEP partner-search profile while keeping pre-incorporation, legal-entity and submission gates explicit.
+- PR #225 reduces a complete Recoverability Assessment delivery to one fail-closed command that builds the buyer report, bound manifest and portable regression package, self-verifies both delivery boundaries with exact pins, publishes atomically and refuses overwrite.
 - PR #170 / commit `fffe3119...` makes funding a permanent parallel workstream, corrects the ECCC call identifiers to the 2027 call family, adds the live funding tracker and prepares the Warsaw matchmaking pack.
 - Issue #194 is a bounded research intake for Cloudflare Agents. Evaluate BORROW / ADAPT / REJECT and one small provider-free proof only if it can delete work or strengthen a real integration target. No migration or spend is authorized.
 
