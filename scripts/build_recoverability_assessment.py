@@ -76,7 +76,6 @@ def validate_artifact_manifest(
             raise ValueError(f"assessment artifact manifest digest mismatch for {name}")
 
 
-
 def _build_incident_regression_package(evidence: dict[str, Any]) -> dict[str, Any]:
     """Bind owned-pilot evidence to a portable, non-authorizing replay contract."""
 
@@ -281,11 +280,13 @@ def render_assessment(assessment: dict[str, Any]) -> str:
         f"  - {_markdown_text(scope)}"
         for scope in regression_package["restoration_scopes"]
     )
-    lines.extend([
-        "",
-        "## Affected authority surfaces",
-        "",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Affected authority surfaces",
+            "",
+        ]
+    )
     lines.extend(
         f"- {_markdown_text(surface)}"
         for surface in assessment["tool_authority_map"]["surfaces"]
