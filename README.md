@@ -46,6 +46,7 @@ Irreversible external effects are never represented as undone. Failed compensati
    - Applies an authorized downstream restoration only while the decision is current and only to one exact active incident hold. Intervening work or reuse makes the decision stale.
 10. **Incident-to-Regression Loop**
    - Converts confirmed incident evidence and adversarial counterexamples into permanent regression contracts.
+   - The portable `agent-recovery-portable-incident-regression/v1` package binds evidence references, causal dependencies, recovery obligations, explicit residual expectations, replay inputs, restoration scopes and invariants behind one deterministic fingerprint. Exact verification rejects changed fields or any authorization effect; the package is test evidence, never permission to recover or restore.
 
 ## Competition build
 
