@@ -52,7 +52,6 @@ def test_incident_to_regression_requires_evidence_and_invariants() -> None:
         )
 
 
-
 def _portable_package(**overrides: tuple[str, ...]):
     values = {
         "source_incident_id": "inc-42",
