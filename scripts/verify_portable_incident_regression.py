@@ -65,7 +65,7 @@ def write_verification_receipt(
         raise FileExistsError("refusing to overwrite existing verification receipt")
 
     receipt_path.parent.mkdir(parents=True, exist_ok=True)
-    payload = json.dumps(result, indent=2, sort_keys=True) + "\\n"
+    payload = json.dumps(result, indent=2, sort_keys=True) + "\n"
     temporary_path: Path | None = None
     try:
         with tempfile.NamedTemporaryFile(
@@ -113,7 +113,7 @@ def verify_verification_receipt(
         expected_package_sha256,
     )
     expected_bytes = (
-        json.dumps(current_result, indent=2, sort_keys=True) + "\\n"
+        json.dumps(current_result, indent=2, sort_keys=True) + "\n"
     ).encode("utf-8")
     if receipt_bytes != expected_bytes:
         raise ValueError(
