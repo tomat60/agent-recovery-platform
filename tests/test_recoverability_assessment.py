@@ -50,6 +50,15 @@ def test_assessment_is_bounded_and_authority_free() -> None:
     assert assessment["decision"]["production_security_claim"] is False
     assert assessment["residual_risk"]["root_authority_remains_contained"] is True
     assert assessment["prioritized_remediation"]
+    package = assessment["incident_regression_package"]
+    assert package["authorization_effect"] == "none"
+    assert package["evidence_refs"] == [
+        f"owned-pilot-sha256:{assessment['source_evidence_identity']['sha256']}"
+    ]
+    assert package["replay_inputs"] == package["evidence_refs"]
+    assert package["restoration_scopes"] == ["surface:downstream_identity_authority"]
+    assert "root-authority-remains-contained" in package["expected_invariants"]
+    module.verify_portable_incident_regression(package)
 
 
 def test_assessment_rejects_production_security_claim() -> None:
@@ -423,3 +432,23 @@ def test_artifact_manifest_requires_buyer_markdown(tmp_path: Path) -> None:
             tmp_path / "assessment.json",
             manifest_output_path=tmp_path / "assessment.manifest.json",
         )
+
+
+def test_assessment_rejects_tampered_incident_regression_package() -> None:
+    assessment = copy.deepcopy(module.build_assessment())
+    assessment["incident_regression_package"]["restoration_scopes"] = [
+        "surface:root_authority"
+    ]
+    with pytest.raises(ValueError, match="package mismatch"):
+        module.validate_assessment(assessment)
+
+
+def test_buyer_report_exposes_portable_regression_identity() -> None:
+    assessment = module.build_assessment()
+    report = module.render_assessment(assessment)
+    package = assessment["incident_regression_package"]
+    assert "## Portable incident regression" in report
+    assert package["regression_id"] in report
+    assert package["fingerprint"] in report
+    assert "surface:downstream_identity_authority" in report
+    assert "Authorization effect: none" in report
