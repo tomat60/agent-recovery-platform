@@ -273,7 +273,7 @@ def render_assessment(assessment: dict[str, Any]) -> str:
         "## Portable incident regression",
         "",
         f"- Package ID: {_markdown_text(regression_package['regression_id'])}",
-        f"- Package fingerprint: \\`{regression_package['fingerprint']}\\`",
+        f"- Package fingerprint: `{regression_package['fingerprint']}`",
         "- Authorization effect: none",
         "- Restoration scopes:",
     ]
@@ -285,7 +285,6 @@ def render_assessment(assessment: dict[str, Any]) -> str:
         "",
         "## Affected authority surfaces",
         "",
-    ]
     ])
     lines.extend(
         f"- {_markdown_text(surface)}"
