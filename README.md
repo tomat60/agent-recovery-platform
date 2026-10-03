@@ -264,6 +264,15 @@ python scripts/verify_recoverability_assessment_package.py assessment.json asses
 
 The pin fails closed if the delivered manifest changed. Without a pin, verification proves package consistency only; it does not authenticate the issuer or grant recovery authority.
 
+Build and self-verify the complete assessment handoff from validated owned-pilot evidence in one command:
+
+```bash
+python scripts/run_recoverability_assessment_handoff.py owned-pilot-evidence.json assessment-handoff/ \\
+  --expected-evidence-sha256 <trusted-canonical-evidence-sha256>
+```
+
+The command publishes the assessment JSON, buyer-readable report, bound manifest and exact portable incident-regression package atomically. It refuses to overwrite retained evidence and returns the independent manifest and regression-package digests needed by receivers. Self-verification remains non-authorizing and does not authenticate the source or prove capture completeness.
+
 ## Safety and explicit limits
 
 All adversarial development and demos use owned or synthetic environments. The project is defensive.
