@@ -1,12 +1,12 @@
 # Project Current State
 
-Date: 2026-10-01
+Date: 2026-10-03
 
 ## Status
 
 Agent Recovery Platform is a **commercial-product-first cybersecurity company/project**. Funding is a permanent parallel workstream, not the product goal.
 
-Engineering state accepted through PR #215 / commit `c915bf0e...`. No implementation PR is active; fresh roadmap and issues govern the next bounded slice.
+Engineering state accepted through PR #220 / commit `8ba6234c...`. No implementation PR is active; fresh roadmap and issues govern the next bounded slice.
 
 Latest accepted commercial signals:
 
@@ -28,6 +28,10 @@ Latest accepted product/security and funding movement:
 - PR #211 makes handoff publication fail closed if a filesystem move fails, removing any partial delivery directory.
 - PR #213 adds a one-command receiver gate that requires exactly the three expected regular files before verifying their schemas, digests and evidence-to-promotion binding; missing, unexpected, nested and symlinked entries fail closed.
 - PR #215 adds versioned, deterministic receiver verification receipts that are stored outside the verified delivery, refuse overwrite and remain explicitly non-authorizing; pilot recipients can now retain exact acceptance evidence instead of transient terminal output.
+- PR #217 verifies retained OCSF receiver receipts against the current delivery and rejects stale or mismatched acceptance evidence.
+- PR #218 packages incident evidence as portable, deterministic regression contracts binding causal dependencies, recovery obligations, residual expectations, replay inputs and restoration scopes without granting authority.
+- PR #219 embeds that portable contract in the buyer-facing Agent Recoverability Assessment and binds it to the exact owned-pilot evidence identity; artifact-integrity failures are classified before semantic validation.
+- PR #220 adds a receiver-side portable-regression verifier with optional exact-artifact SHA-256 pinning and an authority-free verification summary.
 - PR #170 / commit `fffe3119...` makes funding a permanent parallel workstream, corrects the ECCC call identifiers to the 2027 call family, adds the live funding tracker and prepares the Warsaw matchmaking pack.
 - Issue #194 is a bounded research intake for Cloudflare Agents. Evaluate BORROW / ADAPT / REJECT and one small provider-free proof only if it can delete work or strengthen a real integration target. No migration or spend is authorized.
 
@@ -191,7 +195,7 @@ Autonomous actions include research, qualified outreach, partner search, branch/
 
 ## Immediate next actions
 
-1. Keep product engineering focused on external pilotability and buyer proof. The current assessment plus OTLP and OCSF evidence handoffs are now strong enough to support real design-partner conversations without inflating evidence claims.
+1. Keep product engineering focused on external pilotability and buyer proof. The current assessment, portable incident-regression package, and OTLP/OCSF evidence handoffs are now strong enough to support real design-partner conversations without inflating evidence claims.
 2. Shift commercial emphasis from event-led partner discovery toward continuous direct buyer validation. Kyvvu validated that the problem is understandable and complementary, but not that current partner customers are demanding it. Prioritize teams already operating write-capable agents and ask for one concrete workflow, failure mode and recovery gap.
 3. Keep Kyvvu warm as a reciprocal referral and future integration relationship. Do not count it as a formal partnership or pilot. A concise post-call follow-up was sent on 2026-09-30.
 4. TechEx outreach remains open, but Amsterdam travel is deferred unless new evidence creates a clear reason to go, such as multiple high-value meetings, a concrete pilot discussion or a strong partner invitation. Do not spend on travel merely for general networking.
