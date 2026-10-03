@@ -7,9 +7,13 @@ import json
 from pathlib import Path
 from typing import Any
 
+from agent_recovery.regression import (
+    build_portable_incident_regression,
+    verify_portable_incident_regression,
+)
 from run_owned_multisurface_pilot import build_pilot_evidence, validate_pilot_evidence
 
-SCHEMA_VERSION = "agent-recoverability-assessment/v1"
+SCHEMA_VERSION = "agent-recoverability-assessment/v2"
 MANIFEST_SCHEMA_VERSION = "agent-recoverability-assessment-manifest/v1"
 
 
@@ -72,6 +76,37 @@ def validate_artifact_manifest(
             raise ValueError(f"assessment artifact manifest digest mismatch for {name}")
 
 
+
+def _build_incident_regression_package(evidence: dict[str, Any]) -> dict[str, Any]:
+    """Bind owned-pilot evidence to a portable, non-authorizing replay contract."""
+
+    identity = evidence_identity(evidence)
+    surfaces = tuple(str(surface) for surface in evidence["surfaces"])
+    package = build_portable_incident_regression(
+        source_incident_id=str(evidence["shared_incident_identity"]),
+        scenario=str(evidence["scenario"]),
+        evidence_refs=(f"owned-pilot-sha256:{identity}",),
+        causal_dependencies=tuple(f"surface:{surface}" for surface in surfaces),
+        recovery_obligations=tuple(
+            f"verified-recovery-required:{surface}" for surface in surfaces
+        ),
+        residual_expectations=(
+            f"platform-residual-effects:{evidence['recovery']['platform_residual_effects']}",
+            "root-authority-remains-contained:true",
+        ),
+        replay_inputs=(f"owned-pilot-sha256:{identity}",),
+        restoration_scopes=("surface:downstream_identity_authority",),
+        expected_invariants=(
+            "bounded-downstream-restoration-only",
+            "no-unsafe-recovery-executions",
+            "replay-verification-required",
+            "root-authority-remains-contained",
+        ),
+    ).to_dict()
+    verify_portable_incident_regression(package)
+    return package
+
+
 def _build_remediation_plan(evidence: dict[str, Any]) -> list[dict[str, str]]:
     controlled = evidence["controlled_incident"]
     containment = evidence["containment"]
@@ -127,6 +162,7 @@ def build_assessment(evidence: dict[str, Any] | None = None) -> dict[str, Any]:
     verified = recovery["verified_recoveries"]
     detected_coverage = detected / expected if expected else 0.0
     coverage = verified / expected if expected else 0.0
+    incident_regression_package = _build_incident_regression_package(evidence)
 
     return {
         "schema_version": SCHEMA_VERSION,
@@ -165,6 +201,7 @@ def build_assessment(evidence: dict[str, Any] | None = None) -> dict[str, Any]:
         "containment": evidence["containment"],
         "recovery": recovery,
         "replay_regression": replay,
+        "incident_regression_package": incident_regression_package,
         "restoration": restoration,
         "residual_risk": {
             "platform_residual_effects": recovery["platform_residual_effects"],
@@ -196,6 +233,7 @@ def render_assessment(assessment: dict[str, Any]) -> str:
     outcomes = dimensions["verified_recovery_outcomes"]
     source_identity = assessment["source_evidence_identity"]
     restoration = assessment["restoration"]
+    regression_package = assessment["incident_regression_package"]
     residual_effect_count = assessment["residual_risk"]["platform_residual_effects"]
 
     lines = [
@@ -232,9 +270,23 @@ def render_assessment(assessment: dict[str, Any]) -> str:
         "",
         "Detection coverage is not represented as recovery coverage.",
         "",
+        "## Portable incident regression",
+        "",
+        f"- Package ID: {_markdown_text(regression_package['regression_id'])}",
+        f"- Package fingerprint: \\`{regression_package['fingerprint']}\\`",
+        "- Authorization effect: none",
+        "- Restoration scopes:",
+    ]
+    lines.extend(
+        f"  - {_markdown_text(scope)}"
+        for scope in regression_package["restoration_scopes"]
+    )
+    lines.extend([
+        "",
         "## Affected authority surfaces",
         "",
     ]
+    ])
     lines.extend(
         f"- {_markdown_text(surface)}"
         for surface in assessment["tool_authority_map"]["surfaces"]
@@ -338,6 +390,7 @@ def validate_assessment(assessment: dict[str, Any]) -> None:
     replay = assessment.get("replay_regression")
     restoration = assessment.get("restoration")
     residual = assessment.get("residual_risk")
+    regression_package = assessment.get("incident_regression_package")
     if not isinstance(coverage, dict) or not isinstance(decision, dict):
         raise TypeError("assessment coverage and decision must be objects")
     if not isinstance(source_identity, dict):
@@ -422,6 +475,7 @@ def validate_assessment(assessment: dict[str, Any]) -> None:
         "containment": containment,
         "recovery": recovery,
         "replay_regression": replay,
+        "incident_regression_package": regression_package,
         "restoration": restoration,
         "residual_risk": residual,
     }
@@ -478,6 +532,20 @@ def validate_assessment(assessment: dict[str, Any]) -> None:
         raise ValueError("platform residual effect count must be a non-negative integer")
     if recovery.get("platform_residual_effects") != residual_effect_count:
         raise ValueError("recovery residuals must match the residual-risk register")
+    if not isinstance(regression_package, dict):
+        raise TypeError("assessment incident regression package must be an object")
+    verified_package = verify_portable_incident_regression(regression_package)
+    if verified_package.source_incident_id != assessment.get("scenario"):
+        raise ValueError("incident regression package must match assessment scenario")
+    expected_reference = f"owned-pilot-sha256:{source_sha}"
+    if verified_package.evidence_refs != (expected_reference,):
+        raise ValueError("incident regression package must bind the assessment evidence identity")
+    if verified_package.replay_inputs != (expected_reference,):
+        raise ValueError("incident regression replay input must bind the assessment evidence identity")
+    if verified_package.restoration_scopes != ("surface:downstream_identity_authority",):
+        raise ValueError("incident regression restoration scope must remain bounded")
+    if "root-authority-remains-contained" not in verified_package.expected_invariants:
+        raise ValueError("incident regression must preserve root containment")
     if not isinstance(remediation, list) or not remediation:
         raise ValueError("assessment must include prioritized remediation")
     for item in remediation:
